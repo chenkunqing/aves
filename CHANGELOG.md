@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - decoding images with pixel config unsupported by region decoder and bitmap compressor
+- cataloguing still AVIF images
 
 ## <a id="v1.13.9"></a>[v1.13.9] - 2025-10-11
 
