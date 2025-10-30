@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - Viewer: allow zooming out of panoramas until 25%
 
+### Fixed
+
+- decoding images with pixel config unsupported by region decoder and bitmap compressor
+
 ## <a id="v1.13.9"></a>[v1.13.9] - 2025-10-11
 
 ### Added
