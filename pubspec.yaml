@@ -127,7 +127,8 @@ dependencies:
       url: https://github.com/deckerst/aves_streams_channel.git
   synchronized:
   url_launcher:
-  vector_map_tiles: ^8.0.0 # vector_map_tiles v9.0.0-beta.6 has a buggy cross-platform definition for `cacheFolder`
+  # vector_map_tiles v10.0.0-beta requires Flutter v3.37.0 and Impeller
+  vector_map_tiles: ^9.0.0-beta.8
   vector_math:
   vector_tile_renderer:
   volume_controller:
