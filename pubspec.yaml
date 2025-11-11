@@ -68,6 +68,7 @@ dependencies:
   collection:
   connectivity_plus:
   country_code:
+  csv:
   decorated_icon:
   device_info_plus:
   dlna_dart:
