@@ -13,8 +13,7 @@ def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     // for release using credentials stored in a local file
-    keystorePropertiesFile.withReader('UTF-8') { reader ->
-        keystoreProperties.load(reader)
+    keystorePropertiesFile.withReader('UTF-8') { reader -> keystoreProperties.load(reader)
     }
 } else {
     // for release using credentials in environment variables set up by GitHub Actions
@@ -81,6 +80,19 @@ android {
             // generate APK by ABI, but NDK ABI filters are incompatible with split APK generation
             ext.useNdkAbiFilters = false
             applicationIdSuffix ".libre"
+        }
+
+        libre_rom {
+            // integration in custom ROM
+            dimension "store"
+            // generate a universal APK without x86 native libs
+            ext.useNdkAbiFilters = true
+            applicationIdSuffix ".libre"
+
+            packagingOptions {
+                // disable compression for native libraries (.so files)
+                jniLibs.useLegacyPackaging false
+            }
         }
     }
 
