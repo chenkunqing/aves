@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Stats: export filter lists to CSV
+- build: `libre_rom` flavor as variant of `libre` flavor for integration in custom ROM
 
 ### Changed
 
