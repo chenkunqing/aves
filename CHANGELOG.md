@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Viewer: optionally show zoom level on overlay
 - Stats: export filter lists to CSV
 - build: `libre_rom` flavor as variant of `libre` flavor for integration in custom ROM
 
