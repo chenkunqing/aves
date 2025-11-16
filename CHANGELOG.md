@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+## <a id="v1.13.10"></a>[v1.13.10] - 2025-11-16
+
 ### Added
 
 - Viewer: optionally show zoom level on overlay
