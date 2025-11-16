@@ -193,7 +193,7 @@ dependencies {
     implementation 'com.github.deckerst:pixymeta-android:f4513291b7'
     implementation project(':exifinterface')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.1'
 
     ksp "com.github.bumptech.glide:ksp:$glide_version"
 
