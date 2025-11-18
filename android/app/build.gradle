@@ -184,7 +184,7 @@ dependencies {
     // https://developer.android.com/privacy-and-security/cryptography#security-crypto-jetpack-deprecated
     implementation 'androidx.security:security-crypto:1.1.0'
     // `work-runtime:2.11.0` requires `minSdkVersion` 23+
-    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'androidx.work:work-runtime:2.10.5'
 
     implementation 'com.commonsware.cwac:document:0.5.0'
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
