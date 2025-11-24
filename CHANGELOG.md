@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Fixed
+
+- crash when cataloguing some JPEG with invalid offsets
+
 ## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
 
 ### Added
