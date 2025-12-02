@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - crash when cataloguing some JPEG with invalid offsets
 - crash when editing some MP4 with large boxes
+- GPX matching implementation
 
 ## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
 
