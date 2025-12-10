@@ -44,13 +44,13 @@ android {
     }
 
     defaultConfig {
-        applicationId packageName
-        minSdk flutter.minSdkVersion
-        targetSdk 36
-        versionCode flutter.versionCode
-        versionName flutter.versionName
+        applicationId = packageName
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
         manifestPlaceholders = [googleApiKey: keystoreProperties["googleApiKey"] ?: "<NONE>"]
-        multiDexEnabled true
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -124,7 +124,7 @@ android {
             variant.resValue 'string', 'search_provider', "${applicationId}.search_provider"
 
             variant.outputs.each { output ->
-                def baseAbiVersionCode = rootProject.ext.abiCodes.get(output.getFilter(com.android.build.OutputFile.ABI))
+                def baseAbiVersionCode = rootProject.ext.abiCodes.get(output.getFilter('ABI'))
                 if (baseAbiVersionCode != null) {
                     output.versionCodeOverride = variant.versionCode * 100 + baseAbiVersionCode
                 }
@@ -177,6 +177,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.9.1'
     implementation "androidx.appcompat:appcompat:1.7.1"
     implementation 'androidx.core:core-ktx:1.17.0'
+    // `lifecycle-process:2.10.0` requires `minSdkVersion` 23+
     implementation 'androidx.lifecycle:lifecycle-process:2.9.4'
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.multidex:multidex:2.0.1'
