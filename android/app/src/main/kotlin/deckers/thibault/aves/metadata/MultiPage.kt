@@ -25,6 +25,7 @@ import deckers.thibault.aves.metadata.xmp.GoogleXMP
 import deckers.thibault.aves.metadata.xmp.XMP
 import deckers.thibault.aves.model.FieldMap
 import deckers.thibault.aves.utils.LogUtils
+import deckers.thibault.aves.utils.MemoryUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.MimeTypes.canReadWithMetadataExtractor
 import deckers.thibault.aves.utils.MimeTypes.isHeic
@@ -307,13 +308,15 @@ object MultiPage {
             // so we ignore the `Item:Length` and look instead for the MP4 marker bytes indicating the start of the video.
             try {
                 Metadata.openSafeInputStream(context, uri, mimeType, sizeBytes)?.use { input ->
-                    val bytes = ByteArray(sizeBytes.toInt())
-                    DataInputStream(input).use {
-                        it.readFully(bytes)
-                    }
-                    val index = bytes.indexOfBytes(heicMotionPhotoVideoStartIndicator)
-                    if (index != -1) {
-                        return sizeBytes - index
+                    if (MemoryUtils.canAllocate(sizeBytes)) {
+                        val bytes = ByteArray(sizeBytes.toInt())
+                        DataInputStream(input).use {
+                            it.readFully(bytes)
+                        }
+                        val index = bytes.indexOfBytes(heicMotionPhotoVideoStartIndicator)
+                        if (index != -1) {
+                            return sizeBytes - index
+                        }
                     }
                 }
             } catch (e: Exception) {
