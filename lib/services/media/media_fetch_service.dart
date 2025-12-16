@@ -77,7 +77,7 @@ class PlatformMediaFetchService implements MediaFetchService {
       return AvesEntry.fromMap(result);
     } on PlatformException catch (e, stack) {
       // do not report issues with media content as it is likely an obsolete Media Store entry
-      if (!uri.startsWith('content://media/')) {
+      if (!uri.startsWith('content://media/') && !_isUnknownVisual(mimeType)) {
         await reportService.recordError(e, stack);
       }
     }
@@ -311,7 +311,7 @@ class PlatformMediaFetchService implements MediaFetchService {
 
   // convenience methods
 
-  bool _isUnknownVisual(String mimeType) => !_knownMediaTypes.contains(mimeType) && MimeTypes.isVisual(mimeType);
+  bool _isUnknownVisual(String? mimeType) => mimeType != null && !_knownMediaTypes.contains(mimeType) && MimeTypes.isVisual(mimeType);
 
   static const Set<String> _knownOpaqueImages = {
     MimeTypes.jpeg,
