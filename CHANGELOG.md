@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 - crash when cataloguing some JPEG with invalid offsets
 - crash when editing some MP4 with large boxes
+- crash when decoding large Base64 images embedded in SVG
+- crash when decoding large app icons
+- crash when getting info from some multipage HEIC
 - GPX matching implementation
 
 ## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
