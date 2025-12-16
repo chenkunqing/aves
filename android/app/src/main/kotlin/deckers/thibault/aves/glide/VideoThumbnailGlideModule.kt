@@ -128,7 +128,6 @@ internal class VideoThumbnailFetcher(private val model: VideoThumbnail, val widt
                                     throw Exception("not enough memory to allocate $targetBitmapSizeBytes bytes for the scaled frame at $dstWidth x $dstHeight")
                                 }
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                    Log.d("TLAD", "getScaledFrameAtTime timeMicros=$timeMicros  dst=${dstWidth}x$dstHeight w/ params uri=${model.uri}")
                                     retriever.getScaledFrameAtTime(timeMicros, option, dstWidth, dstHeight, getBitmapParams())
                                 } else {
                                     retriever.getScaledFrameAtTime(timeMicros, option, dstWidth, dstHeight)
