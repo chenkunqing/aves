@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - crash when decoding large Base64 images embedded in SVG
 - crash when decoding large app icons
 - crash when getting info from some multipage HEIC
+- crash when fetching some video thumbnails
 - GPX matching implementation
 
 ## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
