@@ -14,6 +14,7 @@ import com.drew.imaging.jpeg.JpegSegmentType
 import com.drew.metadata.exif.ExifDirectoryBase
 import com.drew.metadata.exif.ExifIFD0Directory
 import com.drew.metadata.xmp.XmpDirectory
+import deckers.thibault.aves.glide.TiffFetcher
 import deckers.thibault.aves.metadata.ExifInterfaceHelper.getSafeInt
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeInt
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeLong
@@ -436,7 +437,7 @@ object MultiPage {
                 Log.w(LOG_TAG, "failed to get TIFF file descriptor for uri=$uri")
                 return null
             }
-            val options = TiffBitmapFactory.Options().apply {
+            val options = TiffFetcher.buildOptions().apply {
                 inJustDecodeBounds = true
                 inDirectoryNumber = page
             }
