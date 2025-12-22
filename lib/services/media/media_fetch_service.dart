@@ -149,6 +149,9 @@ class PlatformMediaFetchService implements MediaFetchService {
     final format = bytes[trailerOffset];
     switch (format) {
       case formatByteEncoded:
+        if (decode == null) {
+          throw Exception('failed to decode encoded image bytes because decoder callback is missing for args=$args');
+        }
         // bytes are expected to be in a basic format decodable by Flutter
         final codec = await InteropDecoding.encodedBytesToCodec(bytes, decode);
         if (codec == null) {

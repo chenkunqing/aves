@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - crash when getting info from some multipage HEIC
 - crash when fetching some video thumbnails
 - GPX matching implementation
+- missing home screen shortcut icon
 
 ## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
 
