@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Collection: use developed item as representative for RAW stack
+- Viewer: removed thumbnail overlay synchronization delay
 
 ### Fixed
 
