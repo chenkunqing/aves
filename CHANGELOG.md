@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Added
+
+- Viewer: mouse wheel scroll jumps to previous/next item
+
 ### Changed
 
 - Collection: use developed item as representative for RAW stack
