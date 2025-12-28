@@ -89,7 +89,7 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
             // when called from a window-less service, locales from `context.resources`
             // do not reflect the current system settings, so we use `Resources.getSystem()` instead
             val list = Resources.getSystem().configuration.locales
-            for (i in 0 until list.size()) {
+            for (i in 0..<list.size()) {
                 locales.add(toMap(list.get(i)))
             }
         } else {

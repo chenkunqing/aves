@@ -372,7 +372,7 @@ open class MainActivity : FlutterFragmentActivity() {
                     if (action == MediaStore.ACTION_REVIEW_SECURE) {
                         val uris = ArrayList<String>()
                         intent.clipData?.let { clipData ->
-                            for (i in 0 until clipData.itemCount) {
+                            for (i in 0..<clipData.itemCount) {
                                 clipData.getItemAt(i).uri?.let { uris.add(it.toString()) }
                             }
                         }

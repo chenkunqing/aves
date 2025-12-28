@@ -191,7 +191,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
             val metadataMap = HashMap<String, Any?>()
             val columnCount = cursor.columnCount
             val columnNames = cursor.columnNames
-            for (i in 0 until columnCount) {
+            for (i in 0..<columnCount) {
                 val key = columnNames[i]
                 try {
                     metadataMap[key] = when (cursor.getType(i)) {
@@ -380,7 +380,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
             TiffBitmapFactory.decodeFileDescriptor(fd, options)
             metadataMap["0"] = tiffOptionsToMap(options)
             val dirCount = options.outDirectoryCount
-            for (page in 1 until dirCount) {
+            for (page in 1..<dirCount) {
                 fd = context.contentResolver.openFileDescriptor(uri, "r")?.detachFd()
                 if (fd == null) {
                     result.error("getTiffStructure-fd", "failed to get file descriptor", null)

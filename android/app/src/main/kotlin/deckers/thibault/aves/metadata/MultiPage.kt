@@ -58,7 +58,7 @@ object MultiPage {
         val tracks = ArrayList<FieldMap>()
         val extractor = MediaExtractor()
         extractor.setDataSource(context, uri, null)
-        for (pageIndex in 0 until extractor.trackCount) {
+        for (pageIndex in 0..<extractor.trackCount) {
             try {
                 val format = extractor.getTrackFormat(pageIndex)
                 format.getString(MediaFormat.KEY_MIME)?.let { mime ->
@@ -285,7 +285,7 @@ object MultiPage {
             videoInfo.getString(MediaFormat.KEY_MIME)?.let { mime ->
                 if (MimeTypes.isVideo(mime)) {
                     val page: FieldMap = hashMapOf(
-                        KEY_PAGE to pageIndex++,
+                        KEY_PAGE to pageIndex,
                         KEY_MIME_TYPE to MimeTypes.MP4,
                         KEY_IS_DEFAULT to false,
                     )
@@ -370,7 +370,7 @@ object MultiPage {
             pfd?.fileDescriptor?.let { fd ->
                 extractor.setDataSource(fd, videoOffset, videoSize)
                 // video track may be after an audio track
-                for (trackIndex in 0 until extractor.trackCount) {
+                for (trackIndex in 0..<extractor.trackCount) {
                     try {
                         val format = extractor.getTrackFormat(trackIndex)
                         format.getString(MediaFormat.KEY_MIME)?.let {
@@ -421,7 +421,7 @@ object MultiPage {
         getTiffPageInfo(context, uri, 0)?.let { first ->
             pages.add(toMap(0, first))
             val pageCount = first.outDirectoryCount
-            for (pageIndex in 1 until pageCount) {
+            for (pageIndex in 1..<pageCount) {
                 getTiffPageInfo(context, uri, pageIndex)?.let { pages.add(toMap(pageIndex, it)) }
             }
         }

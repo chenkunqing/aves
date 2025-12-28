@@ -194,7 +194,7 @@ object XMP {
         val schema = prop.nsUri
         val propName = prop.toString()
         val count = countArrayItems(schema, propName)
-        return (1 until count + 1).map { getArrayItem(schema, propName, it).value }
+        return (1..count).map { getArrayItem(schema, propName, it).value }
     }
 
     fun XMPMeta.getSafeInt(prop: XMPPropName, save: (value: Int) -> Unit) {
