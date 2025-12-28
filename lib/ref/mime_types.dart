@@ -1,6 +1,7 @@
 class MimeTypes {
   static const anyImage = 'image/*';
 
+  // supported
   static const avif = 'image/avif';
   static const bmp = 'image/bmp';
   static const bmpX = 'image/x-ms-bmp';
@@ -15,8 +16,11 @@ class MimeTypes {
   static const webp = 'image/webp';
   static const wbmp = 'image/vnd.wap.wbmp';
 
+  // unsupported
   static const art = 'image/x-jg';
   static const cdr = 'image/x-coreldraw';
+  static const cdrt = 'image/x-coreldrawtemplate';
+  static const cpt = 'image/x-corelphotopaint';
   static const djvu = 'image/vnd.djvu';
   static const dwg = 'image/vnd.dwg';
   static const dxf = 'image/vnd.dxf';
@@ -25,15 +29,20 @@ class MimeTypes {
   static const pat = 'image/x-coreldrawpattern';
   static const pcx = 'image/x-pcx';
   static const pnm = 'image/x-portable-anymap';
+  static const ppm = 'image/x-portable-pixmap';
   static const psdVnd = 'image/vnd.adobe.photoshop';
   static const psdX = 'image/x-photoshop';
+  static const rgbe = 'image/vnd.radiance';
   static const tap = 'image/vnd.tencent.tap';
+  static const vtf = 'image/vnd.valve.source.texture';
   static const wmf = 'image/wmf';
 
+  // RAW
   static const arw = 'image/x-sony-arw';
   static const cr2 = 'image/x-canon-cr2';
   static const crw = 'image/x-canon-crw';
   static const dcr = 'image/x-kodak-dcr';
+  static const dcraw = 'image/x-dcraw';
   static const dng = 'image/dng';
   static const dngX = 'image/x-adobe-dng';
   static const erf = 'image/x-epson-erf';
@@ -46,7 +55,6 @@ class MimeTypes {
   static const pef = 'image/x-pentax-pef';
   static const raf = 'image/x-fuji-raf';
   static const raw = 'image/x-panasonic-raw';
-  static const rgbe = 'image/vnd.radiance';
   static const rw2 = 'image/x-panasonic-rw2';
   static const sr2 = 'image/x-sony-sr2';
   static const srf = 'image/x-sony-srf';
@@ -79,13 +87,12 @@ class MimeTypes {
   static const webm = 'video/webm';
   static const wmv = 'video/x-ms-wmv';
 
+  // non-media
   static const csv = 'text/csv';
   static const json = 'application/json';
+  static const octetStream = 'application/octet-stream';
   static const plainText = 'text/plain';
   static const sqlite3 = 'application/vnd.sqlite3';
-
-  // JB2, JPC, JPX?
-  static const octetStream = 'application/octet-stream';
   static const zip = 'application/zip';
 
   // groups
@@ -93,7 +100,7 @@ class MimeTypes {
   // formats that support transparency
   static const Set<String> alphaImages = {avif, bmp, bmpX, gif, heic, heif, ico, png, svg, tiff, webp};
 
-  static const Set<String> rawImages = {arw, cr2, crw, dcr, dng, dngX, erf, k25, kdc, mrw, nef, nrw, orf, pef, raf, raw, rw2, sr2, srf, srw, x3f};
+  static const Set<String> rawImages = {arw, cr2, crw, dcr, dcraw, dng, dngX, erf, k25, kdc, mrw, nef, nrw, orf, pef, raf, raw, rw2, sr2, srf, srw, x3f};
 
   static const Set<String> developedRawImages = {jpeg, heic, heif};
 
