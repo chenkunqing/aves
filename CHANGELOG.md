@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Added
+
+- Collection: allow using width/height when bulk renaming
+
 ## <a id="v1.13.12"></a>[v1.13.12] - 2025-12-23
 
 ### Added
