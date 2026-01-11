@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Collection: allow using width/height when bulk renaming
+- Video: allow forcing hardware acceleration
 
 ## <a id="v1.13.12"></a>[v1.13.12] - 2025-12-23
 
