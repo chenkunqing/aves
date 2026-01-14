@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - Collection: allow using width/height when bulk renaming
 - Video: allow forcing hardware acceleration
+- Search: allow regex (wrapped in `/.../`) in query filter
 
 ## <a id="v1.13.12"></a>[v1.13.12] - 2025-12-23
 
