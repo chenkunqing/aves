@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - Video: allow forcing hardware acceleration
 - Search: allow regex (wrapped in `/.../`) in query filter
 
+### Fixed
+
+- inefficient PiP check causing high CPU usage
+
 ## <a id="v1.13.12"></a>[v1.13.12] - 2025-12-23
 
 ### Added
