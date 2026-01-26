@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Collection: allow using width/height when bulk renaming
 - Video: allow forcing hardware acceleration
 - Search: allow regex (wrapped in `/.../`) in query filter
+- Stats: export to CSV/JSON file selected fields of filtered collection
 
 ### Fixed
 

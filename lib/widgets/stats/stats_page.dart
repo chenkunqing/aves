@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/entry/extensions/location.dart';
 import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
@@ -9,12 +12,16 @@ import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/ref/locales.dart';
+import 'package:aves/ref/mime_types.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/format.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/utils/file_utils.dart';
+import 'package:aves/view/src/metadata/exportable_fields.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
@@ -23,16 +30,20 @@ import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/basic/tv_edge_focus.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/empty.dart';
+import 'package:aves/widgets/dialogs/export_collection_stats_dialog.dart';
 import 'package:aves/widgets/stats/date/histogram.dart';
 import 'package:aves/widgets/stats/filter_table.dart';
 import 'package:aves/widgets/stats/mime_donut.dart';
 import 'package:aves/widgets/stats/percent_text.dart';
 import 'package:aves/widgets/stats/top_page.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
+import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -211,6 +222,13 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
           appBar: AppBar(
             automaticallyImplyLeading: !useTvLayout,
             title: Text(l10n.statsPageTitle),
+            actions: [
+              IconButton(
+                icon: Icon(AIcons.fileExport),
+                onPressed: () => _export(context),
+                tooltip: context.l10n.settingsActionExport,
+              ),
+            ],
           ),
           body: GestureAreaProtectorStack(
             child: SafeArea(
@@ -377,6 +395,81 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
       ),
       (route) => false,
     );
+  }
+
+  Future<void> _export(BuildContext context) async {
+    final options = await showDialog<(String, Set<ExportableEntryField>)>(
+      context: context,
+      builder: (context) => const ExportCollectionStatsDialog(),
+      routeSettings: const RouteSettings(name: ExportCollectionStatsDialog.routeName),
+    );
+    if (options == null) return;
+
+    final (mimeType, fieldSet) = options;
+    final index = ExportableEntryField.values.indexOf;
+    final fieldList = fieldSet.sorted((a, b) => index(a).compareTo(index(b)));
+
+    String body = '';
+    switch (mimeType) {
+      case MimeTypes.csv:
+        body = _exportToCsv(fieldList, context);
+      case MimeTypes.json:
+        body = _exportToJson(fieldList);
+    }
+
+    final success = await storageService.createFile(
+      'aves-stats-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
+      mimeType,
+      Uint8List.fromList(utf8.encode(body)),
+    );
+    if (success != null) {
+      if (success) {
+        showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
+      } else {
+        showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
+      }
+    }
+  }
+
+  Object? _exportEntryField(AvesEntry entry, ExportableEntryField field) {
+    switch (field) {
+      case ExportableEntryField.uri:
+        return entry.uri;
+      case ExportableEntryField.path:
+        return entry.path;
+      case ExportableEntryField.date:
+        return entry.bestDate?.toIso8601String();
+      case ExportableEntryField.size:
+        return entry.sizeBytes;
+      case ExportableEntryField.width:
+        return entry.displaySize.width.toInt();
+      case ExportableEntryField.height:
+        return entry.displaySize.height.toInt();
+      case ExportableEntryField.duration:
+        final durationMillis = entry.durationMillis ?? 0;
+        return durationMillis > 0 ? durationMillis : null;
+      case ExportableEntryField.coordinates:
+        final latLng = entry.latLng;
+        return latLng != null ? '${latLng.latitude},${latLng.longitude}' : null;
+      case ExportableEntryField.address:
+        final shortAddress = entry.shortAddress;
+        return shortAddress.isNotEmpty ? shortAddress : null;
+    }
+  }
+
+  String _exportToCsv(List<ExportableEntryField> fields, BuildContext context) {
+    final headers = fields.map((v) => v.getText(context)).toList();
+    List<String?> toCsvValues(AvesEntry entry) => fields.map((field) {
+          return _exportEntryField(entry, field)?.toString();
+        }).toList();
+    return const ListToCsvConverter().convert([headers, ...entries.map(toCsvValues)], convertNullTo: '');
+  }
+
+  String _exportToJson(List<ExportableEntryField> fields) {
+    Map<String, Object?> toJsonMap(AvesEntry entry) => Map.fromEntries(fields.map((field) {
+          return MapEntry(field.name, _exportEntryField(entry, field));
+        }));
+    return jsonEncode(entries.map(toJsonMap).toList());
   }
 }
 
