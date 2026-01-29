@@ -1638,5 +1638,11 @@
     "mapStyleEditorDialogUserAgent": "Użytkownik-agent",
     "@mapStyleEditorDialogUserAgent": {},
     "tagPickPageTitle": "Wybierz znacznik",
-    "@tagPickPageTitle": {}
+    "@tagPickPageTitle": {},
+    "settingsViewerShowZoomLevel": "Pokaż poziom przybliżenia",
+    "@settingsViewerShowZoomLevel": {},
+    "settingsEnabled": "Włączono",
+    "@settingsEnabled": {},
+    "settingsForced": "Wymuszono",
+    "@settingsForced": {}
 }

@@ -11,6 +11,7 @@ class QueryFilter extends CollectionFilter {
   static const type = 'query';
 
   static final exactRegex = RegExp('^"(.*)"\$');
+  static final regexRegex = RegExp('^/(.*)/\$');
 
   final String query;
   final bool colorful, live;
@@ -34,6 +35,17 @@ class QueryFilter extends CollectionFilter {
   static const opGreater = '>';
 
   QueryFilter(this.query, {this.colorful = true, this.live = false, super.reversed = false}) {
+    // allow regex queries wrapped with `/.../`
+    var matches = regexRegex.allMatches(query);
+    if (matches.length == 1) {
+      final regex = RegExp(matches.first.group(1)!);
+      _test = (entry) {
+        final title = entry.bestTitle;
+        return title != null && regex.hasMatch(title);
+      };
+      return;
+    }
+
     var upQuery = query.toUpperCase();
 
     final test = fieldTest(upQuery);
@@ -49,7 +61,7 @@ class QueryFilter extends CollectionFilter {
     }
 
     // allow untrimmed queries wrapped with `"..."`
-    final matches = exactRegex.allMatches(upQuery);
+    matches = exactRegex.allMatches(upQuery);
     if (matches.length == 1) {
       upQuery = matches.first.group(1)!;
     }

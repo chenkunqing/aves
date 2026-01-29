@@ -98,6 +98,7 @@ class SettingKeys {
   static const viewerQuickActionsKey = 'viewer_quick_actions';
   static const showOverlayOnOpeningKey = 'show_overlay_on_opening';
   static const showOverlayMinimapKey = 'show_overlay_minimap';
+  static const showOverlayZoomLevelKey = 'show_overlay_zoom_level';
   static const overlayHistogramStyleKey = 'show_overlay_histogram';
   static const showOverlayInfoKey = 'show_overlay_info';
   static const showOverlayDescriptionKey = 'show_overlay_description';
@@ -110,9 +111,9 @@ class SettingKeys {
   static const imageBackgroundKey = 'image_background';
 
   // video
-  static const enableVideoHardwareAccelerationKey = 'video_hwaccel_mediacodec';
-  static const videoBackgroundModeKey = 'video_background_mode';
   static const videoAutoPlayModeKey = 'video_auto_play_mode';
+  static const videoBackgroundModeKey = 'video_background_mode';
+  static const videoHardwareAccelerationKey = 'video_hardware_acceleration';
   static const videoLoopModeKey = 'video_loop';
   static const videoResumptionModeKey = 'video_resumption_mode';
   static const videoControlActionsKey = 'video_control_actions';

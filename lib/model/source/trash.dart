@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/props.dart';
@@ -77,6 +78,13 @@ mixin TrashMixin on SourceBase {
             newEntries.add(sourceEntry);
           } else {
             await reportService.recordError('Failed to recover untracked bin item at uri=$uri');
+
+            // remove it, as it is likely not a valid media file
+            try {
+              await File(untrackedPath).delete();
+            } catch (error, stack) {
+              await reportService.recordError('Failed to remove invalid untracked bin item at path=$untrackedPath with error=$error\n$stack');
+            }
           }
         }
       });

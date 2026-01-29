@@ -9,6 +9,7 @@ class TextDropdownButton<T> extends StatefulWidget {
   final bool isExpanded;
   final double? itemHeight;
   final Color? dropdownColor;
+  final EdgeInsetsGeometry? padding;
   final ValueChanged<T?>? onChanged;
 
   const TextDropdownButton({
@@ -21,6 +22,7 @@ class TextDropdownButton<T> extends StatefulWidget {
     this.isExpanded = false,
     this.itemHeight = kMinInteractiveDimension,
     this.dropdownColor,
+    this.padding,
     required this.onChanged,
   });
 
@@ -50,6 +52,7 @@ class _TextDropdownButtonState<T> extends State<TextDropdownButton<T>> {
       isExpanded: widget.isExpanded,
       itemHeight: widget.itemHeight,
       dropdownColor: widget.dropdownColor,
+      padding: widget.padding,
       onChanged: widget.onChanged,
     );
   }

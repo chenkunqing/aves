@@ -1,5 +1,6 @@
 import 'package:aves/services/common/services.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -7,9 +8,10 @@ final Device device = Device._private();
 
 class Device {
   late final String _packageName, _packageVersion, _userAgent;
-  late final bool _canAuthenticateUser, _canPinShortcut;
+  late final bool _canAuthenticateUser, _canPinShortcut, _showPinShortcutFeedback;
   late final bool _canRenderFlagEmojis, _canRenderSubdivisionFlagEmojis, _canRequestManageMedia, _canSetLockScreenWallpaper;
-  late final bool _hasGeocoder, _isDynamicColorAvailable, _isTelevision, _showPinShortcutFeedback, _supportEdgeToEdgeUIMode, _supportPictureInPicture;
+  late final bool _hasGeocoder, _isDynamicColorAvailable, _supportEdgeToEdgeUIMode, _supportPictureInPicture;
+  late final bool _isPhysicalDevice, _isTelevision;
 
   String get packageName => _packageName;
 
@@ -33,6 +35,8 @@ class Device {
 
   bool get isDynamicColorAvailable => _isDynamicColorAvailable;
 
+  bool get isPhysicalDevice => _isPhysicalDevice;
+
   bool get isTelevision => _isTelevision;
 
   bool get showPinShortcutFeedback => _showPinShortcutFeedback;
@@ -50,6 +54,7 @@ class Device {
     _userAgent = '$_packageName/$_packageVersion';
 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
+    _isPhysicalDevice = androidInfo.isPhysicalDevice;
     _isTelevision = androidInfo.systemFeatures.contains('android.software.leanback');
 
     final auth = LocalAuthentication();
@@ -66,5 +71,10 @@ class Device {
     _showPinShortcutFeedback = capabilities['showPinShortcutFeedback'] ?? false;
     _supportEdgeToEdgeUIMode = capabilities['supportEdgeToEdgeUIMode'] ?? false;
     _supportPictureInPicture = capabilities['supportPictureInPicture'] ?? false;
+  }
+
+  @visibleForTesting
+  void initForTests() {
+    _isPhysicalDevice = false;
   }
 }

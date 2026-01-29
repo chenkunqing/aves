@@ -146,7 +146,7 @@ object StorageUtils {
         val appSpecificPath = file.absolutePath
         val relativePathStartIndex = appSpecificPath.indexOf("Android/data")
         if (relativePathStartIndex < 0) return null
-        return appSpecificPath.substring(0, relativePathStartIndex)
+        return appSpecificPath.take(relativePathStartIndex)
     }
 
     private fun findPrimaryVolumePath(context: Context): String? {
@@ -764,7 +764,7 @@ object StorageUtils {
     }
 
     fun removeTrailingSeparator(dirPath: String): String {
-        return if (dirPath.endsWith(File.separator)) dirPath.substring(0, dirPath.length - 1) else dirPath
+        return if (dirPath.endsWith(File.separator)) dirPath.dropLast(1) else dirPath
     }
 
     // `fullPath` should match "volumePath + relativeDir + fileName"

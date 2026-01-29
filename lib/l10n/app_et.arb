@@ -141,7 +141,7 @@
     "@entryActionRotateCW": {},
     "entryActionFlip": "Pööra ümber horisontaalselt",
     "@entryActionFlip": {},
-    "entryActionPrint": "Trüki",
+    "entryActionPrint": "Prindi",
     "@entryActionPrint": {},
     "entryActionShareImageOnly": "Jaga vaid pilti",
     "@entryActionShareImageOnly": {},
@@ -1664,5 +1664,11 @@
     "settingsNavigationBottomActionEditorBanner": "Nuppude/ikoonide teisaldamiseks hoia neid all ja lohista uude kohta ning vali, mis tegevusi tahad ikooniribalt teha.",
     "@settingsNavigationBottomActionEditorBanner": {},
     "tagPickPageTitle": "Vali silt",
-    "@tagPickPageTitle": {}
+    "@tagPickPageTitle": {},
+    "settingsViewerShowZoomLevel": "Näita kasutusel suumi",
+    "@settingsViewerShowZoomLevel": {},
+    "settingsEnabled": "Kasutusel",
+    "@settingsEnabled": {},
+    "settingsForced": "Jõustatud",
+    "@settingsForced": {}
 }

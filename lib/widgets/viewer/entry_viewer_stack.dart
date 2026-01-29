@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:aves/app_mode.dart';
-import 'package:aves/model/device.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
@@ -39,7 +38,6 @@ import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
 import 'package:aves_video/aves_video.dart';
 import 'package:collection/collection.dart';
-import 'package:floating/floating.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -252,12 +250,11 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
                 onImagePageRequested: () => _goToVerticalPage(imagePage),
                 onViewDisposed: (mainEntry, pageEntry) => viewStateConductor.reset(pageEntry ?? mainEntry),
               );
-              return StreamBuilder<PiPStatus>(
-                // as of floating v2.0.0, plugin assumes activity and fails when bound via service
-                // so we do not access status stream directly, but check for support first
-                stream: device.supportPictureInPicture ? Floating().pipStatusStream : Stream.value(PiPStatus.disabled),
-                builder: (context, snapshot) {
-                  final pipEnabled = snapshot.data == PiPStatus.enabled;
+              return ValueListenableBuilder<bool>(
+                // as of floating v6.0.0, `Floating().pipStatusStream` is CPU intensive as it loops to query the platform,
+                // so we monitor the change on the platform and only notify changes
+                valueListenable: AvesApp.isInPictureInPictureMode,
+                builder: (context, pipEnabled, child) {
                   return ValueListenableBuilder<bool>(
                     valueListenable: _viewLocked,
                     builder: (context, locked, child) {

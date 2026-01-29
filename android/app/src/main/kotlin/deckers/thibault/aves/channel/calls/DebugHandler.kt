@@ -15,6 +15,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.drew.metadata.file.FileTypeDirectory
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safe
+import deckers.thibault.aves.glide.TiffFetcher
 import deckers.thibault.aves.metadata.ExifInterfaceHelper
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper
 import deckers.thibault.aves.metadata.Metadata
@@ -190,7 +191,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
             val metadataMap = HashMap<String, Any?>()
             val columnCount = cursor.columnCount
             val columnNames = cursor.columnNames
-            for (i in 0 until columnCount) {
+            for (i in 0..<columnCount) {
                 val key = columnNames[i]
                 try {
                     metadataMap[key] = when (cursor.getType(i)) {
@@ -316,7 +317,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
         }
 
         val sb = StringBuilder()
-        if (mimeType == MimeTypes.MP4 || MimeTypes.isHeic(mimeType)) {
+        if (mimeType == MimeTypes.MP4 || MimeTypes.isIsoBMFFImage(mimeType)) {
             try {
                 // we can skip uninteresting boxes with a seekable data source
                 val pfd = StorageUtils.openInputFileDescriptor(context, uri) ?: throw Exception("failed to open file descriptor for uri=$uri")
@@ -373,19 +374,19 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
                 result.error("getTiffStructure-fd", "failed to get file descriptor", null)
                 return
             }
-            var options = TiffBitmapFactory.Options().apply {
+            var options = TiffFetcher.buildOptions().apply {
                 inJustDecodeBounds = true
             }
             TiffBitmapFactory.decodeFileDescriptor(fd, options)
             metadataMap["0"] = tiffOptionsToMap(options)
             val dirCount = options.outDirectoryCount
-            for (page in 1 until dirCount) {
+            for (page in 1..<dirCount) {
                 fd = context.contentResolver.openFileDescriptor(uri, "r")?.detachFd()
                 if (fd == null) {
                     result.error("getTiffStructure-fd", "failed to get file descriptor", null)
                     return
                 }
-                options = TiffBitmapFactory.Options().apply {
+                options = TiffFetcher.buildOptions().apply {
                     inJustDecodeBounds = true
                     inDirectoryNumber = page
                 }

@@ -1,0 +1,3 @@
+In v1.13.10:
+- catalog AVIF images like never before
+Full changelog available on GitHub

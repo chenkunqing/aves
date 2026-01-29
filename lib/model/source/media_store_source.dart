@@ -234,6 +234,16 @@ class MediaStoreSource extends CollectionSource {
             }
           }
 
+          // update trash details, if any
+          await Future.forEach(newEntries.where((v) => v.trashed), (entry) async {
+            final trashDetails = entry.trashDetails;
+            if (trashDetails != null) {
+              await localMediaDb.updateTrash(entry.id, trashDetails);
+            } else {
+              unawaited(reportService.recordError(Exception('Adding trashed entry but trash details are missing for entry=$entry')));
+            }
+          });
+
           addEntries(newEntries);
 
           // new entries include existing entries with obsolete paths

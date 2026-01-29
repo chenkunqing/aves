@@ -88,7 +88,7 @@ object GoogleXMP {
     fun isUltraHdPhoto(meta: XMPMeta): Boolean {
         if (meta.doesPropExist(GCONTAINER_DIRECTORY_PROP_NAME)) {
             val count = meta.countPropArrayItems(GCONTAINER_DIRECTORY_PROP_NAME)
-            for (i in 1 until count + 1) {
+            for (i in 1..count) {
                 val semantic = meta.getSafeStructField(listOf(GCONTAINER_DIRECTORY_PROP_NAME, i, GCONTAINER_ITEM_PROP_NAME, GCONTAINER_ITEM_SEMANTIC_PROP_NAME))?.value
                 if (semantic == ITEM_SEMANTIC_GAIN_MAP) {
                     return true
@@ -108,7 +108,7 @@ object GoogleXMP {
                 val count = meta.countPropArrayItems(GCONTAINER_DIRECTORY_PROP_NAME)
                 var hasImage = false
                 var hasVideo = false
-                for (i in 1 until count + 1) {
+                for (i in 1..count) {
                     val mime = getContainerItemAttribute(meta, i, GCONTAINER_ITEM_MIME_PROP_NAME)
                     val length = getContainerItemAttribute(meta, i, GCONTAINER_ITEM_LENGTH_PROP_NAME)
                     // `length` is not always provided for the image item
@@ -173,7 +173,7 @@ object GoogleXMP {
         } else if (meta.doesPropExist(GCONTAINER_DIRECTORY_PROP_NAME)) {
             // `Container` motion photo
             val count = meta.countPropArrayItems(GCONTAINER_DIRECTORY_PROP_NAME)
-            for (i in 1 until count + 1) {
+            for (i in 1..count) {
                 val mime = getContainerItemAttribute(meta, i, GCONTAINER_ITEM_MIME_PROP_NAME)
                 if (MimeTypes.isVideo(mime)) {
                     getContainerItemAttribute(meta, i, GCONTAINER_ITEM_LENGTH_PROP_NAME)?.let { offsetFromEnd = it.toLong() }

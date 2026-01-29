@@ -14,6 +14,7 @@ import com.drew.imaging.jpeg.JpegSegmentType
 import com.drew.metadata.exif.ExifDirectoryBase
 import com.drew.metadata.exif.ExifIFD0Directory
 import com.drew.metadata.xmp.XmpDirectory
+import deckers.thibault.aves.glide.TiffFetcher
 import deckers.thibault.aves.metadata.ExifInterfaceHelper.getSafeInt
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeInt
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeLong
@@ -25,8 +26,11 @@ import deckers.thibault.aves.metadata.xmp.GoogleXMP
 import deckers.thibault.aves.metadata.xmp.XMP
 import deckers.thibault.aves.model.FieldMap
 import deckers.thibault.aves.utils.LogUtils
+import deckers.thibault.aves.utils.MemoryUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.MimeTypes.canReadWithMetadataExtractor
+import deckers.thibault.aves.utils.MimeTypes.isHeic
+import deckers.thibault.aves.utils.MimeTypes.isIsoBMFFImage
 import deckers.thibault.aves.utils.StorageUtils
 import deckers.thibault.aves.utils.indexOfBytes
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory
@@ -54,7 +58,7 @@ object MultiPage {
         val tracks = ArrayList<FieldMap>()
         val extractor = MediaExtractor()
         extractor.setDataSource(context, uri, null)
-        for (pageIndex in 0 until extractor.trackCount) {
+        for (pageIndex in 0..<extractor.trackCount) {
             try {
                 val format = extractor.getTrackFormat(pageIndex)
                 format.getString(MediaFormat.KEY_MIME)?.let { mime ->
@@ -86,11 +90,11 @@ object MultiPage {
         return tracks
     }
 
-    fun isHeicSefdMotionPhoto(context: Context, uri: Uri): Boolean {
-        return getHeicSefdMotionPhotoVideoSizing(context, uri) != null
+    fun isIsoBMFFImageSefdMotionPhoto(context: Context, uri: Uri): Boolean {
+        return getIsoBMFFImageSefdMotionPhotoVideoSizing(context, uri) != null
     }
 
-    private fun getHeicSefdMotionPhotoVideoSizing(context: Context, uri: Uri): Pair<Long, Long>? {
+    private fun getIsoBMFFImageSefdMotionPhotoVideoSizing(context: Context, uri: Uri): Pair<Long, Long>? {
         Mp4ParserHelper.getSamsungSefd(context, uri)?.let { (sefdOffset, sefdBytes) ->
             // we could properly parse each tag until we find the "embedded video" tag (0x0a30)
             // but it seems that decoding the SEFT trailer is necessary for this,
@@ -281,7 +285,7 @@ object MultiPage {
             videoInfo.getString(MediaFormat.KEY_MIME)?.let { mime ->
                 if (MimeTypes.isVideo(mime)) {
                     val page: FieldMap = hashMapOf(
-                        KEY_PAGE to pageIndex++,
+                        KEY_PAGE to pageIndex,
                         KEY_MIME_TYPE to MimeTypes.MP4,
                         KEY_IS_DEFAULT to false,
                     )
@@ -299,19 +303,21 @@ object MultiPage {
     }
 
     fun getTrailerVideoSize(context: Context, uri: Uri, mimeType: String, sizeBytes: Long): Long? {
-        if (MimeTypes.isHeic(mimeType)) {
+        if (isHeic(mimeType)) {
             // XMP in HEIC motion photos (as taken with a Samsung Camera v12.0.01.50) indicates an `Item:Length` of 68 bytes for the video.
             // This item does not contain the video itself, but only some kind of metadata (no doc, no spec),
             // so we ignore the `Item:Length` and look instead for the MP4 marker bytes indicating the start of the video.
             try {
                 Metadata.openSafeInputStream(context, uri, mimeType, sizeBytes)?.use { input ->
-                    val bytes = ByteArray(sizeBytes.toInt())
-                    DataInputStream(input).use {
-                        it.readFully(bytes)
-                    }
-                    val index = bytes.indexOfBytes(heicMotionPhotoVideoStartIndicator)
-                    if (index != -1) {
-                        return sizeBytes - index
+                    if (MemoryUtils.canAllocate(sizeBytes)) {
+                        val bytes = ByteArray(sizeBytes.toInt())
+                        DataInputStream(input).use {
+                            it.readFully(bytes)
+                        }
+                        val index = bytes.indexOfBytes(heicMotionPhotoVideoStartIndicator)
+                        if (index != -1) {
+                            return sizeBytes - index
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -340,7 +346,7 @@ object MultiPage {
             Log.w(LOG_TAG, "failed to get motion photo offset from uri=$uri", e)
         }
 
-        XMP.checkHeic(context, mimeType, uri, foundXmp, ::processXmp)
+        XMP.checkIsoBMFFImage(context, mimeType, uri, foundXmp, ::processXmp)
 
         return offsetFromEnd
     }
@@ -364,7 +370,7 @@ object MultiPage {
             pfd?.fileDescriptor?.let { fd ->
                 extractor.setDataSource(fd, videoOffset, videoSize)
                 // video track may be after an audio track
-                for (trackIndex in 0 until extractor.trackCount) {
+                for (trackIndex in 0..<extractor.trackCount) {
                     try {
                         val format = extractor.getTrackFormat(trackIndex)
                         format.getString(MediaFormat.KEY_MIME)?.let {
@@ -393,9 +399,9 @@ object MultiPage {
             return Pair(videoOffset, videoSize)
         }
 
-        if (MimeTypes.isHeic(mimeType)) {
+        if (isIsoBMFFImage(mimeType)) {
             // fallback to video within Samsung SEFD box
-            return getHeicSefdMotionPhotoVideoSizing(context, uri)
+            return getIsoBMFFImageSefdMotionPhotoVideoSizing(context, uri)
         }
 
         return null
@@ -415,7 +421,7 @@ object MultiPage {
         getTiffPageInfo(context, uri, 0)?.let { first ->
             pages.add(toMap(0, first))
             val pageCount = first.outDirectoryCount
-            for (pageIndex in 1 until pageCount) {
+            for (pageIndex in 1..<pageCount) {
                 getTiffPageInfo(context, uri, pageIndex)?.let { pages.add(toMap(pageIndex, it)) }
             }
         }
@@ -431,7 +437,7 @@ object MultiPage {
                 Log.w(LOG_TAG, "failed to get TIFF file descriptor for uri=$uri")
                 return null
             }
-            val options = TiffBitmapFactory.Options().apply {
+            val options = TiffFetcher.buildOptions().apply {
                 inJustDecodeBounds = true
                 inDirectoryNumber = page
             }

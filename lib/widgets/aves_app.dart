@@ -83,6 +83,7 @@ class AvesApp extends StatefulWidget {
   }.map(Locale.new).toSet();
   static final List<Locale> supportedLocales = AppLocalizations.supportedLocales.where((v) => !_unsupportedLocales.contains(v)).toList();
   static final ValueNotifier<bool> canGestureToOtherApps = ValueNotifier(false);
+  static final ValueNotifier<bool> isInPictureInPictureMode = ValueNotifier(false);
   static final ValueNotifier<EdgeInsets> cutoutInsetsNotifier = ValueNotifier(EdgeInsets.zero);
 
   // children widgets registering as `WidgetsBinding` observers and implementing `didChangeAppLifecycleState`
@@ -448,7 +449,9 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
   }
 
   Future<void> _updateWindowMode() async {
-    AvesApp.canGestureToOtherApps.value = await windowService.isInMultiWindowMode() && !(await windowService.isInPictureInPictureMode());
+    final isInPipMode = await windowService.isInPictureInPictureMode();
+    AvesApp.isInPictureInPictureMode.value = isInPipMode;
+    AvesApp.canGestureToOtherApps.value = await windowService.isInMultiWindowMode() && !isInPipMode;
   }
 
   void _applyLocale() {

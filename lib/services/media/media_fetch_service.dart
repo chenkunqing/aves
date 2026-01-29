@@ -6,6 +6,7 @@ import 'package:aves/image_providers/thumbnail_provider.dart';
 import 'package:aves/model/app/support.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/ref/mime_types.dart';
+import 'package:aves/services/common/channel.dart';
 import 'package:aves/services/common/decoding.dart';
 import 'package:aves/services/common/output_buffer.dart';
 import 'package:aves/services/common/service_policy.dart';
@@ -15,7 +16,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
-import 'package:streams_channel/streams_channel.dart';
 
 abstract class MediaFetchService {
   Future<AvesEntry?> getEntry(String uri, String? mimeType, {bool allowUnsized = false});
@@ -57,8 +57,8 @@ abstract class MediaFetchService {
 }
 
 class PlatformMediaFetchService implements MediaFetchService {
-  static const _platformObject = MethodChannel('deckers.thibault/aves/media_fetch_object');
-  static final _byteStream = StreamsChannel('deckers.thibault/aves/media_byte_stream');
+  static const _platformObject = AvesMethodChannel('deckers.thibault/aves/media_fetch_object');
+  static final _byteStream = AvesStreamsChannel('deckers.thibault/aves/media_byte_stream');
   static const double _thumbnailDefaultSize = 64.0;
 
   static const int formatTrailerLength = 1; // single format byte
@@ -77,7 +77,7 @@ class PlatformMediaFetchService implements MediaFetchService {
       return AvesEntry.fromMap(result);
     } on PlatformException catch (e, stack) {
       // do not report issues with media content as it is likely an obsolete Media Store entry
-      if (!uri.startsWith('content://media/')) {
+      if (!uri.startsWith('content://media/') && !_isUnknownVisual(mimeType)) {
         await reportService.recordError(e, stack);
       }
     }
@@ -149,6 +149,9 @@ class PlatformMediaFetchService implements MediaFetchService {
     final format = bytes[trailerOffset];
     switch (format) {
       case formatByteEncoded:
+        if (decode == null) {
+          throw Exception('failed to decode encoded image bytes because decoder callback is missing for args=$args');
+        }
         // bytes are expected to be in a basic format decodable by Flutter
         final codec = await InteropDecoding.encodedBytesToCodec(bytes, decode);
         if (codec == null) {
@@ -311,7 +314,7 @@ class PlatformMediaFetchService implements MediaFetchService {
 
   // convenience methods
 
-  bool _isUnknownVisual(String mimeType) => !_knownMediaTypes.contains(mimeType) && MimeTypes.isVisual(mimeType);
+  bool _isUnknownVisual(String? mimeType) => mimeType != null && !_knownMediaTypes.contains(mimeType) && MimeTypes.isVisual(mimeType);
 
   static const Set<String> _knownOpaqueImages = {
     MimeTypes.jpeg,

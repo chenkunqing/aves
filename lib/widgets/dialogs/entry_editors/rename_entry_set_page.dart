@@ -114,6 +114,14 @@ class _RenameEntrySetPageState extends State<RenameEntrySetPage> {
                             value: TagsNamingProcessor.key,
                             child: MenuRow(text: l10n.tagPageTitle, icon: const Icon(AIcons.tag)),
                           ),
+                          PopupMenuItem(
+                            value: WidthNamingProcessor.key,
+                            child: MenuRow(text: l10n.exportEntryDialogWidth, icon: const Icon(AIcons.width)),
+                          ),
+                          PopupMenuItem(
+                            value: HeightNamingProcessor.key,
+                            child: MenuRow(text: l10n.exportEntryDialogHeight, icon: const Icon(AIcons.height)),
+                          ),
                           PopupMenuExpansionPanel<String>(
                             value: MetadataFieldNamingProcessor.key,
                             icon: AIcons.more,

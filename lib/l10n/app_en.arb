@@ -841,6 +841,8 @@
   "settingsSystemDefault": "System default",
   "settingsDefault": "Default",
   "settingsDisabled": "Disabled",
+  "settingsEnabled": "Enabled",
+  "settingsForced": "Forced",
   "settingsAskEverytime": "Ask everytime",
   "settingsModificationWarningDialogMessage": "Other settings will be modified.",
 
@@ -925,6 +927,7 @@
   "settingsViewerShowOverlayOnOpening": "Show on opening",
   "settingsViewerShowHistogram": "Show histogram",
   "settingsViewerShowMinimap": "Show minimap",
+  "settingsViewerShowZoomLevel": "Show zoom level",
   "settingsViewerShowInformation": "Show information",
   "settingsViewerShowInformationSubtitle": "Show title, date, location, etc.",
   "settingsViewerShowRatingTags": "Show rating & tags",

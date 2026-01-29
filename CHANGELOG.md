@@ -6,6 +6,43 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Collection: allow using width/height when bulk renaming
+- Video: allow forcing hardware acceleration
+- Search: allow regex (wrapped in `/.../`) in query filter
+- Stats: export to CSV/JSON file selected fields of filtered collection
+
+### Fixed
+
+- inefficient PiP check causing high CPU usage
+
+## <a id="v1.13.12"></a>[v1.13.12] - 2025-12-23
+
+### Added
+
+- Viewer: mouse wheel scroll jumps to previous/next item
+
+### Changed
+
+- Collection: use developed item as representative for RAW stack
+- Viewer: removed thumbnail overlay synchronization delay
+
+### Fixed
+
+- crash when cataloguing some JPEG with invalid offsets
+- crash when editing some MP4 with large boxes
+- crash when decoding large Base64 images embedded in SVG
+- crash when decoding large app icons
+- crash when getting info from some multipage HEIC
+- crash when fetching some video thumbnails
+- GPX matching implementation
+- missing home screen shortcut icon
+- rendering of stripped TIFF with vertical flip
+
+## <a id="v1.13.11"></a>[v1.13.11] - 2025-11-18
+
+### Added
+
+- Viewer: optionally show zoom level on overlay
 - Stats: export filter lists to CSV
 - build: `libre_rom` flavor as variant of `libre` flavor for integration in custom ROM
 
@@ -17,6 +54,8 @@ All notable changes to this project will be documented in this file.
 
 - decoding images with pixel config unsupported by region decoder and bitmap compressor
 - cataloguing still AVIF images
+
+## <a id="v1.13.10"></a>[v1.13.10] - 2025-11-16 [YANKED]
 
 ## <a id="v1.13.9"></a>[v1.13.9] - 2025-10-11
 

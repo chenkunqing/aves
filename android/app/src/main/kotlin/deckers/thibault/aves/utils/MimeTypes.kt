@@ -68,7 +68,12 @@ object MimeTypes {
 
     fun isVideo(mimeType: String?) = mimeType != null && mimeType.startsWith("video")
 
-    fun isHeic(mimeType: String?) = mimeType != null && (mimeType == HEIC || mimeType == HEIF)
+    // assume that `HEIF` is a `HEIC` (using the default `HEVC` codec)
+    fun isHeic(mimeType: String?) = mimeType == HEIC || mimeType == HEIF
+
+    // `AVIF` and `HEIC` both derive from `HEIF`, which derives from `ISOBMFF`.
+    // `MP4` also derives from `ISOBMFF` but is not an image format.
+    fun isIsoBMFFImage(mimeType: String?) = mimeType == AVIF || isHeic(mimeType)
 
     fun isRaw(mimeType: String): Boolean {
         return when (mimeType) {
@@ -97,7 +102,7 @@ object MimeTypes {
         else -> true
     }
 
-    // as of `ExifInterface` v1.4.1, method `isSupportedMimeType` reports no support for AVIF,
+    // as of `ExifInterface` v1.4.2, method `isSupportedMimeType` reports no support for AVIF,
     // but documentation reports:
     // * Supported for reading: JPEG, PNG, WebP, HEIC, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW, RAF, AVIF (on API 31+).
     // * Supported for writing: JPEG, PNG, WebP.
@@ -146,7 +151,7 @@ object MimeTypes {
         return if (pageId != null && MultiPageImage.isSupported(mimeType)) {
             true
         } else when (mimeType) {
-            AVIF, HEIC, HEIF, PNG, WEBP -> true
+            AVIF, HEIC, HEIF, PNG, TIFF, WEBP -> true
             else -> isRaw(mimeType)
         }
     }
