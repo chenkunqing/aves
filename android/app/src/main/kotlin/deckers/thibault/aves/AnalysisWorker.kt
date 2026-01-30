@@ -56,7 +56,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
                 workCont = cont
                 cont.invokeOnCancellation {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        val stopReasonString = when(stopReason) {
+                        val stopReasonString = when (stopReason) {
                             WorkInfo.STOP_REASON_CANCELLED_BY_APP -> "CANCELLED_BY_APP"
                             WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT -> "FOREGROUND_SERVICE_TIMEOUT"
                             else -> "[$stopReason]"
