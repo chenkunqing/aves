@@ -65,13 +65,18 @@ class Settings with ChangeNotifier, SettingsAccess, SearchSettings, AppSettings,
     if (kFlutterMemoryAllocationsEnabled) ChangeNotifier.maybeDispatchObjectCreation(this);
   }
 
-  Future<void> init({required bool monitorPlatformSettings}) async {
+  Future<void> init({
+    required bool monitorPlatformSettings,
+    bool shouldSanitize = true,
+  }) async {
     await store.init();
     resetAppliedLocale();
     _unregister();
     _register(monitorPlatformSettings);
     initAppSettings();
-    await sanitize();
+    if (shouldSanitize) {
+      await sanitize();
+    }
   }
 
   void _unregister() {
