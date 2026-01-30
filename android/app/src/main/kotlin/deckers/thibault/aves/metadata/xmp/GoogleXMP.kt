@@ -122,7 +122,7 @@ object GoogleXMP {
         } catch (e: XMPException) {
             if (e.errorCode != XMPError.BADSCHEMA) {
                 // `BADSCHEMA` code is reported when we check a property
-                // from a non standard namespace, and that namespace is not declared in the XMP
+                // from a non-standard namespace, and that namespace is not declared in the XMP
                 Log.w(LOG_TAG, "failed to check Google motion photo props from XMP", e)
             }
         }
@@ -142,7 +142,7 @@ object GoogleXMP {
         } catch (e: XMPException) {
             if (e.errorCode != XMPError.BADSCHEMA) {
                 // `BADSCHEMA` code is reported when we check a property
-                // from a non standard namespace, and that namespace is not declared in the XMP
+                // from a non-standard namespace, and that namespace is not declared in the XMP
                 Log.w(LOG_TAG, "failed to check Google panorama props from XMP", e)
             }
         }

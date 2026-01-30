@@ -177,15 +177,13 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.9.1'
     implementation "androidx.appcompat:appcompat:1.7.1"
     implementation 'androidx.core:core-ktx:1.17.0'
-    // `lifecycle-process:2.10.0` requires `minSdkVersion` 23+
-    implementation 'androidx.lifecycle:lifecycle-process:2.9.4'
+    implementation 'androidx.lifecycle:lifecycle-process:2.10.0'
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.multidex:multidex:2.0.1'
     // Jetpack `security-crypto` library is deprecated:
     // https://developer.android.com/privacy-and-security/cryptography#security-crypto-jetpack-deprecated
     implementation 'androidx.security:security-crypto:1.1.0'
-    // `work-runtime:2.11.0` requires `minSdkVersion` 23+
-    implementation 'androidx.work:work-runtime:2.10.5'
+    implementation 'androidx.work:work-runtime:2.11.1'
 
     implementation 'com.commonsware.cwac:document:0.5.0'
     implementation 'com.drewnoakes:metadata-extractor:2.19.0'
@@ -206,7 +204,7 @@ dependencies {
     implementation 'com.github.deckerst:pixymeta-android:f4513291b7'
     implementation project(':exifinterface')
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:6.0.2'
 
     ksp "com.github.bumptech.glide:ksp:$glide_version"
 

@@ -147,7 +147,7 @@ object XMP {
         } catch (e: XMPException) {
             if (e.errorCode != XMPError.BADSCHEMA) {
                 // `BADSCHEMA` code is reported when we check a property
-                // from a non standard namespace, and that namespace is not declared in the XMP
+                // from a non-standard namespace, and that namespace is not declared in the XMP
                 Log.w(LOG_TAG, "failed to check HDR props from XMP", e)
             }
         }
@@ -166,7 +166,7 @@ object XMP {
         } catch (e: XMPException) {
             if (e.errorCode != XMPError.BADSCHEMA) {
                 // `BADSCHEMA` code is reported when we check a property
-                // from a non standard namespace, and that namespace is not declared in the XMP
+                // from a non-standard namespace, and that namespace is not declared in the XMP
                 Log.w(LOG_TAG, "failed to check Photomatix panorama props from XMP", e)
             }
         }

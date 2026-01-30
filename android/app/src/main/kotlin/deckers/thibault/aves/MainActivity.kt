@@ -235,7 +235,9 @@ open class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    @Deprecated("Deprecated in android.app.Activity")
     override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
+        @Suppress("deprecation")
         super.onMultiWindowModeChanged(isInMultiWindowMode)
         notifyWindowModeChanged()
     }
@@ -245,7 +247,9 @@ open class MainActivity : FlutterFragmentActivity() {
         notifyWindowModeChanged()
     }
 
+    @Deprecated("Deprecated in android.app.Activity")
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        @Suppress("deprecation")
         super.onPictureInPictureModeChanged(isInPictureInPictureMode)
         notifyWindowModeChanged()
     }
@@ -321,9 +325,7 @@ open class MainActivity : FlutterFragmentActivity() {
     }
 
     private fun onScopedStoragePermissionResult(resultCode: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            pendingScopedStoragePermissionCompleter?.complete(resultCode == RESULT_OK)
-        }
+        pendingScopedStoragePermissionCompleter?.complete(resultCode == RESULT_OK)
     }
 
     open fun extractIntentData(intent: Intent?): FieldMap {

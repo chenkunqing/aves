@@ -21,10 +21,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 class SearchSuggestionsProvider : ContentProvider() {
     private val defaultScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -94,7 +94,7 @@ class SearchSuggestionsProvider : ContentProvider() {
         }
 
         try {
-            return suspendCoroutine { cont ->
+            return suspendCancellableCoroutine { cont ->
                 defaultScope.launch {
                     FlutterUtils.runOnUiThread {
                         backgroundChannel.invokeMethod(

@@ -59,7 +59,7 @@ object PixyMetaHelper {
     }
 
     fun getIptc(input: InputStream): List<FieldMap>? {
-        val iptc = Metadata.readMetadata(input)[MetadataType.IPTC] as IPTC? ?: return null
+        val iptc = Metadata.readMetadata(input)[MetadataType.IPTC] as? IPTC? ?: return null
 
         val iptcDataList = ArrayList<FieldMap>()
         iptc.dataSets.forEach { dataSetEntry ->

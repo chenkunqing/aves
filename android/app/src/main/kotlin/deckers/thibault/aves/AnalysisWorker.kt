@@ -180,11 +180,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
     }
 
     private fun createForegroundInfo(title: String? = null, message: String? = null): ForegroundInfo {
-        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
+        val pendingIntentFlags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val openAppIntent = Intent(applicationContext, MainActivity::class.java).let {
             PendingIntent.getActivity(applicationContext, MainActivity.OPEN_FROM_ANALYSIS_SERVICE, it, pendingIntentFlags)
         }

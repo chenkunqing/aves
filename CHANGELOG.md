@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
 - Search: allow regex (wrapped in `/.../`) in query filter
 - Stats: export to CSV/JSON file selected fields of filtered collection
 
+### Changed
+
+- upgraded Flutter to stable v3.38.9
+
+### Removed
+
+- support for Android API < 24 (Android 7.0 Nougat)
+
 ### Fixed
 
 - inefficient PiP check causing high CPU usage

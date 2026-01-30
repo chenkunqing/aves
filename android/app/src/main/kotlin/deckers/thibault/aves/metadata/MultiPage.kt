@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.net.Uri
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import com.adobe.internal.xmp.XMPMeta
@@ -74,9 +73,7 @@ object MultiPage {
                     format.getSafeInt(MediaFormat.KEY_WIDTH) { track[KEY_WIDTH] = it }
                     format.getSafeInt(MediaFormat.KEY_HEIGHT) { track[KEY_HEIGHT] = it }
                     format.getSafeInt(MediaFormat.KEY_IS_DEFAULT) { track[KEY_IS_DEFAULT] = it != 0 }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        format.getSafeInt(MediaFormat.KEY_ROTATION) { track[KEY_ROTATION_DEGREES] = it }
-                    }
+                    format.getSafeInt(MediaFormat.KEY_ROTATION) { track[KEY_ROTATION_DEGREES] = it }
                     if (MimeTypes.isVideo(trackMime)) {
                         format.getSafeLong(MediaFormat.KEY_DURATION) { track[KEY_DURATION] = it / 1000 }
                     }
@@ -291,9 +288,7 @@ object MultiPage {
                     )
                     videoInfo.getSafeInt(MediaFormat.KEY_WIDTH) { page[KEY_WIDTH] = it }
                     videoInfo.getSafeInt(MediaFormat.KEY_HEIGHT) { page[KEY_HEIGHT] = it }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        videoInfo.getSafeInt(MediaFormat.KEY_ROTATION) { page[KEY_ROTATION_DEGREES] = it }
-                    }
+                    videoInfo.getSafeInt(MediaFormat.KEY_ROTATION) { page[KEY_ROTATION_DEGREES] = it }
                     videoInfo.getSafeLong(MediaFormat.KEY_DURATION) { page[KEY_DURATION] = it / 1000 }
                     pages.add(page)
                 }

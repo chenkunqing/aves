@@ -58,13 +58,11 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
     }
 
     override fun isInMultiWindowMode(call: MethodCall, result: MethodChannel.Result) {
-        val enabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) activity.isInMultiWindowMode else false
-        result.success(enabled)
+        result.success(activity.isInMultiWindowMode)
     }
 
     override fun isInPictureInPictureMode(call: MethodCall, result: MethodChannel.Result) {
-        val enabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) activity.isInPictureInPictureMode else false
-        result.success(enabled)
+        result.success(activity.isInPictureInPictureMode)
     }
 
     // display orientation in degrees
@@ -187,14 +185,12 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
             View.DragShadowBuilder()
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            activity.window.decorView.startDragAndDrop(
-                clip,
-                shadowBuilder,
-                null,
-                View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ
-            )
-        }
+        activity.window.decorView.startDragAndDrop(
+            clip,
+            shadowBuilder,
+            null,
+            View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ
+        )
     }
 
     companion object {
