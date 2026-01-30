@@ -117,6 +117,7 @@ mixin FeedbackMixin {
           padding: action != null ? EdgeInsetsDirectional.only(start: snackBarHorizontalPadding(snackBarTheme)) : null,
           action: action,
           duration: duration,
+          persist: false,
           dismissDirection: DismissDirection.horizontal,
         ));
       }
