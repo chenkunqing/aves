@@ -281,17 +281,19 @@ class _RasterImageViewState extends State<RasterImageView> {
           );
           if (rects != null) {
             final (tileRect, regionRect) = rects;
-            tiles.add(_RegionTile(
-              entry: entry,
-              tileRect: tileRect,
-              regionRect: regionRect,
-              sampleSize: sampleSize,
-              quality: _qualityForScaleAndSize(
-                magnifierScale: magnifierScale,
+            tiles.add(
+              _RegionTile(
+                entry: entry,
+                tileRect: tileRect,
+                regionRect: regionRect,
                 sampleSize: sampleSize,
-                devicePixelRatio: devicePixelRatio,
+                quality: _qualityForScaleAndSize(
+                  magnifierScale: magnifierScale,
+                  sampleSize: sampleSize,
+                  devicePixelRatio: devicePixelRatio,
+                ),
               ),
-            ));
+            );
           }
         }
       }

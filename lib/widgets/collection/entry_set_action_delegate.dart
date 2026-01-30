@@ -483,20 +483,22 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         final editedOps = successOps.where((op) => !op.skipped).toSet();
         source.resumeMonitoring();
 
-        unawaited(source.refreshUris(editedOps.map((op) => op.uri).toSet()).then((_) {
-          // invalidate filters derived from values before edition
-          // this invalidation must happen after the source is refreshed,
-          // otherwise filter chips may eagerly rebuild in between with the old state
-          if (obsoleteCountryCodes.isNotEmpty) {
-            source.invalidateCountryFilterSummary(countryCodes: obsoleteCountryCodes);
-          }
-          if (obsoleteStateCodes.isNotEmpty) {
-            source.invalidateStateFilterSummary(stateCodes: obsoleteStateCodes);
-          }
-          if (obsoleteTags.isNotEmpty) {
-            source.invalidateTagFilterSummary(tags: obsoleteTags);
-          }
-        }));
+        unawaited(
+          source.refreshUris(editedOps.map((op) => op.uri).toSet()).then((_) {
+            // invalidate filters derived from values before edition
+            // this invalidation must happen after the source is refreshed,
+            // otherwise filter chips may eagerly rebuild in between with the old state
+            if (obsoleteCountryCodes.isNotEmpty) {
+              source.invalidateCountryFilterSummary(countryCodes: obsoleteCountryCodes);
+            }
+            if (obsoleteStateCodes.isNotEmpty) {
+              source.invalidateStateFilterSummary(stateCodes: obsoleteStateCodes);
+            }
+            if (obsoleteTags.isNotEmpty) {
+              source.invalidateTagFilterSummary(tags: obsoleteTags);
+            }
+          }),
+        );
 
         if (dataTypes.contains(EntryDataType.aspectRatio)) {
           source.onAspectRatioChanged();
@@ -521,8 +523,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
   Future<Set<AvesEntry>?> _getEditableTargetItems(
     BuildContext context, {
     required bool Function(AvesEntry entry) canEdit,
-  }) =>
-      _getEditableItems(context, _getTargetItems(context), canEdit: canEdit);
+  }) => _getEditableItems(context, _getTargetItems(context), canEdit: canEdit);
 
   Future<Set<AvesEntry>?> _getEditableItems(
     BuildContext context,
@@ -703,9 +704,11 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
   }
 
   Future<void> removeTags(BuildContext context, {required Set<AvesEntry> entries, required Set<String> tags}) async {
-    final newTagsByEntry = Map.fromEntries(entries.map((v) {
-      return MapEntry(v, v.tags.whereNot(tags.contains).toSet());
-    }));
+    final newTagsByEntry = Map.fromEntries(
+      entries.map((v) {
+        return MapEntry(v, v.tags.whereNot(tags.contains).toSet());
+      }),
+    );
 
     await _edit(context, entries, (entry) => entry.editTags(newTagsByEntry[entry]!));
   }

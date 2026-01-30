@@ -80,10 +80,10 @@ class QueryFilter extends CollectionFilter {
 
   @override
   Map<String, dynamic> toMap() => {
-        'type': type,
-        'query': query,
-        'reversed': reversed,
-      };
+    'type': type,
+    'query': query,
+    'reversed': reversed,
+  };
 
   @override
   EntryPredicate get positiveTest => _test;

@@ -60,12 +60,12 @@ class ViewerTopOverlay extends StatelessWidget {
         final viewInsetsPadding = (viewInsets ?? EdgeInsets.zero) + (viewPadding ?? EdgeInsets.zero);
 
         Widget _decorateCornerChild(Widget child) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8) + const EdgeInsets.only(top: 8),
-              child: FadeTransition(
-                opacity: scale,
-                child: child,
-              ),
-            );
+          padding: const EdgeInsets.symmetric(horizontal: 8) + const EdgeInsets.only(top: 8),
+          child: FadeTransition(
+            opacity: scale,
+            child: child,
+          ),
+        );
 
         final startCornerChildren = [
           if (settings.showOverlayZoomLevel)
@@ -198,8 +198,8 @@ class ZoomLevelIndicator extends StatelessWidget {
                 return Text(
                   '$zoom${context.l10n.lengthUnitPercent}',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        shadows: ViewerDetailOverlayContent.shadows(context),
-                      ),
+                    shadows: ViewerDetailOverlayContent.shadows(context),
+                  ),
                 );
               },
             ),

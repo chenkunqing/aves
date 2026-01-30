@@ -452,10 +452,10 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
   }
 
   Future<void> _move(BuildContext context, AvesEntry targetEntry, {required MoveType moveType}) => doMove(
-        context,
-        moveType: moveType,
-        entries: {targetEntry},
-      );
+    context,
+    moveType: moveType,
+    entries: {targetEntry},
+  );
 
   Future<void> _convert(BuildContext context, AvesEntry targetEntry) async {
     final options = await showDialog<EntryConvertOptions>(

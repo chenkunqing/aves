@@ -68,11 +68,13 @@ class PlatformMediaFetchService implements MediaFetchService {
   @override
   Future<AvesEntry?> getEntry(String uri, String? mimeType, {bool allowUnsized = false}) async {
     try {
-      final result = await _platformObject.invokeMethod('getEntry', <String, dynamic>{
-        'uri': uri,
-        'mimeType': mimeType,
-        'allowUnsized': allowUnsized,
-      }) as Map;
+      final result =
+          await _platformObject.invokeMethod('getEntry', <String, dynamic>{
+                'uri': uri,
+                'mimeType': mimeType,
+                'allowUnsized': allowUnsized,
+              })
+              as Map;
       AvesEntry.normalizeMimeTypeFields(result);
       return AvesEntry.fromMap(result);
     } on PlatformException catch (e, stack) {
@@ -107,7 +109,9 @@ class PlatformMediaFetchService implements MediaFetchService {
     final opCompleter = Completer<Uint8List>();
     final sink = OutputBuffer();
     try {
-      _byteStream.receiveBroadcastStream(arguments).listen(
+      _byteStream
+          .receiveBroadcastStream(arguments)
+          .listen(
             (data) {
               final chunk = data as Uint8List;
               sink.add(chunk);

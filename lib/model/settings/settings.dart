@@ -44,7 +44,25 @@ import 'package:latlong2/latlong.dart';
 
 final Settings settings = Settings._private();
 
-class Settings with ChangeNotifier, SettingsAccess, SearchSettings, AppSettings, CollectionSettings, DebugSettings, DisplaySettings, FilterGridsSettings, InfoSettings, NavigationSettings, PrivacySettings, ScreenSaverSettings, SlideshowSettings, SubtitlesSettings, VideoSettings, ViewerSettings, WidgetSettings {
+class Settings
+    with
+        ChangeNotifier,
+        SettingsAccess,
+        SearchSettings,
+        AppSettings,
+        CollectionSettings,
+        DebugSettings,
+        DisplaySettings,
+        FilterGridsSettings,
+        InfoSettings,
+        NavigationSettings,
+        PrivacySettings,
+        ScreenSaverSettings,
+        SlideshowSettings,
+        SubtitlesSettings,
+        VideoSettings,
+        ViewerSettings,
+        WidgetSettings {
   final Set<StreamSubscription> _subscriptions = {};
   final EventChannel _platformSettingsChangeChannel = const OptionalEventChannel('deckers.thibault/aves/settings_change');
   final StreamController<SettingsChangedEvent> _updateStreamController = StreamController.broadcast();
@@ -90,11 +108,13 @@ class Settings with ChangeNotifier, SettingsAccess, SearchSettings, AppSettings,
   void _register(bool monitorPlatformSettings) {
     albumGrouping.addListener(saveAlbumGroups);
     tagGrouping.addListener(saveTagGroups);
-    _subscriptions.add(dynamicAlbums.eventBus.on<DynamicAlbumChangedEvent>().listen((e) {
-      final changes = e.changes;
-      updateBookmarkedDynamicAlbums(changes);
-      updatePinnedDynamicAlbums(changes);
-    }));
+    _subscriptions.add(
+      dynamicAlbums.eventBus.on<DynamicAlbumChangedEvent>().listen((e) {
+        final changes = e.changes;
+        updateBookmarkedDynamicAlbums(changes);
+        updatePinnedDynamicAlbums(changes);
+      }),
+    );
     _subscriptions.add(albumGrouping.eventBus.on<GroupUriChangedEvent>().listen(_onGroupingChange));
     _subscriptions.add(tagGrouping.eventBus.on<GroupUriChangedEvent>().listen(_onGroupingChange));
     if (monitorPlatformSettings) {
@@ -310,8 +330,8 @@ class Settings with ChangeNotifier, SettingsAccess, SearchSettings, AppSettings,
   // import/export
 
   Map<String, dynamic> export() => Map.fromEntries(
-        store.getKeys().whereNot(SettingKeys.isInternalKey).map((k) => MapEntry(k, store.get(k))),
-      );
+    store.getKeys().whereNot(SettingKeys.isInternalKey).map((k) => MapEntry(k, store.get(k))),
+  );
 
   Future<void> import(dynamic jsonMap) async {
     if (jsonMap is Map<String, dynamic>) {

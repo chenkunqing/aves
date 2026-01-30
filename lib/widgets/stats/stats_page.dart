@@ -292,18 +292,18 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
     final hasMore = maxRowCount != null && entryCountMap.length > maxRowCount;
     final onHeaderPressed = hasMore
         ? () => Navigator.maybeOf(context)?.push(
-              MaterialPageRoute(
-                settings: const RouteSettings(name: StatsTopPage.routeName),
-                builder: (context) => StatsTopPage(
-                  title: title,
-                  totalEntryCount: totalEntryCount,
-                  entryCountMap: entryCountMap,
-                  filterBuilder: filterBuilder,
-                  sortByCount: sortByCount,
-                  onFilterSelection: (filter) => _onFilterSelection(context, filter),
-                ),
+            MaterialPageRoute(
+              settings: const RouteSettings(name: StatsTopPage.routeName),
+              builder: (context) => StatsTopPage(
+                title: title,
+                totalEntryCount: totalEntryCount,
+                entryCountMap: entryCountMap,
+                filterBuilder: filterBuilder,
+                sortByCount: sortByCount,
+                onFilterSelection: (filter) => _onFilterSelection(context, filter),
               ),
-            )
+            ),
+          )
         : null;
     Widget header = Text(
       title,
@@ -460,15 +460,17 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
   String _exportToCsv(List<ExportableEntryField> fields, BuildContext context) {
     final headers = fields.map((v) => v.getText(context)).toList();
     List<String?> toCsvValues(AvesEntry entry) => fields.map((field) {
-          return _exportEntryField(entry, field)?.toString();
-        }).toList();
+      return _exportEntryField(entry, field)?.toString();
+    }).toList();
     return const ListToCsvConverter().convert([headers, ...entries.map(toCsvValues)], convertNullTo: '');
   }
 
   String _exportToJson(List<ExportableEntryField> fields) {
-    Map<String, Object?> toJsonMap(AvesEntry entry) => Map.fromEntries(fields.map((field) {
-          return MapEntry(field.name, _exportEntryField(entry, field));
-        }));
+    Map<String, Object?> toJsonMap(AvesEntry entry) => Map.fromEntries(
+      fields.map((field) {
+        return MapEntry(field.name, _exportEntryField(entry, field));
+      }),
+    );
     return jsonEncode(entries.map(toJsonMap).toList());
   }
 }

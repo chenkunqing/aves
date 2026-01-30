@@ -58,28 +58,31 @@ class StatsTopPage<T extends Comparable> extends StatelessWidget with FeedbackMi
       body: GestureAreaProtectorStack(
         child: SafeArea(
           bottom: false,
-          child: Builder(builder: (context) {
-            return NotificationListener<SelectFilterNotification>(
-              onNotification: (notification) {
-                onFilterSelection(notification.filter);
-                return true;
-              },
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 8) +
-                    EdgeInsets.only(
-                      bottom: context.select<MediaQueryData, double>((mq) => mq.effectiveBottomPadding),
-                    ),
-                child: FilterTable(
-                  totalEntryCount: totalEntryCount,
-                  entryCountMap: entryCountMap,
-                  filterBuilder: filterBuilder,
-                  sortByCount: sortByCount,
-                  maxRowCount: null,
-                  onFilterSelection: onFilterSelection,
+          child: Builder(
+            builder: (context) {
+              return NotificationListener<SelectFilterNotification>(
+                onNotification: (notification) {
+                  onFilterSelection(notification.filter);
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8) +
+                      EdgeInsets.only(
+                        bottom: context.select<MediaQueryData, double>((mq) => mq.effectiveBottomPadding),
+                      ),
+                  child: FilterTable(
+                    totalEntryCount: totalEntryCount,
+                    entryCountMap: entryCountMap,
+                    filterBuilder: filterBuilder,
+                    sortByCount: sortByCount,
+                    maxRowCount: null,
+                    onFilterSelection: onFilterSelection,
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -108,7 +111,7 @@ class StatsTopPage<T extends Comparable> extends StatelessWidget with FeedbackMi
             label = filter.getLabel(context);
         }
         return [label, count];
-      })
+      }),
     ]);
 
     const mimeType = MimeTypes.csv;
