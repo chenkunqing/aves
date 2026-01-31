@@ -12,6 +12,7 @@ class AppSupport {
     MimeTypes.dwg,
     MimeTypes.dxf,
     MimeTypes.jpeg2000,
+    MimeTypes.jpx,
     MimeTypes.jxl,
     MimeTypes.pat,
     MimeTypes.pcx,

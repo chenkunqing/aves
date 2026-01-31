@@ -8,7 +8,8 @@ class MimeTypes {
   static const gif = 'image/gif';
   static const heic = 'image/heic';
   static const heif = 'image/heif';
-  static const ico = 'image/x-icon';
+  static const ico = 'image/ico';
+  static const icoX = 'image/x-icon';
   static const jpeg = 'image/jpeg';
   static const png = 'image/png';
   static const svg = 'image/svg+xml';
@@ -25,6 +26,7 @@ class MimeTypes {
   static const dwg = 'image/vnd.dwg';
   static const dxf = 'image/vnd.dxf';
   static const jpeg2000 = 'image/jp2';
+  static const jpx = 'image/jpx';
   static const jxl = 'image/jxl';
   static const pat = 'image/x-coreldrawpattern';
   static const pcx = 'image/x-pcx';
@@ -69,10 +71,14 @@ class MimeTypes {
   static const aviMSVideo = 'video/msvideo';
   static const aviVnd = 'video/vnd.avi';
   static const aviXMSVideo = 'video/x-msvideo';
+  static const dl = 'video/dl';
+  static const dv = 'video/dv';
   static const dvd = 'video/dvd';
   static const flic = 'video/fli';
   static const flv = 'video/flv';
   static const flvX = 'video/x-flv';
+  static const gl = 'video/gl';
+  static const lsf = 'x-la-asf';
   static const mkv = 'video/mkv';
   static const mkvX = 'video/x-matroska';
   static const mov = 'video/quicktime';
@@ -98,7 +104,7 @@ class MimeTypes {
   // groups
 
   // formats that support transparency
-  static const Set<String> alphaImages = {avif, bmp, bmpX, gif, heic, heif, ico, png, svg, tiff, webp};
+  static const Set<String> alphaImages = {avif, bmp, bmpX, gif, heic, heif, ico, icoX, png, svg, tiff, webp};
 
   static const Set<String> rawImages = {arw, cr2, crw, dcr, dcraw, dng, dngX, erf, k25, kdc, mrw, nef, nrw, orf, pef, raf, raw, rw2, sr2, srf, srw, x3f};
 
