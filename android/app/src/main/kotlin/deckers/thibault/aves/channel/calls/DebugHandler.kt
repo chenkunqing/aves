@@ -77,6 +77,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
     private fun getContextDirs(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         val dirs = hashMapOf(
             "cacheDir" to context.cacheDir,
+            "dataDir" to context.dataDir,
             "filesDir" to context.filesDir,
             "obbDir" to context.obbDir,
             "externalCacheDir" to context.externalCacheDir,
@@ -84,9 +85,6 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
             "codeCacheDir" to context.codeCacheDir,
             "noBackupFilesDir" to context.noBackupFilesDir,
         ).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                put("dataDir", context.dataDir)
-            }
         }.mapValues { it.value?.path }.toMutableMap()
         dirs["externalCacheDirs"] = context.externalCacheDirs.joinToString { it.path }
         dirs["externalFilesDirs"] = context.getExternalFilesDirs(null).joinToString { it?.path ?: "null" }

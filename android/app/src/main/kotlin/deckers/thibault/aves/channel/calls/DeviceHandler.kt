@@ -54,18 +54,15 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
     }
 
     private fun getCapabilities(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
-        val sdkInt = Build.VERSION.SDK_INT
         result.success(
             hashMapOf(
                 "canPinShortcut" to ShortcutManagerCompat.isRequestPinShortcutSupported(context),
-                "canRenderFlagEmojis" to (sdkInt >= Build.VERSION_CODES.M),
-                "canRenderSubdivisionFlagEmojis" to (sdkInt >= Build.VERSION_CODES.O),
-                "canRequestManageMedia" to (sdkInt >= Build.VERSION_CODES.S),
-                "canSetLockScreenWallpaper" to (sdkInt >= Build.VERSION_CODES.N),
+                "canRenderSubdivisionFlagEmojis" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O),
+                "canRequestManageMedia" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S),
                 "hasGeocoder" to Geocoder.isPresent(),
                 "isDynamicColorAvailable" to DynamicColors.isDynamicColorAvailable(),
-                "showPinShortcutFeedback" to (sdkInt >= Build.VERSION_CODES.O),
-                "supportEdgeToEdgeUIMode" to (sdkInt >= Build.VERSION_CODES.Q),
+                "showPinShortcutFeedback" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O),
+                "supportEdgeToEdgeUIMode" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q),
                 "supportPictureInPicture" to supportPictureInPicture(),
             )
         )

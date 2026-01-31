@@ -9,7 +9,7 @@ final Device device = Device._private();
 class Device {
   late final String _packageName, _packageVersion, _userAgent;
   late final bool _canAuthenticateUser, _canPinShortcut, _showPinShortcutFeedback;
-  late final bool _canRenderFlagEmojis, _canRenderSubdivisionFlagEmojis, _canRequestManageMedia, _canSetLockScreenWallpaper;
+  late final bool _canRenderSubdivisionFlagEmojis, _canRequestManageMedia;
   late final bool _hasGeocoder, _isDynamicColorAvailable, _supportEdgeToEdgeUIMode, _supportPictureInPicture;
   late final bool _isPhysicalDevice, _isTelevision;
 
@@ -23,13 +23,9 @@ class Device {
 
   bool get canPinShortcut => _canPinShortcut;
 
-  bool get canRenderFlagEmojis => _canRenderFlagEmojis;
-
   bool get canRenderSubdivisionFlagEmojis => _canRenderSubdivisionFlagEmojis;
 
   bool get canRequestManageMedia => _canRequestManageMedia;
-
-  bool get canSetLockScreenWallpaper => _canSetLockScreenWallpaper;
 
   bool get hasGeocoder => _hasGeocoder;
 
@@ -62,10 +58,8 @@ class Device {
 
     final capabilities = await deviceService.getCapabilities();
     _canPinShortcut = capabilities['canPinShortcut'] ?? false;
-    _canRenderFlagEmojis = capabilities['canRenderFlagEmojis'] ?? false;
     _canRenderSubdivisionFlagEmojis = capabilities['canRenderSubdivisionFlagEmojis'] ?? false;
     _canRequestManageMedia = capabilities['canRequestManageMedia'] ?? false;
-    _canSetLockScreenWallpaper = capabilities['canSetLockScreenWallpaper'] ?? false;
     _hasGeocoder = capabilities['hasGeocoder'] ?? false;
     _isDynamicColorAvailable = capabilities['isDynamicColorAvailable'] ?? false;
     _showPinShortcutFeedback = capabilities['showPinShortcutFeedback'] ?? false;
