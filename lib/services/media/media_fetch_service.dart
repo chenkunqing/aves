@@ -78,9 +78,12 @@ class PlatformMediaFetchService implements MediaFetchService {
       AvesEntry.normalizeMimeTypeFields(result);
       return AvesEntry.fromMap(result);
     } on PlatformException catch (e, stack) {
-      // do not report issues with media content as it is likely an obsolete Media Store entry
-      if (!uri.startsWith('content://media/') && !_isUnknownVisual(mimeType)) {
-        await reportService.recordError(e, stack);
+      // ignore media content URIs as it is likely an obsolete Media Store entry
+      if (!uri.startsWith('content://media/')) {
+        // ignore undecodable types
+        if (mimeType != null && !AppSupport.undecodableImages.contains(mimeType)) {
+          await reportService.recordError(e, stack);
+        }
       }
     }
     return null;
@@ -136,7 +139,7 @@ class PlatformMediaFetchService implements MediaFetchService {
       return await opCompleter.future;
     } on PlatformException catch (e, stack) {
       debugPrint('$runtimeType _getBytes failed with error=$e');
-      if (_isUnknownVisual(mimeType)) {
+      if (MimeTypes.isVisual(mimeType) && !_knownMediaTypes.contains(mimeType)) {
         await reportService.recordError(e, stack);
       }
     }
@@ -317,8 +320,6 @@ class PlatformMediaFetchService implements MediaFetchService {
   Future<T>? resumeLoading<T>(Object taskKey) => servicePolicy.resume<T>(taskKey);
 
   // convenience methods
-
-  bool _isUnknownVisual(String? mimeType) => mimeType != null && !_knownMediaTypes.contains(mimeType) && MimeTypes.isVisual(mimeType);
 
   static const Set<String> _knownOpaqueImages = {
     MimeTypes.jpeg,
