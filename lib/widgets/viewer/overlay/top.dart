@@ -185,24 +185,29 @@ class ZoomLevelIndicator extends StatelessWidget {
           type: MaterialType.button,
           borderRadius: borderRadius,
           color: Themes.overlayBackgroundColor(brightness: Theme.of(context).brightness, blurred: blurred),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            foregroundDecoration: BoxDecoration(
-              border: border,
-              borderRadius: borderRadius,
-            ),
-            child: ValueListenableBuilder<ViewState>(
-              valueListenable: viewStateNotifier,
-              builder: (context, viewState, child) {
-                final zoom = ((viewState.scale ?? 0) * zoomScaleFactor).round();
-                return Text(
+          child: ValueListenableBuilder<ViewState>(
+            valueListenable: viewStateNotifier,
+            builder: (context, viewState, child) {
+              final viewportSize = viewState.viewportSize;
+              final contentSize = viewState.contentSize;
+              if ((viewportSize == null || viewportSize.isEmpty) || (contentSize == null || contentSize.isEmpty)) {
+                return const SizedBox();
+              }
+              final zoom = ((viewState.scale ?? 0) * zoomScaleFactor).round();
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                foregroundDecoration: BoxDecoration(
+                  border: border,
+                  borderRadius: borderRadius,
+                ),
+                child: Text(
                   '$zoom${context.l10n.lengthUnitPercent}',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     shadows: ViewerDetailOverlayContent.shadows(context),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
