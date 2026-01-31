@@ -22,9 +22,7 @@ import deckers.thibault.aves.utils.MemoryUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.MimeTypes.isIsoBMFFImage
 import deckers.thibault.aves.utils.StorageUtils
-import org.mp4parser.IsoFile
 import org.mp4parser.boxes.UserBox
-import java.io.FileInputStream
 import java.util.TimeZone
 
 object XMP {
@@ -99,27 +97,18 @@ object XMP {
     ) {
         if (mimeType != MimeTypes.MP4) return
         try {
-            // we can skip uninteresting boxes with a seekable data source
-            val pfd = StorageUtils.openInputFileDescriptor(context, uri) ?: throw Exception("failed to open file descriptor for uri=$uri")
-            pfd.use {
-                FileInputStream(it.fileDescriptor).use { stream ->
-                    stream.channel.use { channel ->
-                        // creating `IsoFile` with a `File` or a `File.inputStream()` yields `No such device`
-                        IsoFile(channel, Mp4ParserHelper.metadataBoxParser()).use { isoFile ->
-                            isoFile.processBoxes(UserBox::class.java, true) { box, _ ->
-                                val boxSize = box.size
-                                if (MemoryUtils.canAllocate(boxSize)) {
-                                    val bytes = box.toBytes()
-                                    val payload = bytes.copyOfRange(8, bytes.size)
+            Mp4ParserHelper.consumeIso(context, uri, Mp4ParserHelper.metadataBoxParser()) { isoFile ->
+                isoFile.processBoxes(UserBox::class.java, true) { box, _ ->
+                    val boxSize = box.size
+                    if (MemoryUtils.canAllocate(boxSize)) {
+                        val bytes = box.toBytes()
+                        val payload = bytes.copyOfRange(8, bytes.size)
 
-                                    val metadata = com.drew.metadata.Metadata()
-                                    SafeMp4UuidBoxHandler(metadata).processBox("", payload, -1, null)
-                                    processDirs(metadata.directories.filter { dir -> dir.tagCount > 0 }.toList())
-                                } else {
-                                    Log.w(LOG_TAG, "MP4 box too large at $boxSize bytes, for mimeType=$mimeType uri=$uri")
-                                }
-                            }
-                        }
+                        val metadata = com.drew.metadata.Metadata()
+                        SafeMp4UuidBoxHandler(metadata).processBox("", payload, -1, null)
+                        processDirs(metadata.directories.filter { dir -> dir.tagCount > 0 }.toList())
+                    } else {
+                        Log.w(LOG_TAG, "MP4 box too large at $boxSize bytes, for mimeType=$mimeType uri=$uri")
                     }
                 }
             }

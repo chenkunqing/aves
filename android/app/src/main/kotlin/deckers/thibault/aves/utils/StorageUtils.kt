@@ -647,7 +647,7 @@ object StorageUtils {
             // among various other exceptions,
             // opening a file marked pending and owned by another package throws an `IllegalStateException`
             Log.w(LOG_TAG, "failed to open input file descriptor from effectiveUri=$effectiveUri for uri=$uri", e)
-            null
+            throw FileDescriptorException("failed to open input file descriptor from effectiveUri=$effectiveUri for uri=$uri", e)
         }
     }
 
@@ -743,3 +743,5 @@ object StorageUtils {
         }
     }
 }
+
+class FileDescriptorException(message: String, cause: Throwable? = null) : IOException(message, cause)

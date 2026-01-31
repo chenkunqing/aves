@@ -7,6 +7,8 @@ import 'package:aves/model/media/panorama.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/overlay.dart';
 import 'package:aves/model/multipage.dart';
+import 'package:aves/services/common/channel.dart';
+import 'package:aves/services/common/custom_exception.dart';
 import 'package:aves/services/common/service_policy.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/metadata/xmp.dart';
@@ -14,7 +16,6 @@ import 'package:aves/utils/time_utils.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:aves/services/common/channel.dart';
 
 abstract class MetadataFetchService {
   // returns Map<Map<Key, Value>> (map of directories, each directory being a map of metadata label and value description)
@@ -58,9 +59,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
       });
       if (result != null) return result as Map;
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return {};
   }
@@ -94,9 +93,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
         AvesEntry.normalizeMimeTypeFields(result);
         return CatalogMetadata.fromMap(result);
       } on PlatformException catch (e, stack) {
-        if (entry.isValid) {
-          await reportService.recordError(e, stack);
-        }
+        await _processPlatformException(entry, e, stack);
       }
       return null;
     }
@@ -129,9 +126,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
                 as Map;
         return OverlayMetadata.fromMap(result);
       } on PlatformException catch (e, stack) {
-        if (entry.isValid) {
-          await reportService.recordError(e, stack);
-        }
+        await _processPlatformException(entry, e, stack);
       }
     }
     return const OverlayMetadata();
@@ -149,9 +144,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
               as Map;
       return GeoTiffInfo.fromMap(result);
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -175,8 +168,8 @@ class PlatformMetadataFetchService implements MetadataFetchService {
       pageMaps.forEach(AvesEntry.normalizeMimeTypeFields);
       return MultiPageInfo.fromPageMaps(entry, pageMaps);
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
+      if (e.code != 'getMultiPageInfo-empty') {
+        await _processPlatformException(entry, e, stack);
       }
     }
     return null;
@@ -197,9 +190,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
               as Map;
       return PanoramaInfo.fromMap(result);
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -213,9 +204,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
       });
       if (result != null) return (result as List).cast<Map>().map((fields) => fields.cast<String, dynamic>()).toList();
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -230,9 +219,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
       });
       if (result != null) return AvesXmp.fromList((result as List).cast<String>());
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -265,9 +252,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
         'prop': prop,
       });
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -285,9 +270,7 @@ class PlatformMetadataFetchService implements MetadataFetchService {
         return dateTimeFromMillis(result, isUtc: false);
       }
     } on PlatformException catch (e, stack) {
-      if (entry.isValid) {
-        await reportService.recordError(e, stack);
-      }
+      await _processPlatformException(entry, e, stack);
     }
     return null;
   }
@@ -304,11 +287,29 @@ class PlatformMetadataFetchService implements MetadataFetchService {
         });
         if (result != null) return (result as Map).cast<String, dynamic>();
       } on PlatformException catch (e, stack) {
-        if (entry.isValid) {
-          await reportService.recordError(e, stack);
-        }
+        await _processPlatformException(entry, e, stack);
       }
     }
     return {};
+  }
+
+  Future<void> _processPlatformException(AvesEntry entry, PlatformException e, StackTrace stack) async {
+    if (entry.isValid) {
+      final code = e.code;
+      final customException = CustomPlatformException.fromStandard(e);
+      if (code.endsWith('filenotfound')) {
+        await fileNotFound(customException);
+      } else {
+        await reportService.recordError(e, stack);
+      }
+    }
+  }
+
+  // distinct exceptions to convince Crashlytics to split reports into distinct issues
+  // The distinct debug statement is there to make the body unique, so that the methods are not merged at compile time.
+
+  Future<void> fileNotFound(CustomPlatformException e) {
+    debugPrint('fileNotFound $e');
+    return reportService.recordError(e);
   }
 }

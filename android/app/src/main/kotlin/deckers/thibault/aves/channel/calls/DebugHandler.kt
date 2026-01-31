@@ -42,8 +42,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.beyka.tiffbitmapfactory.TiffBitmapFactory
-import org.mp4parser.IsoFile
-import java.io.FileInputStream
 import java.io.IOException
 import androidx.exifinterface.media.ExifInterfaceFork as ExifInterface
 
@@ -317,16 +315,8 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
         val sb = StringBuilder()
         if (mimeType == MimeTypes.MP4 || MimeTypes.isIsoBMFFImage(mimeType)) {
             try {
-                // we can skip uninteresting boxes with a seekable data source
-                val pfd = StorageUtils.openInputFileDescriptor(context, uri) ?: throw Exception("failed to open file descriptor for uri=$uri")
-                pfd.use {
-                    FileInputStream(it.fileDescriptor).use { stream ->
-                        stream.channel.use { channel ->
-                            IsoFile(channel, Mp4ParserHelper.metadataBoxParser()).use { isoFile ->
-                                isoFile.dumpBoxes(sb)
-                            }
-                        }
-                    }
+                Mp4ParserHelper.consumeIso(context, uri, Mp4ParserHelper.metadataBoxParser()) { isoFile ->
+                    isoFile.dumpBoxes(sb)
                 }
             } catch (e: Exception) {
                 result.error("getMp4ParserDump-exception", e.message, e.stackTraceToString())
