@@ -238,25 +238,23 @@ class CollectionLens with ChangeNotifier {
     final allRawEntries = _filteredSortedEntries.where((entry) => entry.isRaw).toSet();
     if (allRawEntries.isNotEmpty) {
       final allDevelopedEntries = _filteredSortedEntries.where((entry) => MimeTypes.developedRawImages.contains(entry.mimeType)).toSet();
-      final rawEntriesByDir = groupBy<AvesEntry, String?>(allRawEntries, (entry) => entry.directory);
+      final rawEntriesByDir = groupBy<AvesEntry, String?>(allRawEntries, (entry) => entry.directory).whereNotNullKey();
       rawEntriesByDir.forEach((dir, dirRawEntries) {
-        if (dir != null) {
-          final dirDevelopedEntries = allDevelopedEntries.where((entry) => entry.directory == dir).toSet();
-          for (final rawEntry in dirRawEntries) {
-            final rawFilename = rawEntry.filenameWithoutExtension;
-            final developedEntry = dirDevelopedEntries.firstWhereOrNull((entry) => entry.filenameWithoutExtension == rawFilename);
-            if (developedEntry != null) {
-              final mainEntry = developedEntry;
-              final subEntry = rawEntry;
+        final dirDevelopedEntries = allDevelopedEntries.where((entry) => entry.directory == dir).toSet();
+        for (final rawEntry in dirRawEntries) {
+          final rawFilename = rawEntry.filenameWithoutExtension;
+          final developedEntry = dirDevelopedEntries.firstWhereOrNull((entry) => entry.filenameWithoutExtension == rawFilename);
+          if (developedEntry != null) {
+            final mainEntry = developedEntry;
+            final subEntry = rawEntry;
 
-              final stackEntry = mainEntry.copyWith(stackedEntries: [mainEntry, subEntry]);
-              _syntheticEntries.add(stackEntry);
+            final stackEntry = mainEntry.copyWith(stackedEntries: [mainEntry, subEntry]);
+            _syntheticEntries.add(stackEntry);
 
-              _filteredSortedEntries.remove(subEntry);
-              final index = _filteredSortedEntries.indexOf(mainEntry);
-              _filteredSortedEntries.removeAt(index);
-              _filteredSortedEntries.insert(0, stackEntry);
-            }
+            _filteredSortedEntries.remove(subEntry);
+            final index = _filteredSortedEntries.indexOf(mainEntry);
+            _filteredSortedEntries.removeAt(index);
+            _filteredSortedEntries.insert(0, stackEntry);
           }
         }
       });
