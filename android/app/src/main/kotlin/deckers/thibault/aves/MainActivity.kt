@@ -81,7 +81,7 @@ open class MainActivity : FlutterFragmentActivity() {
     private lateinit var intentStreamHandler: IntentStreamHandler
     private lateinit var analysisStreamHandler: AnalysisStreamHandler
     internal lateinit var intentDataMap: MutableMap<String, Any?>
-    private lateinit var analysisHandler: AnalysisHandler
+    private lateinit var analysisHandler: AnalysisHandler<MainActivity>
     private lateinit var mediaSessionHandler: MediaSessionHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
