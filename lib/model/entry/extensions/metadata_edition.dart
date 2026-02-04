@@ -250,10 +250,10 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
       final iptc = await metadataFetchService.getIptc(this);
       if (iptc != null) {
         if (editTitle) {
-          editIptcValues(iptc, IPTC.applicationRecord, IPTC.objectName, {if (title != null) title});
+          editIptcValues(iptc, IPTC.applicationRecord, IPTC.objectName, {?title});
         }
         if (editDescription) {
-          editIptcValues(iptc, IPTC.applicationRecord, IPTC.captionAbstractTag, {if (description != null) description});
+          editIptcValues(iptc, IPTC.applicationRecord, IPTC.captionAbstractTag, {?description});
         }
         metadata[MetadataType.iptc] = iptc;
       }

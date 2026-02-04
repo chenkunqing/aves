@@ -518,7 +518,7 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
           ),
           child: Column(
             children: [
-              if (extraBottomOverlay != null) extraBottomOverlay,
+              ?extraBottomOverlay,
               ViewerBottomOverlay(
                 entries: entries,
                 index: _currentEntryIndex,

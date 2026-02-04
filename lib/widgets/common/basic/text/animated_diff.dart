@@ -105,7 +105,7 @@ class _AnimatedDiffTextState extends State<AnimatedDiffText> with SingleTickerPr
                               child: child,
                             ),
                           ),
-                          if (currentChild != null) currentChild,
+                          ?currentChild,
                         ],
                       );
                     },

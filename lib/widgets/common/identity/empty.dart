@@ -64,7 +64,7 @@ class EmptyContent extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-              if (bottom != null) bottom!,
+              ?bottom,
             ],
           ),
         ),

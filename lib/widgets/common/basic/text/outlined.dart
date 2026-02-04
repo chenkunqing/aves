@@ -74,7 +74,7 @@ class OutlinedText extends StatelessWidget {
 
     return Stack(
       children: [
-        if (outline != null) outline,
+        ?outline,
         fill,
       ],
     );

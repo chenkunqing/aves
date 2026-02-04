@@ -337,8 +337,8 @@ class _BasicInfoState extends State<_BasicInfo> {
                 if (showResolution) l10n.viewerInfoLabelResolution: context.applyDirectionality(getRasterResolutionText(locale)),
                 l10n.viewerInfoLabelSize: context.applyDirectionality(sizeText),
                 if (!entry.trashed) l10n.viewerInfoLabelUri: entry.uri,
-                if (path != null) l10n.viewerInfoLabelPath: path,
-                if (ownerPackage != null) l10n.viewerInfoLabelOwner: ownerPackage,
+                l10n.viewerInfoLabelPath: ?path,
+                l10n.viewerInfoLabelOwner: ?ownerPackage,
               },
               spanBuilders: {
                 l10n.viewerInfoLabelOwner: _ownerHandler(ownerPackage),

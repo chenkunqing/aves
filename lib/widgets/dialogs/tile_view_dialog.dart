@@ -185,7 +185,7 @@ class _TileViewDialogState<S, G, L> extends State<TileViewDialog<S, G, L>> with 
                 showHighlight: false,
               ),
             ),
-            if (trailing != null) trailing,
+            ?trailing,
           ],
         ),
       ),
@@ -231,7 +231,7 @@ class _TileViewDialogState<S, G, L> extends State<TileViewDialog<S, G, L>> with 
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     selector,
-                    if (bottom != null) bottom,
+                    ?bottom,
                   ],
                 ),
               ),

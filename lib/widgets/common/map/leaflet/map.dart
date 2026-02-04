@@ -221,7 +221,7 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
         subdomains: style.subdomains,
         tileProvider: NetworkTileProvider(
           headers: {
-            if (userAgent != null) 'User-Agent': userAgent,
+            'User-Agent': ?userAgent,
           },
         ),
         // similar to `RetinaMode.isHighDensity` from `flutter_map`, but only rebuild for target aspect

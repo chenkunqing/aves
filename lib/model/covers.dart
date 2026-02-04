@@ -246,10 +246,10 @@ class Covers {
 
           return {
             'filter': row.filter.toJson(),
-            if (volume != null) 'volume': volume,
-            if (relativePath != null) 'relativePath': relativePath,
-            if (packageName != null) 'packageName': packageName,
-            if (colorJson != null) 'color': colorJson,
+            'volume': ?volume,
+            'relativePath': ?relativePath,
+            'packageName': ?packageName,
+            'color': ?colorJson,
           };
         })
         .nonNulls

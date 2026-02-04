@@ -26,7 +26,7 @@ class OverlayPositionTitleRow extends StatelessWidget {
     Text toText({String? pagePosition}) => Text(
       [
         if (collectionPosition != null) collectionPosition,
-        if (pagePosition != null) pagePosition,
+        ?pagePosition,
         if (title != null) '${Unicode.FSI}$title${Unicode.PDI}',
       ].join(AText.separator),
     );
