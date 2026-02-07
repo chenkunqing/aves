@@ -205,7 +205,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     _subscriptions.add(_newIntentChannel.receiveBroadcastStream().listen((event) => _onNewIntent(event as Map?)));
     _subscriptions.add(_analysisCompletionChannel.receiveBroadcastStream().listen((event) => _onAnalysisCompletion()));
     _subscriptions.add(_errorChannel.receiveBroadcastStream().listen((event) => _onError(event as String?)));
-    _subscriptions.add(_platformWindowChangeChannel.receiveBroadcastStream().listen((event) => _updateWindowMode()));
+    _subscriptions.add(_platformWindowChangeChannel.receiveBroadcastStream().listen((event) => _onWindowChange(event as String?)));
     _updateCutoutInsets();
     _updateWindowMode();
     _appModeNotifier.addListener(_onAppModeChanged);
@@ -437,15 +437,22 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeMetrics() => _updateCutoutInsets();
-
-  @override
   void didChangeLocales(List<Locale>? locales) => _applyLocale();
 
-  Future<void> _updateCutoutInsets() async {
-    if (await windowService.isCutoutAware()) {
-      AvesApp.cutoutInsetsNotifier.value = await windowService.getCutoutInsets();
+  Future<void> _onWindowChange(String? code) async {
+    if (code == null) return;
+    switch (code) {
+      case 'cutout_insets':
+        await _updateCutoutInsets();
+        break;
+      case 'window_mode':
+        await _updateWindowMode();
+        break;
     }
+  }
+
+  Future<void> _updateCutoutInsets() async {
+    AvesApp.cutoutInsetsNotifier.value = await windowService.getCutoutInsets();
   }
 
   Future<void> _updateWindowMode() async {

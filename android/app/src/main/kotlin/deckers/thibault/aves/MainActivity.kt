@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetManager
 import android.content.ClipData
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -239,27 +240,40 @@ open class MainActivity : FlutterFragmentActivity() {
     override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean) {
         @Suppress("deprecation")
         super.onMultiWindowModeChanged(isInMultiWindowMode)
-        notifyWindowModeChanged()
+        notifyWindowModeChange()
     }
 
     override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
         super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
-        notifyWindowModeChanged()
+        notifyWindowModeChange()
     }
 
     @Deprecated("Deprecated in android.app.Activity")
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
         @Suppress("deprecation")
         super.onPictureInPictureModeChanged(isInPictureInPictureMode)
-        notifyWindowModeChanged()
+        notifyWindowModeChange()
     }
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        notifyWindowModeChanged()
+        notifyWindowModeChange()
     }
 
-    private fun notifyWindowModeChanged() = windowChangeStreamHandler.notifyWindowModeChange()
+    private var lastCutoutInsetsDpi = RectF()
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        val cutoutInsetsDpi = ActivityWindowHandler.getCutoutInsetsDpi(this)
+        if (lastCutoutInsetsDpi != cutoutInsetsDpi) {
+            lastCutoutInsetsDpi = cutoutInsetsDpi
+            notifyCutoutInsetsChange()
+        }
+    }
+
+    private fun notifyWindowModeChange() = windowChangeStreamHandler.notifyWindowModeChange()
+
+    private fun notifyCutoutInsetsChange() = windowChangeStreamHandler.notifyCutoutInsetsChange()
 
     override fun onNewIntent(intent: Intent) {
         Log.i(LOG_TAG, "onNewIntent intent=$intent")

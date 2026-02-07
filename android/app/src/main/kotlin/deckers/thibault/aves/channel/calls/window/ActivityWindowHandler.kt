@@ -92,24 +92,13 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
     }
 
     override fun getCutoutInsets(call: MethodCall, result: MethodChannel.Result) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            result.error("getCutoutInsets-sdk", "unsupported SDK version=${Build.VERSION.SDK_INT}", null)
-            return
-        }
-
-        val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            activity.getDisplayCompat()?.cutout
-        } else {
-            activity.window.decorView.rootWindowInsets.displayCutout
-        }
-
-        val density = activity.devicePixelRatio()
+        val safeInsetsDpi = getCutoutInsetsDpi(activity)
         result.success(
             hashMapOf(
-                "left" to (cutout?.safeInsetLeft ?: 0) / density,
-                "top" to (cutout?.safeInsetTop ?: 0) / density,
-                "right" to (cutout?.safeInsetRight ?: 0) / density,
-                "bottom" to (cutout?.safeInsetBottom ?: 0) / density,
+                "left" to safeInsetsDpi.left,
+                "top" to safeInsetsDpi.top,
+                "right" to safeInsetsDpi.right,
+                "bottom" to safeInsetsDpi.bottom,
             )
         )
     }
@@ -195,5 +184,26 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
 
     companion object {
         private val LOG_TAG = LogUtils.createTag<ActivityWindowHandler>()
+
+        fun getCutoutInsetsDpi(activity: Activity): RectF {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val cutout = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    activity.getDisplayCompat()?.cutout
+                } else {
+                    activity.window.decorView.rootWindowInsets.displayCutout
+                }
+
+                if (cutout != null) {
+                    val density = activity.devicePixelRatio()
+                    return RectF(
+                        cutout.safeInsetLeft / density,
+                        cutout.safeInsetTop / density,
+                        cutout.safeInsetRight / density,
+                        cutout.safeInsetBottom / density
+                    )
+                }
+            }
+            return RectF()
+        }
     }
 }
