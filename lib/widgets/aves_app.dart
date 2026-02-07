@@ -183,13 +183,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
   final EventChannel _errorChannel = const OptionalEventChannel('deckers.thibault/aves/error');
   final EventChannel _platformWindowChangeChannel = const OptionalEventChannel('deckers.thibault/aves/window_change');
 
-  // Flutter has various page transition implementations for Android:
-  // - `FadeUpwardsPageTransitionsBuilder` on Oreo / Android 8 / API 27 and below
-  // - `OpenUpwardsPageTransitionsBuilder` on Pie / Android 9 / API 28
-  // - `ZoomPageTransitionsBuilder` on Q / Android 10 / API 29 (default in Flutter v3.22.0)
-  // - `FadeForwardsPageTransitionsBuilder` on U / Android 14 / API 34
-  // - `PredictiveBackPageTransitionsBuilder` for Android 15 / API 35 intra-app predictive back (default to `ZoomPageTransitionsBuilder`)
-  static const _defaultPageTransitionsBuilder = FadeUpwardsPageTransitionsBuilder();
+  static const _defaultPageTransitionsBuilder = PredictiveBackPageTransitionsBuilder();
   static final GlobalKey<NavigatorState> _navigatorKey = GlobalKey(debugLabel: 'app-navigator');
   static ScreenBrightness? _screenBrightness;
   static bool _exitedMainByPop = false;
