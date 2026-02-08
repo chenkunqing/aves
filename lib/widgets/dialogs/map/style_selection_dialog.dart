@@ -48,43 +48,48 @@ class _MapStyleSelectionDialogState extends State<MapStyleSelectionDialog> {
         ),
         body: SafeArea(
           bottom: false,
-          child: ListView(
-            children: [
-              ...defaultStyles.map((v) {
-                return SelectionRadioListTile(
-                  // key is expected by test driver
-                  key: Key(v.key),
-                  value: v,
-                  title: v.getName(context),
-                  needConfirmation: false,
-                  secondary: _getDefaultStylePreview(v),
-                  getGroupValue: () => _selectedValue,
-                  setGroupValue: _setGroupValue,
-                );
-              }),
-              ...customStyles.map((v) {
-                return SelectionRadioListTile(
-                  // key is expected by test driver
-                  key: Key(v.key),
-                  value: v,
-                  title: v.getName(context),
-                  needConfirmation: false,
-                  secondary: _buildCustomStyleButtons(v),
-                  getGroupValue: () => _selectedValue,
-                  setGroupValue: _setGroupValue,
-                );
-              }),
-              if (!settings.useTvLayout)
-                Container(
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.only(top: 4, bottom: 8),
-                  child: AvesOutlinedButton(
-                    icon: const Icon(AIcons.add),
-                    label: l10n.mapStyleDialogAddStyle,
-                    onPressed: _add,
+          child: RadioGroup<EntryMapStyle>(
+            groupValue: _selectedValue,
+            onChanged: (v) {
+              // always update the group value even when popping afterwards,
+              // so that the group value can be used in pop handlers
+              // as well as the regular return value from navigation
+              _setGroupValue(v);
+              // validate without confirmation
+              Navigator.maybeOf(context)?.pop(v);
+            },
+            child: ListView(
+              children: [
+                ...defaultStyles.map((v) {
+                  return SelectionRadioListTile<EntryMapStyle>(
+                    // key is expected by test driver
+                    key: Key(v.key),
+                    value: v,
+                    title: v.getName(context),
+                    secondary: _getDefaultStylePreview(v),
+                  );
+                }),
+                ...customStyles.map((v) {
+                  return SelectionRadioListTile<EntryMapStyle>(
+                    // key is expected by test driver
+                    key: Key(v.key),
+                    value: v,
+                    title: v.getName(context),
+                    secondary: _buildCustomStyleButtons(v),
+                  );
+                }),
+                if (!settings.useTvLayout)
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.only(top: 4, bottom: 8),
+                    child: AvesOutlinedButton(
+                      icon: const Icon(AIcons.add),
+                      label: l10n.mapStyleDialogAddStyle,
+                      onPressed: _add,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
