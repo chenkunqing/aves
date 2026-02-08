@@ -16,8 +16,8 @@ Future<bool> showConfirmationDialog({
     builder: (context) => AvesMessageDialog(
       message: message,
       actions: [
-        CancelButton(text: cancel),
-        OkButton(text: ok),
+        CancelButton<bool>(text: cancel, result: false),
+        OkButton<bool>(text: ok, result: true),
       ],
     ),
     routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),

@@ -163,36 +163,40 @@ Future<void> showWarningDialog({
   routeSettings: const RouteSettings(name: AvesDialog.warningRouteName),
 );
 
-class CancelButton extends StatelessWidget {
+class CancelButton<T> extends StatelessWidget {
   final String? text;
+  final T? result;
 
   const CancelButton({
     super.key,
     this.text,
+    this.result,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.maybeOf(context)?.pop(false),
+      onPressed: () => Navigator.maybeOf(context)?.pop(result),
       // MD2 button labels were upper case but they are lower case in MD3
       child: Text(text ?? Themes.asButtonLabel(context.l10n.cancelTooltip)),
     );
   }
 }
 
-class OkButton extends StatelessWidget {
+class OkButton<T> extends StatelessWidget {
   final String? text;
+  final T? result;
 
   const OkButton({
     super.key,
     this.text,
+    this.result,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.maybeOf(context)?.pop(true),
+      onPressed: () => Navigator.maybeOf(context)?.pop(result),
       // MD2 button labels were upper case but they are lower case in MD3
       child: Text(text ?? Themes.asButtonLabel(MaterialLocalizations.of(context).okButtonLabel)),
     );

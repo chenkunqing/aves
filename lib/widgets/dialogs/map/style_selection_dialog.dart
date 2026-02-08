@@ -6,7 +6,7 @@ import 'package:aves/view/src/settings/enums.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/buttons/outlined_button.dart';
-import 'package:aves/widgets/dialogs/aves_dialog.dart';
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/map/style_editor_dialog.dart';
 import 'package:aves/widgets/dialogs/selection_dialogs/radio_list_tile.dart';
 import 'package:aves_map/aves_map.dart';
