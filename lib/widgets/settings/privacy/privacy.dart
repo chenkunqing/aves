@@ -106,12 +106,9 @@ class SettingsTilePrivacyEnableBin extends SettingsTile {
     final l10n = context.l10n;
     if (!enabled) {
       if (vaults.all.any((v) => v.useBin)) {
-        await showDialog<bool>(
+        await showWarningDialog(
           context: context,
-          builder: (context) => AvesDialog(
-            content: Text(l10n.vaultBinUsageDialogMessage),
-            actions: const [OkButton()],
-          ),
+          message: l10n.vaultBinUsageDialogMessage,
         );
         return false;
       }
@@ -122,7 +119,7 @@ class SettingsTilePrivacyEnableBin extends SettingsTile {
         if (!await showConfirmationDialog(
           context: context,
           message: l10n.settingsDisablingBinWarningDialogMessage,
-          confirmationButtonLabel: l10n.applyButtonLabel,
+          ok: l10n.applyButtonLabel,
         )) {
           return false;
         }

@@ -50,44 +50,43 @@ class _VideoStreamSelectionDialogState extends State<VideoStreamSelectionDialog>
     final canSelectAudio = _audioStreams.length > 1;
     final canSelectText = _textStreams.length > 1;
     final canSelect = canSelectVideo || canSelectAudio || canSelectText;
+    if (!canSelect) {
+      return AvesMessageDialog.info(context.l10n.videoStreamSelectionDialogNoSelection);
+    }
     return AvesDialog(
-      content: canSelect ? null : Text(context.l10n.videoStreamSelectionDialogNoSelection),
-      scrollableContent: canSelect
-          ? [
-              if (canSelectVideo)
-                ..._buildSection(
-                  icon: AIcons.streamVideo,
-                  title: context.l10n.videoStreamSelectionDialogVideo,
-                  streams: _videoStreams,
-                  current: _currentVideo,
-                  setter: (v) => _currentVideo = v,
-                ),
-              if (canSelectAudio)
-                ..._buildSection(
-                  icon: AIcons.streamAudio,
-                  title: context.l10n.videoStreamSelectionDialogAudio,
-                  streams: _audioStreams,
-                  current: _currentAudio,
-                  setter: (v) => _currentAudio = v,
-                ),
-              if (canSelectText)
-                ..._buildSection(
-                  icon: AIcons.streamText,
-                  title: context.l10n.videoStreamSelectionDialogText,
-                  streams: _textStreams,
-                  current: _currentText,
-                  setter: (v) => _currentText = v,
-                ),
-              const SizedBox(height: 8),
-            ]
-          : null,
+      scrollableContent: [
+        if (canSelectVideo)
+          ..._buildSection(
+            icon: AIcons.streamVideo,
+            title: context.l10n.videoStreamSelectionDialogVideo,
+            streams: _videoStreams,
+            current: _currentVideo,
+            setter: (v) => _currentVideo = v,
+          ),
+        if (canSelectAudio)
+          ..._buildSection(
+            icon: AIcons.streamAudio,
+            title: context.l10n.videoStreamSelectionDialogAudio,
+            streams: _audioStreams,
+            current: _currentAudio,
+            setter: (v) => _currentAudio = v,
+          ),
+        if (canSelectText)
+          ..._buildSection(
+            icon: AIcons.streamText,
+            title: context.l10n.videoStreamSelectionDialogText,
+            streams: _textStreams,
+            current: _currentText,
+            setter: (v) => _currentText = v,
+          ),
+        const SizedBox(height: 8),
+      ],
       actions: [
         const CancelButton(),
-        if (canSelect)
-          TextButton(
-            onPressed: () => _submit(context),
-            child: Text(context.l10n.applyButtonLabel),
-          ),
+        TextButton(
+          onPressed: () => _submit(context),
+          child: Text(context.l10n.applyButtonLabel),
+        ),
       ],
     );
   }

@@ -8,18 +8,16 @@ import 'aves_dialog.dart';
 Future<bool> showConfirmationDialog({
   required BuildContext context,
   required String message,
-  required String confirmationButtonLabel,
+  String? ok,
+  String? cancel,
 }) async {
   final confirmed = await showDialog<bool>(
     context: context,
-    builder: (context) => AvesDialog(
-      content: Text(message),
+    builder: (context) => AvesMessageDialog(
+      message: message,
       actions: [
-        const CancelButton(),
-        TextButton(
-          onPressed: () => Navigator.maybeOf(context)?.pop(true),
-          child: Text(confirmationButtonLabel),
-        ),
+        CancelButton(text: cancel),
+        OkButton(text: ok),
       ],
     ),
     routeSettings: const RouteSettings(name: AvesDialog.confirmationRouteName),

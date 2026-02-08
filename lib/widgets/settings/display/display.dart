@@ -6,7 +6,7 @@ import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/dialogs/aves_dialog.dart';
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
 import 'package:aves/widgets/settings/privacy/privacy.dart';
@@ -130,25 +130,16 @@ class SettingsTileDisplayForceTvLayout extends SettingsTile {
     onChanged: (v) async {
       if (v) {
         final l10n = context.l10n;
-        final confirmed = await showDialog<bool>(
+        if (!await showConfirmationDialog(
           context: context,
-          builder: (context) => AvesDialog(
-            content: Text(
-              [
-                l10n.settingsModificationWarningDialogMessage,
-                l10n.genericDangerWarningDialogMessage,
-              ].join('\n\n'),
-            ),
-            actions: [
-              const CancelButton(),
-              TextButton(
-                onPressed: () => Navigator.maybeOf(context)?.pop(true),
-                child: Text(l10n.applyButtonLabel),
-              ),
-            ],
-          ),
-        );
-        if (confirmed == null || !confirmed) return;
+          message: [
+            l10n.settingsModificationWarningDialogMessage,
+            l10n.genericDangerWarningDialogMessage,
+          ].join('\n\n'),
+          ok: l10n.applyButtonLabel,
+        )) {
+          return;
+        }
       }
 
       if (v && !(await SettingsTilePrivacyEnableBin.setBinUsage(context, false))) return;

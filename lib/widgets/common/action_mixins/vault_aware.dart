@@ -103,13 +103,9 @@ mixin VaultAwareMixin on FeedbackMixin {
             localizedReason: l10n.authenticateToConfigureVault,
           );
         } on PlatformException catch (e, stack) {
-          await showDialog(
+          await showWarningDialog(
             context: context,
-            builder: (context) => AvesDialog(
-              content: Text(e.message ?? l10n.genericFailureFeedback),
-              actions: const [OkButton()],
-            ),
-            routeSettings: const RouteSettings(name: AvesDialog.warningRouteName),
+            message: e.message ?? l10n.genericFailureFeedback,
           );
           await reportService.recordError(e, stack);
         }

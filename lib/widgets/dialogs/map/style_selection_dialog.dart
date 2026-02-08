@@ -161,21 +161,14 @@ class _MapStyleSelectionDialogState extends State<MapStyleSelectionDialog> {
 
   Future<void> _remove(EntryMapStyle style) async {
     final l10n = context.l10n;
-    final confirmed = await showDialog<bool>(
+
+    if (!await showConfirmationDialog(
       context: context,
-      builder: (context) => AvesDialog(
-        content: Text(l10n.genericDangerWarningDialogMessage),
-        actions: [
-          const CancelButton(),
-          TextButton(
-            onPressed: () => Navigator.maybeOf(context)?.pop(true),
-            child: Text(l10n.applyButtonLabel),
-          ),
-        ],
-      ),
-      routeSettings: const RouteSettings(name: AvesDialog.warningRouteName),
-    );
-    if (confirmed == null || !confirmed) return;
+      message: l10n.genericDangerWarningDialogMessage,
+      ok: l10n.applyButtonLabel,
+    )) {
+      return;
+    }
 
     settings.customMapStyles = settings.customMapStyles..remove(style);
     if (_selectedValue == style) {

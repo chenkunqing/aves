@@ -149,37 +149,78 @@ class DialogTitle extends StatelessWidget {
   }
 }
 
-Future<void> showNoMatchingAppDialog(BuildContext context) => showDialog(
+Future<void> showNoMatchingAppDialog(BuildContext context) => showWarningDialog(
   context: context,
-  builder: (context) => AvesDialog(
-    content: Text(context.l10n.noMatchingAppDialogMessage),
-    actions: const [OkButton()],
-  ),
+  message: context.l10n.noMatchingAppDialogMessage,
+);
+
+Future<void> showWarningDialog({
+  required BuildContext context,
+  required String message,
+}) => showDialog(
+  context: context,
+  builder: (context) => AvesMessageDialog.info(message),
   routeSettings: const RouteSettings(name: AvesDialog.warningRouteName),
 );
 
 class CancelButton extends StatelessWidget {
-  const CancelButton({super.key});
+  final String? text;
+
+  const CancelButton({
+    super.key,
+    this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.maybeOf(context)?.pop(),
+      onPressed: () => Navigator.maybeOf(context)?.pop(false),
       // MD2 button labels were upper case but they are lower case in MD3
-      child: Text(Themes.asButtonLabel(context.l10n.cancelTooltip)),
+      child: Text(text ?? Themes.asButtonLabel(context.l10n.cancelTooltip)),
     );
   }
 }
 
 class OkButton extends StatelessWidget {
-  const OkButton({super.key});
+  final String? text;
+
+  const OkButton({
+    super.key,
+    this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => Navigator.maybeOf(context)?.pop(),
+      onPressed: () => Navigator.maybeOf(context)?.pop(true),
       // MD2 button labels were upper case but they are lower case in MD3
-      child: Text(Themes.asButtonLabel(MaterialLocalizations.of(context).okButtonLabel)),
+      child: Text(text ?? Themes.asButtonLabel(MaterialLocalizations.of(context).okButtonLabel)),
+    );
+  }
+}
+
+class AvesMessageDialog extends StatelessWidget {
+  final String message;
+  final List<Widget> actions;
+
+  const AvesMessageDialog({
+    super.key,
+    required this.message,
+    required this.actions,
+  });
+
+  factory AvesMessageDialog.info(String message) {
+    return AvesMessageDialog(
+      message: message,
+      actions: const [OkButton()],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AvesDialog(
+      content: Text(message),
+      actions: actions,
     );
   }
 }

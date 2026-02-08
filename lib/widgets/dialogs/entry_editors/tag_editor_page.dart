@@ -11,7 +11,7 @@ import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/expandable_filter_row.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
-import 'package:aves/widgets/dialogs/aves_dialog.dart';
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -82,23 +82,10 @@ class _TagEditorPageState extends State<TagEditorPage> {
         if (didPop) return;
 
         final NavigatorState navigator = Navigator.of(context);
-        final confirmed =
-            await showDialog<bool>(
-              context: context,
-              builder: (context) => AvesDialog(
-                content: Text(context.l10n.tagEditorDiscardDialogMessage),
-                actions: [
-                  const CancelButton(),
-                  TextButton(
-                    onPressed: () => Navigator.maybeOf(context)?.pop(true),
-                    child: Text(Themes.asButtonLabel(MaterialLocalizations.of(context).okButtonLabel)),
-                  ),
-                ],
-              ),
-              routeSettings: const RouteSettings(name: AvesDialog.warningRouteName),
-            ) ??
-            false;
-        if (confirmed) {
+        if (await showConfirmationDialog(
+          context: context,
+          message: context.l10n.tagEditorDiscardDialogMessage,
+        )) {
           navigator.pop();
         }
       },
