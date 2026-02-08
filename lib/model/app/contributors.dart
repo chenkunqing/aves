@@ -171,6 +171,7 @@ class Contributors {
     // Contributor('Htet Oo Hlaing', 'htetoh2006@outlook.com'), // Burmese
     // Contributor('Khant', 'khant@users.noreply.hosted.weblate.org'), // Burmese
     // Contributor('Thit Lwin', 'thitlwincoder@gmail.com'), // Burmese
+    // Contributor('s2W', 'dmrmarketingemail@yahoo.com'), // Croatian
     // Contributor('Idj', 'joneltmp+goahn@gmail.com'), // Hebrew
     // Contributor('elid', 'shopisrael12@gmail.com'), // Hebrew
     // Contributor('Rohit Burman', 'rohitburman31p@rediffmail.com'), // Hindi
