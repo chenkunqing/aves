@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Video: allow forcing hardware acceleration
 - Search: allow regex (wrapped in `/.../`) in query filter
 - Stats: export to CSV/JSON file selected fields of filtered collection
+- predictive back gesture support (external only, intra-app support pending Flutter v3.42)
 
 ### Changed
 

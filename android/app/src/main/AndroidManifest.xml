@@ -107,6 +107,7 @@
         android:appCategory="image"
         android:banner="@drawable/banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/full_backup_content"
         android:fullBackupOnly="true"
         android:icon="@mipmap/ic_launcher"
