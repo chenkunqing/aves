@@ -14,7 +14,7 @@ environment:
   # this project bundles Flutter SDK via `flutter_wrapper`
   # cf https://github.com/passsy/flutter_wrapper
   flutter: 3.41.0
-  sdk: ">=3.10.8 <4.0.0"
+  sdk: ">=3.11.0 <4.0.0"
 workspace:
   - plugins/aves_magnifier
   - plugins/aves_map
@@ -126,8 +126,8 @@ dependencies:
       url: https://github.com/deckerst/aves_streams_channel.git
   synchronized:
   url_launcher:
-  # `vector_map_tiles` v10.0.0-beta requires Flutter v3.37.0 and Impeller
-  vector_map_tiles: ^9.0.0-beta.8
+  # `vector_map_tiles` v10.0.0-beta API is unclear to provide sprites
+  vector_map_tiles: ^9.0.0-beta
   vector_math:
   vector_tile_renderer:
   volume_controller:
