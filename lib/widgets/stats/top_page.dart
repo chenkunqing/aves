@@ -97,7 +97,7 @@ class StatsTopPage<T extends Comparable> extends StatelessWidget with FeedbackMi
       });
     }
 
-    final csv = const ListToCsvConverter().convert([
+    final csvContent = csv.encode([
       [title, '#'],
       ...sortedEntries.map((kv) {
         final filter = filterBuilder(kv.key);
@@ -118,7 +118,7 @@ class StatsTopPage<T extends Comparable> extends StatelessWidget with FeedbackMi
     final success = await storageService.createFile(
       'aves-stats-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
       mimeType,
-      Uint8List.fromList(utf8.encode(csv)),
+      Uint8List.fromList(utf8.encode(csvContent)),
     );
     if (success != null) {
       if (success) {
