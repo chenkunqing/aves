@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/location.dart';
+import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
@@ -30,7 +31,7 @@ import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/basic/tv_edge_focus.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/empty.dart';
-import 'package:aves/widgets/dialogs/export_collection_stats_dialog.dart';
+import 'package:aves/widgets/dialogs/export_collection_stats_page.dart';
 import 'package:aves/widgets/stats/date/histogram.dart';
 import 'package:aves/widgets/stats/filter_table.dart';
 import 'package:aves/widgets/stats/mime_donut.dart';
@@ -398,14 +399,19 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
   }
 
   Future<void> _export(BuildContext context) async {
-    final options = await showDialog<(String, Set<ExportableEntryField>)>(
-      context: context,
-      builder: (context) => const ExportCollectionStatsDialog(),
-      routeSettings: const RouteSettings(name: ExportCollectionStatsDialog.routeName),
+    final sample = entries.first;
+    final locale = context.locale;
+    String previewer(ExportableEntryField field) => _exportEntryField(field, sample, locale)?.toString() ?? '';
+
+    final options = await Navigator.maybeOf(context)?.push<(String, Set<ExportableEntryField>, ExportTarget)>(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: ExportCollectionStatsPage.routeName),
+        builder: (context) => ExportCollectionStatsPage(previewer: previewer),
+      ),
     );
     if (options == null) return;
 
-    final (mimeType, fieldSet) = options;
+    final (mimeType, fieldSet, target) = options;
     final index = ExportableEntryField.values.indexOf;
     final fieldList = fieldSet.sorted((a, b) => index(a).compareTo(index(b)));
 
@@ -417,11 +423,17 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
         body = _exportToJson(fieldList);
     }
 
-    final success = await storageService.createFile(
-      'aves-stats-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
-      mimeType,
-      Uint8List.fromList(utf8.encode(body)),
-    );
+    final bool? success;
+    switch (target) {
+      case ExportTarget.clipboard:
+        success = await appService.copyToClipboard(text: body);
+      case ExportTarget.file:
+        success = await storageService.createFile(
+          'aves-stats-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
+          mimeType,
+          Uint8List.fromList(utf8.encode(body)),
+        );
+    }
     if (success != null) {
       if (success) {
         showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
@@ -431,16 +443,20 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
     }
   }
 
-  Object? _exportEntryField(AvesEntry entry, ExportableEntryField field) {
+  static Object? _exportEntryField(ExportableEntryField field, AvesEntry entry, String locale) {
     switch (field) {
       case ExportableEntryField.uri:
         return entry.uri;
       case ExportableEntryField.path:
         return entry.path;
+      case ExportableEntryField.title:
+        return entry.bestTitle;
       case ExportableEntryField.date:
         return entry.bestDate?.toIso8601String();
       case ExportableEntryField.size:
         return entry.sizeBytes;
+      case ExportableEntryField.resolution:
+        return entry.getResolutionText(locale);
       case ExportableEntryField.width:
         return entry.displaySize.width.toInt();
       case ExportableEntryField.height:
@@ -454,22 +470,24 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
       case ExportableEntryField.address:
         final shortAddress = entry.shortAddress;
         return shortAddress.isNotEmpty ? shortAddress : null;
+      case ExportableEntryField.tags:
+        return entry.tags.join(';');
     }
   }
 
   String _exportToCsv(List<ExportableEntryField> fields, BuildContext context) {
+    final locale = context.locale;
     final headers = fields.map((v) => v.getText(context)).toList();
     List<String> toCsvValues(AvesEntry entry) => fields.map((field) {
-      return _exportEntryField(entry, field)?.toString() ?? '';
+      return _exportEntryField(field, entry, locale)?.toString() ?? '';
     }).toList();
     return csv.encode([headers, ...entries.map(toCsvValues)]);
   }
 
   String _exportToJson(List<ExportableEntryField> fields) {
+    final locale = context.locale;
     Map<String, Object?> toJsonMap(AvesEntry entry) => Map.fromEntries(
-      fields.map((field) {
-        return MapEntry(field.name, _exportEntryField(entry, field));
-      }),
+      fields.map((field) => MapEntry(field.name, _exportEntryField(field, entry, locale))),
     );
     return jsonEncode(entries.map(toJsonMap).toList());
   }

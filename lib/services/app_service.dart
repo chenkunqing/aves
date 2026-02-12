@@ -22,7 +22,7 @@ abstract class AppService {
 
   Future<ui.ImageDescriptor?> getAppIcon(String packageName, double size);
 
-  Future<bool> copyToClipboard(String uri, String? label);
+  Future<bool> copyToClipboard({String? label, String? text, String? uri});
 
   Future<Map<String, dynamic>> edit(String uri, String mimeType);
 
@@ -97,11 +97,12 @@ class PlatformAppService implements AppService {
   }
 
   @override
-  Future<bool> copyToClipboard(String uri, String? label) async {
+  Future<bool> copyToClipboard({String? label, String? text, String? uri}) async {
     try {
       final result = await _platform.invokeMethod('copyToClipboard', <String, dynamic>{
-        'uri': uri,
         'label': label,
+        'text': text,
+        'uri': uri,
       });
       if (result != null) return result as bool;
     } on PlatformException catch (e, stack) {

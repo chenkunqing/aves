@@ -194,7 +194,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case EntryAction.addShortcut:
         _addShortcut(context, targetEntry);
       case EntryAction.copyToClipboard:
-        appService.copyToClipboard(targetEntry.uri, targetEntry.bestTitle).then((success) {
+        appService.copyToClipboard(label: targetEntry.bestTitle, uri: targetEntry.uri).then((success) {
           if (success) {
             showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
           } else {
