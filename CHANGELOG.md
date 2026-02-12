@@ -385,7 +385,8 @@ All notable changes to this project will be documented in this file.
 - crash when loading large collection
 - Viewer: copying content URI item
 - Albums: creating album with same name as existing empty directory
-- Privacy: tagging while vaults are unlocked does not yield recent tags visible when vaults are locked
+- Privacy: tagging while vaults are unlocked does not yield recent tags visible when vaults are
+  locked
 
 ## <a id="v1.11.16"></a>[v1.11.16] - 2024-10-10
 
@@ -716,7 +717,8 @@ All notable changes to this project will be documented in this file.
 
 - mosaic layout: clamp ratio to 32/9
 - Video: disable subtitles by default
-- Map: Stamen Watercolor layer (no longer hosted for free by Stamen) now hosted by Smithsonian Institution
+- Map: Stamen Watercolor layer (no longer hosted for free by Stamen) now hosted by Smithsonian
+  Institution
 - upgraded Flutter to stable v3.13.7
 
 ### Removed
