@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- upgraded Flutter to stable v3.41.0
+- upgraded Flutter to stable v3.41.1
 - splash screen icon animation
 
 ### Removed

@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: "5b7468c326d2f8a4f630056404ca0d291ade42918f4a3c6233618e724f39da8e"
+      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
       url: "https://pub.dev"
     source: hosted
-    version: "92.0.0"
+    version: "93.0.0"
   _flutterfire_internals:
     dependency: transitive
     description:
@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: analyzer
-      sha256: "70e4b1ef8003c64793a9e268a551a82869a8a96f39deb73dea28084b0e8bf75e"
+      sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "10.0.1"
   archive:
     dependency: transitive
     description:
@@ -567,10 +567,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter
-      sha256: "819985697596a42e1054b5feb2f407ba1ac92262e02844a40168e742b9f36dca"
+      sha256: "9b0d6dab3de6955837575dc371dd772fcb5d0a90f6a4954e8c066472f9938550"
       url: "https://pub.dev"
     source: hosted
-    version: "2.14.0"
+    version: "2.14.2"
   google_maps_flutter_android:
     dependency: transitive
     description:
@@ -583,10 +583,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_ios
-      sha256: "8625bf018c5a2c37253623834a359153cad58063ab3b9def2fc5d8de6e4b79cf"
+      sha256: "38f0a9ee858b0de3a5105e7efe200f154eea8397eb0c36bea6b3810429fbc0e4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.17.2"
+    version: "2.17.3"
   google_maps_flutter_platform_interface:
     dependency: transitive
     description:
@@ -663,10 +663,10 @@ packages:
     dependency: transitive
     description:
       name: idb_shim
-      sha256: adbcc954e0e072cf5bd1699431fc783b5e54e4b3db40667eb794708f7446ee6a
+      sha256: cc994e1095d69f2bcdf929246112ed0772d59d75be8a58995667acc2df091602
       url: "https://pub.dev"
     source: hosted
-    version: "2.8.2+2"
+    version: "2.8.2+3"
   image:
     dependency: transitive
     description:
@@ -1567,26 +1567,26 @@ packages:
     dependency: "direct dev"
     description:
       name: test
-      sha256: "77cc98ea27006c84e71a7356cf3daf9ddbde2d91d84f77dbfe64cf0e4d9611ae"
+      sha256: "54c516bbb7cee2754d327ad4fca637f78abfc3cbcc5ace83b3eda117e42cd71a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.28.0"
+    version: "1.29.0"
   test_api:
     dependency: transitive
     description:
       name: test_api
-      sha256: "19a78f63e83d3a61f00826d09bc2f60e191bf3504183c001262be6ac75589fb8"
+      sha256: "93167629bfc610f71560ab9312acdda4959de4df6fac7492c89ff0d3886f6636"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.8"
+    version: "0.7.9"
   test_core:
     dependency: transitive
     description:
       name: test_core
-      sha256: f1072617a6657e5fc09662e721307f7fb009b4ed89b19f47175d11d5254a62d4
+      sha256: "394f07d21f0f2255ec9e3989f21e54d3c7dc0e6e9dbce160e5a9c1a6be0e2943"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.14"
+    version: "0.6.15"
   typed_data:
     dependency: transitive
     description:
@@ -1639,10 +1639,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_ios
-      sha256: b1aca26728b7cc7a3af971bb6f601554a8ae9df2e0a006de8450ba06a17ad36a
+      sha256: "580fe5dfb51671ae38191d316e027f6b76272b026370708c2d898799750a02b0"
       url: "https://pub.dev"
     source: hosted
-    version: "6.4.0"
+    version: "6.4.1"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -1861,4 +1861,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.11.0 <4.0.0"
-  flutter: "3.41.0"
+  flutter: "3.41.1"
