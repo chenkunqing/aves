@@ -74,7 +74,7 @@ class Favourites with ChangeNotifier {
     return jsonMap.isNotEmpty ? jsonMap : null;
   }
 
-  void import(dynamic jsonMap, CollectionSource source) {
+  void import(Object jsonMap, CollectionSource source) {
     if (jsonMap is! Map) {
       debugPrint('failed to import favourites for jsonMap=$jsonMap');
       return;
@@ -83,20 +83,16 @@ class Favourites with ChangeNotifier {
     final visibleEntries = source.visibleEntries;
     final foundEntries = <AvesEntry>{};
     final missedPaths = <String>{};
-    jsonMap.forEach((volume, relativePaths) {
-      if (volume is String && relativePaths is List) {
-        relativePaths.forEach((relativePath) {
-          final path = pContext.join(volume, relativePath);
-          final entry = visibleEntries.firstWhereOrNull((entry) => entry.path == path);
-          if (entry != null) {
-            foundEntries.add(entry);
-          } else {
-            missedPaths.add(path);
-          }
-        });
-      } else {
-        debugPrint('failed to import favourites for volume=$volume, relativePaths=${relativePaths.runtimeType}');
-      }
+    jsonMap.cast<String, List>().forEach((volume, relativePaths) {
+      relativePaths.cast<String?>().forEach((relativePath) {
+        final path = pContext.join(volume, relativePath);
+        final entry = visibleEntries.firstWhereOrNull((entry) => entry.path == path);
+        if (entry != null) {
+          foundEntries.add(entry);
+        } else {
+          missedPaths.add(path);
+        }
+      });
 
       if (foundEntries.isNotEmpty) {
         add(foundEntries);

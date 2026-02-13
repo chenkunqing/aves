@@ -27,8 +27,11 @@ void mainCommon(AppFlavor flavor, {Map? debugIntentData}) {
 
   Isolate.current.addErrorListener(
     RawReceivePort((pair) {
-      final List<dynamic> errorAndStacktrace = pair;
-      reportService.recordError(errorAndStacktrace.first, errorAndStacktrace.last);
+      final errorAndStacktrace = pair as List;
+      final error = errorAndStacktrace[0] as String;
+      final stackTraceString = errorAndStacktrace[1] as String?;
+      final stackTrace = stackTraceString != null ? StackTrace.fromString(stackTraceString) : null;
+      reportService.recordError(error, stackTrace);
     }).sendPort,
   );
 

@@ -196,11 +196,11 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     EquatableConfig.stringify = true;
     _appSetup = _setup();
     _shouldUseBoldFontLoader = AccessibilityService.shouldUseBoldFont();
-    _subscriptions.add(_mediaStoreChangeChannel.receiveBroadcastStream().listen((event) => _mediaStoreSource.onStoreChanged(event as String?)));
-    _subscriptions.add(_newIntentChannel.receiveBroadcastStream().listen((event) => _onNewIntent(event as Map?)));
-    _subscriptions.add(_analysisCompletionChannel.receiveBroadcastStream().listen((event) => _onAnalysisCompletion()));
-    _subscriptions.add(_errorChannel.receiveBroadcastStream().listen((event) => _onError(event as String?)));
-    _subscriptions.add(_platformWindowChangeChannel.receiveBroadcastStream().listen((event) => _onWindowChange(event as String?)));
+    _subscriptions.add(_mediaStoreChangeChannel.receiveBroadcastStream().cast<String?>().listen(_mediaStoreSource.onStoreChanged));
+    _subscriptions.add(_newIntentChannel.receiveBroadcastStream().cast<Map?>().listen(_onNewIntent));
+    _subscriptions.add(_analysisCompletionChannel.receiveBroadcastStream().listen((_) => _onAnalysisCompletion()));
+    _subscriptions.add(_errorChannel.receiveBroadcastStream().cast<String>().listen(_onError));
+    _subscriptions.add(_platformWindowChangeChannel.receiveBroadcastStream().cast<String>().listen(_onWindowChange));
     _updateCutoutInsets();
     _updateWindowMode();
     _appModeNotifier.addListener(_onAppModeChanged);
@@ -677,7 +677,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     return currentRoute;
   }
 
-  void _onNewIntent(Map? intentData) {
+  void _onNewIntent(Map<dynamic, dynamic>? intentData) {
     reportService.log('New intent data=$intentData');
 
     if (_appModeNotifier.value == AppMode.main) {
@@ -720,7 +720,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
     _mediaStoreSource.updateDerivedFilters();
   }
 
-  void _onError(String? error) => reportService.recordError(error);
+  void _onError(String error) => reportService.recordError(error);
 
   void _onAppModeChanged() {
     final appMode = _appModeNotifier.value;
