@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+## <a id="v1.14.0"></a>[v1.14.0] - 2026-02-14
+
 ### Added
 
 - Collection: allow using width/height when bulk renaming
