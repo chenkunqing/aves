@@ -34,6 +34,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "deckers.thibault.aves"
     compileSdk = 36
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         // enable support for the new language APIs on older devices

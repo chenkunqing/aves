@@ -1,6 +1,8 @@
 name: aves
 description: A visual media gallery and metadata explorer app.
 repository: https://github.com/deckerst/aves
+publish_to: none
+
 # version bump checklist:
 # - pubspec version
 # - github changelog: /CHANGELOG.md
@@ -8,13 +10,13 @@ repository: https://github.com/deckerst/aves
 # - izzy changelog:   /fastlane/metadata/android/en-US/changelogs/XXX01.txt
 # - libre changelog:  /fastlane/metadata/android/en-US/changelogs/XXX.txt
 version: 1.13.12+163
-publish_to: none
 
 environment:
   # this project bundles Flutter SDK via `flutter_wrapper`
   # cf https://github.com/passsy/flutter_wrapper
   flutter: 3.41.1
   sdk: ">=3.11.0 <4.0.0"
+
 workspace:
   - plugins/aves_magnifier
   - plugins/aves_map
