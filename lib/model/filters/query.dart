@@ -38,11 +38,16 @@ class QueryFilter extends CollectionFilter {
     // allow regex queries wrapped with `/.../`
     var matches = regexRegex.allMatches(query);
     if (matches.length == 1) {
-      final regex = RegExp(matches.first.group(1)!);
-      _test = (entry) {
-        final title = entry.bestTitle;
-        return title != null && regex.hasMatch(title);
-      };
+      try {
+        final regex = RegExp(matches.first.group(1)!);
+        _test = (entry) {
+          final title = entry.bestTitle;
+          return title != null && regex.hasMatch(title);
+        };
+      } on FormatException catch (_) {
+        // invalid regex
+        _test = (entry) => false;
+      }
       return;
     }
 
