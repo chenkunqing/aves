@@ -30,7 +30,7 @@ class ViewerSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsViewerSectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) async {
+  Future<List<SettingsTile>> tiles(BuildContext context) async {
     final isCutoutAware = await windowService.isCutoutAware();
     return [
       if (!settings.useTvLayout) SettingsTileViewerQuickActions(),

@@ -33,14 +33,14 @@ class NavigationSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsNavigationSectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) => [
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     SettingsTileNavigationHomePage(),
     if (!settings.useTvLayout) SettingsTileNavigationKeepScreenOn(),
     if (!settings.useTvLayout) SettingsTileNavigationDoubleBackExit(),
     SettingsTileNavigationDrawer(),
     if (!settings.useTvLayout) SettingsTileNavigationBottomActions(),
     if (!settings.useTvLayout) SettingsTileNavigationConfirmationDialog(),
-  ];
+  ]);
 }
 
 class _HomeOption {

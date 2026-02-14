@@ -29,12 +29,12 @@ class LanguageSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsLanguageSectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) => [
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     SettingsTileLanguageLocale(),
     SettingsTileLanguageCoordinateFormat(),
     SettingsTileLanguageUnitSystem(),
     SettingsTileLanguageNumerals(),
-  ];
+  ]);
 }
 
 class SettingsTileLanguageLocale extends SettingsTile {

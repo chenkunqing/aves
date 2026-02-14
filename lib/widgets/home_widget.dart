@@ -75,7 +75,7 @@ class HomeWidgetPainter {
     );
   }
 
-  FutureOr<ui.Image?> _getEntryImage(AvesEntry? entry, double extent) async {
+  Future<ui.Image?> _getEntryImage(AvesEntry? entry, double extent) async {
     if (entry == null) return null;
 
     final provider = entry.getThumbnail(extent: extent);

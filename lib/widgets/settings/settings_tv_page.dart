@@ -109,7 +109,7 @@ class _ContentState extends State<_Content> {
                     removeLeft: !context.isRtl,
                     removeRight: context.isRtl,
                     child: _Section(
-                      loader: Future.value(sections[selectedIndex].tiles(context)),
+                      loader: sections[selectedIndex].tiles(context),
                     ),
                   ),
                 ),

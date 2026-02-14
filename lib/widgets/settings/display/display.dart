@@ -29,7 +29,7 @@ class DisplaySection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsDisplaySectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) => [
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     if (!settings.useTvLayout) SettingsTileDisplayThemeBrightness(),
     SettingsTileDisplayThemeColorMode(),
     if (device.isDynamicColorAvailable) SettingsTileDisplayEnableDynamicColor(),
@@ -37,7 +37,7 @@ class DisplaySection extends SettingsSection {
     if (!settings.useTvLayout) SettingsTileDisplayMaxBrightness(),
     if (!settings.useTvLayout) SettingsTileDisplayRefreshRateMode(),
     if (!device.isTelevision) SettingsTileDisplayForceTvLayout(),
-  ];
+  ]);
 }
 
 class SettingsTileDisplayThemeBrightness extends SettingsTile {

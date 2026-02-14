@@ -26,11 +26,11 @@ class ThumbnailsSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsThumbnailSectionTitle;
 
   @override
-  List<SettingsTile> tiles(BuildContext context) => [
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     if (!settings.useTvLayout) SettingsTileCollectionQuickActions(),
     SettingsTileThumbnailOverlay(),
     SettingsTileBurstPatterns(),
-  ];
+  ]);
 }
 
 class SettingsTileCollectionQuickActions extends SettingsTile {

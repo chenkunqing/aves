@@ -34,7 +34,7 @@ class VideoSection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsVideoSectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) async {
+  Future<List<SettingsTile>> tiles(BuildContext context) async {
     return [
       if (!standalonePage) SettingsTileVideoShowVideos(),
       SettingsTileVideoPlayback(),

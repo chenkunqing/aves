@@ -34,7 +34,7 @@ class PrivacySection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsPrivacySectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) async {
+  Future<List<SettingsTile>> tiles(BuildContext context) async {
     final canEnableErrorReporting = context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting);
     return [
       SettingsTilePrivacyAllowInstalledAppAccess(),

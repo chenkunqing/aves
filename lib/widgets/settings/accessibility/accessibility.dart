@@ -27,11 +27,11 @@ class AccessibilitySection extends SettingsSection {
   String title(BuildContext context) => context.l10n.settingsAccessibilitySectionTitle;
 
   @override
-  FutureOr<List<SettingsTile>> tiles(BuildContext context) => [
+  Future<List<SettingsTile>> tiles(BuildContext context) => Future.value([
     if (!settings.useTvLayout) SettingsTileAccessibilityShowPinchGestureAlternatives(),
     SettingsTileAccessibilityAnimations(),
     SettingsTileAccessibilityTimeToTakeAction(),
-  ];
+  ]);
 }
 
 class SettingsTileAccessibilityShowPinchGestureAlternatives extends SettingsTile {
