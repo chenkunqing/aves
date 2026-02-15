@@ -24,11 +24,17 @@ if (keystorePropertiesFile.exists()) {
     // for release using credentials in environment variables set up by GitHub Actions
     // warning: in property file, single quotes should be escaped with a backslash
     // but they should not be escaped when stored in env variables
-    keystoreProperties["storeFile"] = System.getenv("AVES_STORE_FILE") ?: "<NONE>"
-    keystoreProperties["storePassword"] = System.getenv("AVES_STORE_PASSWORD") ?: "<NONE>"
-    keystoreProperties["keyAlias"] = System.getenv("AVES_KEY_ALIAS") ?: "<NONE>"
-    keystoreProperties["keyPassword"] = System.getenv("AVES_KEY_PASSWORD") ?: "<NONE>"
-    keystoreProperties["googleApiKey"] = System.getenv("AVES_GOOGLE_API_KEY") ?: "<NONE>"
+    val env = System.getenv()
+    fun getEnv(propKey: String, envKey: String) {
+        if (envKey in env) {
+            keystoreProperties[propKey] = env[envKey]
+        }
+    }
+    getEnv("storeFile", "AVES_STORE_FILE")
+    getEnv("storePassword", "AVES_STORE_PASSWORD")
+    getEnv("keyAlias", "AVES_KEY_ALIAS")
+    getEnv("keyPassword", "AVES_KEY_PASSWORD")
+    getEnv("googleApiKey", "AVES_GOOGLE_API_KEY")
 }
 
 android {
@@ -57,11 +63,15 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+        val storeFilePath = keystoreProperties["storeFile"] as String?
+        if (storeFilePath != null) {
+            println("Create signing config for release using file=$storeFilePath")
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(storeFilePath)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -110,7 +120,11 @@ android {
         }
 
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+            if (signingConfigs.names.contains("release")) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                println("Skip release signing as it is not configured")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
