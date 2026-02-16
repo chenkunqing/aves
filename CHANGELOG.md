@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Fixed
+
+- widget rendering failing because of setting sanitization
+
 ## <a id="v1.14.0"></a>[v1.14.0] - 2026-02-14
 
 ### Added
