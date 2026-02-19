@@ -21,7 +21,9 @@ allprojects {
 }
 
 plugins {
-    // TODO TLAD find how to use `alias(libs.plugins.android.library)`
+    // TODO TLAD find how to use `alias(libs.plugins.android.library)` without error:
+    // > The request for this plugin could not be satisfied because the plugin is already
+    // on the classpath with an unknown version, so compatibility cannot be checked.
     id("com.android.library")
     id("kotlin-android")
 }
