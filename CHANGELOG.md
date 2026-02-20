@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - widget rendering failing because of setting sanitization
+- panorama rendering regression by reverting switch from Skia to Impeller
 
 ## <a id="v1.14.0"></a>[v1.14.0] - 2026-02-14
 
