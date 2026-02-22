@@ -59,7 +59,7 @@ class BasicSection extends StatefulWidget {
   State<BasicSection> createState() => _BasicSectionState();
 }
 
-class _BasicSectionState extends State<BasicSection> {
+class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClientMixin {
   final FocusNode _chipFocusNode = FocusNode();
 
   CollectionLens? get collection => widget.collection;
@@ -97,6 +97,7 @@ class _BasicSectionState extends State<BasicSection> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final entry = widget.entry;
     return AnimatedBuilder(
       animation: entry.metadataChangeNotifier,
@@ -270,6 +271,9 @@ class _BasicSectionState extends State<BasicSection> {
       }
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _BasicInfo extends StatefulWidget {
