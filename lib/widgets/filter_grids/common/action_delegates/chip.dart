@@ -40,7 +40,7 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
       case ChipAction.goToTagPage:
         return filter is TagFilter;
       case ChipAction.goToExplorerPage:
-        return filter is StoredAlbumFilter || filter is PathFilter;
+        return (filter is StoredAlbumFilter && !vaults.isVault(filter.album)) || filter is PathFilter;
       case ChipAction.ratingOrGreater:
         return filter is RatingFilter && 1 <= filter.rating && filter.rating < 5 && filter.op != RatingFilter.opOrGreater;
       case ChipAction.ratingOrLower:
@@ -128,8 +128,10 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
       return;
     }
 
-    if (!await unlockFilter(context, filter)) return;
+    final filters = {filter};
+    if (!await unlockFilters(context, filters)) return;
 
-    settings.changeFilterVisibility({filter}, false);
+    settings.changeFilterVisibility(filters, false);
+    lockFilters(filters);
   }
 }

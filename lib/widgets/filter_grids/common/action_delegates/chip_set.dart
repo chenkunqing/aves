@@ -386,6 +386,7 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
     if (!await unlockFilters(context, filters)) return;
 
     settings.changeFilterVisibility(filters, false);
+    lockFilters(filters);
 
     browse(context);
   }

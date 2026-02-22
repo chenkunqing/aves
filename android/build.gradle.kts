@@ -26,7 +26,6 @@ allprojects {
         println("Configure $project JavaCompile tasks with compilerArgs=$javaCompilerArgs")
         tasks.withType<JavaCompile> {
             options.compilerArgs.addAll(javaCompilerArgs)
-            println("Configure JavaCompile $this")
         }
     }
 }

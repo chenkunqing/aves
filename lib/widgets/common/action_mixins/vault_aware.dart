@@ -92,7 +92,7 @@ mixin VaultAwareMixin on FeedbackMixin {
     return unlocked;
   }
 
-  void lockFilters(Set<StoredAlbumFilter> filters) => vaults.lock(filters.map((v) => v.album).toSet());
+  void lockFilters(Set<CollectionFilter> filters) => vaults.lock(filters.whereType<StoredAlbumFilter>().map((v) => v.album).toSet());
 
   Future<bool> setVaultPass(BuildContext context, VaultDetails details) async {
     switch (details.lockType) {
