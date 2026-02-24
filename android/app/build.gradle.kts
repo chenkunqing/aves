@@ -49,7 +49,10 @@ android {
     }
 
     kotlin {
-        jvmToolchain(17)
+        // Gradle looks up toolchain JDKs (for this app and each of its modules)
+        // among locally installed JDKs (including in `~/.gradle/jdks/` and `~/jdks`)
+        // and download them from configured repositories if necessary.
+        jvmToolchain(21)
     }
 
     defaultConfig {

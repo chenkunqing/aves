@@ -591,10 +591,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_platform_interface
-      sha256: e8b1232419fcdd35c1fdafff96843f5a40238480365599d8ca661dde96d283dd
+      sha256: "0f8c6674d70c7e9a09cd34f63b18ebaf8a5822e85b558128eae0fdf02b4a3e93"
       url: "https://pub.dev"
     source: hosted
-    version: "2.14.1"
+    version: "2.14.2"
   google_maps_flutter_web:
     dependency: transitive
     description:
@@ -888,7 +888,7 @@ packages:
     description:
       path: "."
       ref: aves
-      resolved-ref: "62799271dc38f3c6dcef804ca401c361a40350e7"
+      resolved-ref: "400fa42826e22a156b69a5d52926ce5681ab9b45"
       url: "https://github.com/deckerst/aves_panorama_motion_sensors.git"
     source: git
     version: "0.1.0"
@@ -993,7 +993,7 @@ packages:
     description:
       path: "."
       ref: aves
-      resolved-ref: "65daf8a8466486b821ca7dbd459202da7ec959be"
+      resolved-ref: e55ab2e47e6c9ccb86fde3ab2e22cee3e1a00190
       url: "https://github.com/deckerst/aves_panorama.git"
     source: git
     version: "0.4.1"
@@ -1153,10 +1153,10 @@ packages:
     dependency: "direct main"
     description:
       name: pin_code_fields
-      sha256: "585e831c767bce361fdbae7c2976ef41bd2a4ff5dde8e33799d60590c93404ba"
+      sha256: b9c33ef91da2a959dde3eaa0ec90dfca6a90d5b734cb594bb533a01f7f9732fa
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "9.1.0"
   platform:
     dependency: transitive
     description:
@@ -1185,10 +1185,10 @@ packages:
     dependency: transitive
     description:
       name: posix
-      sha256: "6323a5b0fa688b6a010df4905a56b00181479e6d10534cecfecede2aa55add61"
+      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.3"
+    version: "6.5.0"
   printing:
     dependency: "direct main"
     description:
@@ -1687,10 +1687,10 @@ packages:
     dependency: transitive
     description:
       name: uuid
-      sha256: a11b666489b1954e01d992f3d601b1804a33937b5a8fe677bd26b8a9f96f96e8
+      sha256: "1fef9e8e11e2991bb773070d4656b7bd5d850967a2456cfc83cf47925ba79489"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.2"
+    version: "4.5.3"
   vector_map_tiles:
     dependency: "direct main"
     description:
