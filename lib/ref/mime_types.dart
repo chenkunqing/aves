@@ -25,6 +25,7 @@ class MimeTypes {
   static const djvu = 'image/vnd.djvu';
   static const dwg = 'image/vnd.dwg';
   static const dxf = 'image/vnd.dxf';
+  static const jng = 'image/x-jng';
   static const jpeg2000 = 'image/jp2';
   static const jpx = 'image/jpx';
   static const jxl = 'image/jxl';

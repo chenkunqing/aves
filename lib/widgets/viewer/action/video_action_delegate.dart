@@ -225,18 +225,19 @@ class VideoActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
     if (controller.isPlaying) {
       await controller.pause();
     } else {
+      final hidingTimeDelay = context.read<DurationsData>().iconAnimation + ADurations.videoOverlayHideDelay;
       final resumeTimeMillis = await controller.getResumeTime(context);
       if (resumeTimeMillis != null) {
         await controller.seekTo(resumeTimeMillis);
       } else {
         await controller.play();
       }
-      if (context.mounted) {
-        // hide overlay
-        _overlayHidingTimer = Timer(context.read<DurationsData>().iconAnimation + ADurations.videoOverlayHideDelay, () {
+      // hide overlay
+      _overlayHidingTimer = Timer(hidingTimeDelay, () {
+        if (context.mounted) {
           const ToggleOverlayNotification(visible: false).dispatch(context);
-        });
-      }
+        }
+      });
     }
   }
 
