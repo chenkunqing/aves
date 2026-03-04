@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file.
 
 - upgraded Flutter to stable v3.41.4
 
+### Fixed
+
+- cataloguing items having wrong type from Media Store
+
 ## <a id="v1.14.1"></a>[v1.14.1] - 2026-02-21
 
 ### Changed
