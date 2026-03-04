@@ -29,3 +29,17 @@ class AvesStreamsChannel extends StreamsChannel {
     return super.receiveBroadcastStream(arguments);
   }
 }
+
+class AvesChannels {
+  static const geocoding = 'deckers.thibault/aves/geocoding';
+  static const mediaSession = 'deckers.thibault/aves/media_session';
+  static const metadataFetch = 'deckers.thibault/aves/metadata_fetch';
+
+  static const _all = <MethodChannel>[
+    AvesMethodChannel(geocoding),
+    AvesMethodChannel(mediaSession),
+    AvesMethodChannel(metadataFetch),
+  ];
+
+  static MethodChannel byName(String name) => _all.firstWhere((v) => v.name == name);
+}
