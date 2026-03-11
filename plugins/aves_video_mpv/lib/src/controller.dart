@@ -96,39 +96,45 @@ class MpvVideoController extends AvesVideoController {
     _subscriptions.add(statusStream.listen((v) => _status = v));
 
     final playerStream = _instance.stream;
-    _subscriptions.add(playerStream.completed.listen((completed) {
-      if (completed) {
-        _statusStreamController.add(VideoStatus.completed);
-        _completedNotifier.notify();
+    _subscriptions.add(
+      playerStream.completed.listen((completed) {
+        if (completed) {
+          _statusStreamController.add(VideoStatus.completed);
+          _completedNotifier.notify();
 
-        // the player incorrectly loop for some videos
-        // even when the playlist mode is configured not to loop
-        // so we explicitly stop on completion
-        final shouldStop = _instance.platform?.state.playlistMode == PlaylistMode.none;
-        if (shouldStop) {
-          pause();
-        }
-      }
-    }));
-    _subscriptions.add(playerStream.playing.listen((playing) {
-      if (status == VideoStatus.idle) return;
-      _statusStreamController.add(playing ? VideoStatus.playing : VideoStatus.paused);
-    }));
-    _subscriptions.add(playerStream.position.listen((v) {
-      final abRepeat = abRepeatNotifier.value;
-      if (abRepeat != null && status == VideoStatus.playing) {
-        final start = abRepeat.start;
-        final end = abRepeat.end;
-        if (start != null && end != null) {
-          if (v.inMilliseconds < end) {
-            _abRepeatSeeking = false;
-          } else if (!_abRepeatSeeking) {
-            _abRepeatSeeking = true;
-            _instance.seek(Duration(milliseconds: start));
+          // the player incorrectly loop for some videos
+          // even when the playlist mode is configured not to loop
+          // so we explicitly stop on completion
+          final shouldStop = _instance.platform?.state.playlistMode == PlaylistMode.none;
+          if (shouldStop) {
+            pause();
           }
         }
-      }
-    }));
+      }),
+    );
+    _subscriptions.add(
+      playerStream.playing.listen((playing) {
+        if (status == VideoStatus.idle) return;
+        _statusStreamController.add(playing ? VideoStatus.playing : VideoStatus.paused);
+      }),
+    );
+    _subscriptions.add(
+      playerStream.position.listen((v) {
+        final abRepeat = abRepeatNotifier.value;
+        if (abRepeat != null && status == VideoStatus.playing) {
+          final start = abRepeat.start;
+          final end = abRepeat.end;
+          if (start != null && end != null) {
+            if (v.inMilliseconds < end) {
+              _abRepeatSeeking = false;
+            } else if (!_abRepeatSeeking) {
+              _abRepeatSeeking = true;
+              _instance.seek(Duration(milliseconds: start));
+            }
+          }
+        }
+      }),
+    );
     _subscriptions.add(playerStream.subtitle.listen((v) => _timedTextStreamController.add(v.isEmpty ? null : v[0])));
     _subscriptions.add(playerStream.videoParams.listen((v) => sarNotifier.value = v.par));
     _subscriptions.add(playerStream.log.listen((v) => debugPrint('libmpv log: $v')));
@@ -143,16 +149,20 @@ class MpvVideoController extends AvesVideoController {
       final videoBasename = _pContext.basenameWithoutExtension(path);
       // list subtitle files in the same directory
       // some files may be visible to the app (e.g. SRT) while others may not (e.g. SUB, VTT)
-      _subscriptions.add(File(path).parent.list().where((v) => v is File && _isSubtitle(v.path)).listen((v) {
-        final subtitleBasename = _pContext.basename(v.path);
-        if (subtitleBasename.startsWith(videoBasename)) {
-          _externalSubtitleTracks.add(SubtitleTrack.uri(
-            v.uri.toString(),
-            title: 'File ${subtitleBasename.substring(videoBasename.length)}',
-          ));
-          _externalSubtitleTracks.sort((a, b) => a.title!.compareTo(b.title!));
-        }
-      }));
+      _subscriptions.add(
+        File(path).parent.list().where((v) => v is File && _isSubtitle(v.path)).listen((v) {
+          final subtitleBasename = _pContext.basename(v.path);
+          if (subtitleBasename.startsWith(videoBasename)) {
+            _externalSubtitleTracks.add(
+              SubtitleTrack.uri(
+                v.uri.toString(),
+                title: 'File ${subtitleBasename.substring(videoBasename.length)}',
+              ),
+            );
+            _externalSubtitleTracks.sort((a, b) => a.title!.compareTo(b.title!));
+          }
+        }),
+      );
     }
   }
 
@@ -199,16 +209,18 @@ class MpvVideoController extends AvesVideoController {
       case .forced:
         hwdec = 'mediacodec';
     }
-    _controllerNotifier.value = VideoController(
-      _instance,
-      configuration: VideoControllerConfiguration(
-        hwdec: hwdec,
-        enableHardwareAcceleration: hardwareAcceleration != VideoHardwareAcceleration.disabled,
-      ),
-    )..waitUntilFirstFrameRendered.then((v) {
-        _firstFrameRendered = true;
-        _statusStreamController.add(_status);
-      });
+    _controllerNotifier.value =
+        VideoController(
+            _instance,
+            configuration: VideoControllerConfiguration(
+              hwdec: hwdec,
+              enableHardwareAcceleration: hardwareAcceleration != VideoHardwareAcceleration.disabled,
+            ),
+          )
+          ..waitUntilFirstFrameRendered.then((v) {
+            _firstFrameRendered = true;
+            _statusStreamController.add(_status);
+          });
   }
 
   @override
@@ -318,20 +330,21 @@ class MpvVideoController extends AvesVideoController {
         // e.g. 960x536 (~16:9) with SAR 4:3 should be displayed as ~2.39:1
         final dar = entry.displayAspectRatio * sar;
         return ValueListenableBuilder<VideoController?>(
-            valueListenable: _controllerNotifier,
-            builder: (context, controller, child) {
-              if (controller == null) return const SizedBox();
-              return Video(
-                controller: controller,
-                fill: Colors.transparent,
-                aspectRatio: dar,
-                controls: NoVideoControls,
-                wakelock: false,
-                subtitleViewConfiguration: const SubtitleViewConfiguration(
-                  visible: false,
-                ),
-              );
-            });
+          valueListenable: _controllerNotifier,
+          builder: (context, controller, child) {
+            if (controller == null) return const SizedBox();
+            return Video(
+              controller: controller,
+              fill: Colors.transparent,
+              aspectRatio: dar,
+              controls: NoVideoControls,
+              wakelock: false,
+              subtitleViewConfiguration: const SubtitleViewConfiguration(
+                visible: false,
+              ),
+            );
+          },
+        );
       },
     );
   }
