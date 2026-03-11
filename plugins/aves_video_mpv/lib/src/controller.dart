@@ -100,6 +100,14 @@ class MpvVideoController extends AvesVideoController {
       if (completed) {
         _statusStreamController.add(VideoStatus.completed);
         _completedNotifier.notify();
+
+        // the player incorrectly loop for some videos
+        // even when the playlist mode is configured not to loop
+        // so we explicitly stop on completion
+        final shouldStop = _instance.platform?.state.playlistMode == PlaylistMode.none;
+        if (shouldStop) {
+          pause();
+        }
       }
     }));
     _subscriptions.add(playerStream.playing.listen((playing) {

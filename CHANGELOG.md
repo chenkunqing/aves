@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - cataloguing items having wrong type from Media Store
+- video player incorrectly looping when configured otherwise
 
 ## <a id="v1.14.1"></a>[v1.14.1] - 2026-02-21
 
