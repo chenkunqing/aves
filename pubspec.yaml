@@ -138,11 +138,6 @@ dependencies:
   volume_controller:
   xml:
 
-dependency_overrides:
-  # `shared_preferences_android` v2.4.20 depends on `androidx.datastore:datastore` v1.2.0, embedding
-  # native lib `libdatastore_shared_counter.so` which is not 16KB aligned for `x86_64` and `arm64-v8a`
-  shared_preferences_android: 2.4.18
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
