@@ -79,14 +79,14 @@ class PlatformMediaSessionService implements MediaSessionService, Disposable {
 
   String _toPlatformState(VideoStatus status) {
     switch (status) {
-      case VideoStatus.paused:
+      case .paused:
         return 'paused';
-      case VideoStatus.playing:
+      case .playing:
         return 'playing';
-      case VideoStatus.idle:
-      case VideoStatus.initialized:
-      case VideoStatus.completed:
-      case VideoStatus.error:
+      case .idle:
+      case .initialized:
+      case .completed:
+      case .error:
         return 'stopped';
     }
   }

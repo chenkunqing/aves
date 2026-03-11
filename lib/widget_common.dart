@@ -103,9 +103,9 @@ Future<AvesEntry?> _getWidgetEntry(int widgetId, bool reuseEntry) async {
 
   final entries = CollectionLens(source: source, filters: filters).sortedEntries;
   switch (settings.getWidgetDisplayedItem(widgetId)) {
-    case WidgetDisplayedItem.random:
+    case .random:
       entries.shuffle();
-    case WidgetDisplayedItem.mostRecent:
+    case .mostRecent:
       entries.sort(AvesEntrySort.compareByDate);
   }
   final entry = entries.firstOrNull;

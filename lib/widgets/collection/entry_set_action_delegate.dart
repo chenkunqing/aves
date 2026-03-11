@@ -73,54 +73,54 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     final useTvLayout = settings.useTvLayout;
     switch (action) {
       // general
-      case EntrySetAction.configureView:
+      case .configureView:
         return true;
-      case EntrySetAction.select:
+      case .select:
         return appMode.canSelectMedia && !isSelecting;
-      case EntrySetAction.selectAll:
+      case .selectAll:
         return (isSelecting && selectedItemCount < itemCount) || (!isSelecting && settings.collectionBrowsingQuickActions.contains(action));
-      case EntrySetAction.selectNone:
+      case .selectNone:
         return isSelecting && selectedItemCount == itemCount;
       // browsing
-      case EntrySetAction.searchCollection:
+      case .searchCollection:
         return appMode.canNavigate && !isSelecting && !useTvLayout;
-      case EntrySetAction.toggleTitleSearch:
+      case .toggleTitleSearch:
         return !isSelecting && !useTvLayout;
-      case EntrySetAction.addShortcut:
+      case .addShortcut:
         return isMain && !isSelecting && !isTrash && device.canPinShortcut;
-      case EntrySetAction.addDynamicAlbum:
-      case EntrySetAction.setHome:
+      case .addDynamicAlbum:
+      case .setHome:
         return isMain && !isSelecting && !isTrash && !useTvLayout;
-      case EntrySetAction.emptyBin:
+      case .emptyBin:
         return isMain && isTrash && canWrite;
       // browsing or selecting
-      case EntrySetAction.map:
-      case EntrySetAction.slideshow:
-      case EntrySetAction.stats:
+      case .map:
+      case .slideshow:
+      case .stats:
         return isMain;
-      case EntrySetAction.rescan:
+      case .rescan:
         return isMain && isSelecting && !useTvLayout;
       // selecting
-      case EntrySetAction.share:
-      case EntrySetAction.toggleFavourite:
+      case .share:
+      case .toggleFavourite:
         return isMain && isSelecting && !isTrash;
-      case EntrySetAction.delete:
+      case .delete:
         return isMain && isSelecting && canWrite;
-      case EntrySetAction.copy:
-      case EntrySetAction.move:
-      case EntrySetAction.rename:
-      case EntrySetAction.convert:
-      case EntrySetAction.rotateCCW:
-      case EntrySetAction.rotateCW:
-      case EntrySetAction.flip:
-      case EntrySetAction.editDate:
-      case EntrySetAction.editLocation:
-      case EntrySetAction.editTitleDescription:
-      case EntrySetAction.editRating:
-      case EntrySetAction.editTags:
-      case EntrySetAction.removeMetadata:
+      case .copy:
+      case .move:
+      case .rename:
+      case .convert:
+      case .rotateCCW:
+      case .rotateCW:
+      case .flip:
+      case .editDate:
+      case .editLocation:
+      case .editTitleDescription:
+      case .editRating:
+      case .editTags:
+      case .removeMetadata:
         return isMain && isSelecting && !isTrash && canWrite;
-      case EntrySetAction.restore:
+      case .restore:
         return isMain && isSelecting && isTrash && canWrite;
     }
   }
@@ -136,46 +136,46 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     final hasSelection = selectedItemCount > 0;
 
     switch (action) {
-      case EntrySetAction.configureView:
+      case .configureView:
         return true;
-      case EntrySetAction.select:
+      case .select:
         return hasItems;
-      case EntrySetAction.selectAll:
+      case .selectAll:
         return selectedItemCount < itemCount || (!isSelecting && settings.collectionBrowsingQuickActions.contains(action));
-      case EntrySetAction.selectNone:
+      case .selectNone:
         return hasSelection;
-      case EntrySetAction.searchCollection:
-      case EntrySetAction.toggleTitleSearch:
-      case EntrySetAction.addShortcut:
-      case EntrySetAction.setHome:
+      case .searchCollection:
+      case .toggleTitleSearch:
+      case .addShortcut:
+      case .setHome:
         return true;
-      case EntrySetAction.addDynamicAlbum:
+      case .addDynamicAlbum:
         return collection.filters.isNotEmpty;
-      case EntrySetAction.emptyBin:
+      case .emptyBin:
         return !isSelecting && hasItems;
-      case EntrySetAction.map:
-      case EntrySetAction.slideshow:
-      case EntrySetAction.stats:
-      case EntrySetAction.rescan:
+      case .map:
+      case .slideshow:
+      case .stats:
+      case .rescan:
         return (!isSelecting && hasItems) || (isSelecting && hasSelection);
       // selecting
-      case EntrySetAction.share:
-      case EntrySetAction.delete:
-      case EntrySetAction.restore:
-      case EntrySetAction.copy:
-      case EntrySetAction.move:
-      case EntrySetAction.rename:
-      case EntrySetAction.convert:
-      case EntrySetAction.toggleFavourite:
-      case EntrySetAction.rotateCCW:
-      case EntrySetAction.rotateCW:
-      case EntrySetAction.flip:
-      case EntrySetAction.editDate:
-      case EntrySetAction.editLocation:
-      case EntrySetAction.editTitleDescription:
-      case EntrySetAction.editRating:
-      case EntrySetAction.editTags:
-      case EntrySetAction.removeMetadata:
+      case .share:
+      case .delete:
+      case .restore:
+      case .copy:
+      case .move:
+      case .rename:
+      case .convert:
+      case .toggleFavourite:
+      case .rotateCCW:
+      case .rotateCW:
+      case .flip:
+      case .editDate:
+      case .editLocation:
+      case .editTitleDescription:
+      case .editRating:
+      case .editTags:
+      case .removeMetadata:
         return hasSelection;
     }
   }
@@ -184,68 +184,68 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     reportService.log('$runtimeType handles $action');
     switch (action) {
       // general
-      case EntrySetAction.configureView:
-      case EntrySetAction.select:
-      case EntrySetAction.selectAll:
-      case EntrySetAction.selectNone:
+      case .configureView:
+      case .select:
+      case .selectAll:
+      case .selectNone:
         break;
       // browsing
-      case EntrySetAction.searchCollection:
+      case .searchCollection:
         _goToSearch(context);
-      case EntrySetAction.toggleTitleSearch:
+      case .toggleTitleSearch:
         final routeName = context.currentRouteName!;
         settings.setShowTitleQuery(routeName, !settings.getShowTitleQuery(routeName));
         context.read<Query>().toggle();
-      case EntrySetAction.addDynamicAlbum:
+      case .addDynamicAlbum:
         _addDynamicAlbum(context);
-      case EntrySetAction.addShortcut:
+      case .addShortcut:
         _addShortcut(context);
-      case EntrySetAction.setHome:
+      case .setHome:
         _setHome(context);
       // browsing or selecting
-      case EntrySetAction.map:
+      case .map:
         _goToMap(context);
-      case EntrySetAction.slideshow:
+      case .slideshow:
         _goToSlideshow(context);
-      case EntrySetAction.stats:
+      case .stats:
         _goToStats(context);
-      case EntrySetAction.rescan:
+      case .rescan:
         _rescan(context);
       // selecting
-      case EntrySetAction.share:
+      case .share:
         _share(context);
-      case EntrySetAction.delete:
-      case EntrySetAction.emptyBin:
+      case .delete:
+      case .emptyBin:
         _delete(context);
-      case EntrySetAction.restore:
+      case .restore:
         _move(context, moveType: MoveType.fromBin);
-      case EntrySetAction.copy:
+      case .copy:
         _move(context, moveType: MoveType.copy);
-      case EntrySetAction.move:
+      case .move:
         _move(context, moveType: MoveType.move);
-      case EntrySetAction.rename:
+      case .rename:
         _rename(context);
-      case EntrySetAction.convert:
+      case .convert:
         _convert(context);
-      case EntrySetAction.toggleFavourite:
+      case .toggleFavourite:
         _toggleFavourite(context);
-      case EntrySetAction.rotateCCW:
+      case .rotateCCW:
         _rotate(context, clockwise: false);
-      case EntrySetAction.rotateCW:
+      case .rotateCW:
         _rotate(context, clockwise: true);
-      case EntrySetAction.flip:
+      case .flip:
         _flip(context);
-      case EntrySetAction.editDate:
+      case .editDate:
         editDate(context);
-      case EntrySetAction.editLocation:
+      case .editLocation:
         _editLocation(context);
-      case EntrySetAction.editTitleDescription:
+      case .editTitleDescription:
         _editTitleDescription(context);
-      case EntrySetAction.editRating:
+      case .editRating:
         _editRating(context);
-      case EntrySetAction.editTags:
+      case .editTags:
         _editTags(context);
-      case EntrySetAction.removeMetadata:
+      case .removeMetadata:
         _removeMetadata(context);
     }
   }
@@ -420,12 +420,12 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     if (options == null) return;
 
     switch (options.action) {
-      case EntryConvertAction.convert:
+      case .convert:
         final completed = await doExport(context, entries, options);
         if (completed) {
           _browse(context);
         }
-      case EntryConvertAction.convertMotionPhotoToStillImage:
+      case .convertMotionPhotoToStillImage:
         final todoItems = entries.where((entry) => entry.isMotionPhoto).toSet();
         await _edit(context, todoItems, (entry) => entry.removeTrailerVideo());
     }

@@ -168,12 +168,12 @@ class Analyzer with WidgetsBindingObserver {
 
   Future<void> _onServiceStateChanged() async {
     switch (serviceState) {
-      case AnalyzerState.running:
+      case .running:
         break;
-      case AnalyzerState.stopping:
+      case .stopping:
         await _stopPlatformService();
         _serviceStateNotifier.value = AnalyzerState.stopped;
-      case AnalyzerState.stopped:
+      case .stopped:
         _controller?.enableStopSignal();
         _stopUpdateTimer();
     }

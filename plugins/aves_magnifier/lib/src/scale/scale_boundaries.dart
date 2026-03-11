@@ -78,11 +78,11 @@ class ScaleBoundaries extends Equatable {
   double scaleForLevel(ScaleLevel level) {
     final factor = level.factor;
     switch (level.ref) {
-      case ScaleReference.contained:
+      case .contained:
         return factor * ScaleLevel.scaleForContained(viewportSize, contentSize);
-      case ScaleReference.covered:
+      case .covered:
         return factor * ScaleLevel.scaleForCovering(viewportSize, contentSize);
-      case ScaleReference.absolute:
+      case .absolute:
         return factor;
     }
   }

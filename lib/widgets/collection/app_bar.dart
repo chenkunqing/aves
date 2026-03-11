@@ -517,7 +517,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     final blurred = settings.enableBlurEffect;
     final onPressed = enabled ? () => _onActionSelected(action) : null;
     switch (action) {
-      case EntrySetAction.toggleTitleSearch:
+      case .toggleTitleSearch:
         // `Query` may not be available during hero
         return Selector<Query?, bool>(
           selector: (context, query) => query?.enabled ?? false,
@@ -529,35 +529,35 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
             );
           },
         );
-      case EntrySetAction.copy:
+      case .copy:
         return MoveButton(
           copy: true,
           blurred: blurred,
           onChooserValue: (album) => _actionDelegate.quickMove(context, album, copy: true),
           onPressed: onPressed,
         );
-      case EntrySetAction.move:
+      case .move:
         return MoveButton(
           copy: false,
           blurred: blurred,
           onChooserValue: (album) => _actionDelegate.quickMove(context, album, copy: false),
           onPressed: onPressed,
         );
-      case EntrySetAction.editRating:
+      case .editRating:
         return RateButton(
           blurred: blurred,
           onChooserValue: (rating) => _actionDelegate.quickRate(context, rating),
           focusNode: focusNode,
           onPressed: onPressed,
         );
-      case EntrySetAction.editTags:
+      case .editTags:
         return TagButton(
           blurred: blurred,
           onChooserValue: (filter) => _actionDelegate.quickTag(context, filter),
           focusNode: focusNode,
           onPressed: onPressed,
         );
-      case EntrySetAction.toggleFavourite:
+      case .toggleFavourite:
         return FavouriteToggler(
           entries: _getExpandedSelectedItems(selection),
           focusNode: focusNode,
@@ -580,7 +580,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     required bool enabled,
   }) {
     switch (action) {
-      case EntrySetAction.toggleTitleSearch:
+      case .toggleTitleSearch:
         return TitleSearchTogglerCaption(
           enabled: enabled,
         );
@@ -595,12 +595,12 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
   PopupMenuItem<EntrySetAction> _toMenuItem(EntrySetAction action, {required bool enabled, required Selection<AvesEntry> selection}) {
     late Widget child;
     switch (action) {
-      case EntrySetAction.toggleTitleSearch:
+      case .toggleTitleSearch:
         child = TitleSearchToggler(
           queryEnabled: context.read<Query>().enabled,
           isMenuItem: true,
         );
-      case EntrySetAction.toggleFavourite:
+      case .toggleFavourite:
         child = FavouriteToggler(
           entries: _getExpandedSelectedItems(selection),
           isMenuItem: true,
@@ -711,44 +711,44 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
   Future<void> _onActionSelected(EntrySetAction action) async {
     switch (action) {
       // general
-      case EntrySetAction.configureView:
+      case .configureView:
         await _configureView();
-      case EntrySetAction.select:
+      case .select:
         context.read<Selection<AvesEntry>>().select();
-      case EntrySetAction.selectAll:
+      case .selectAll:
         context.read<Selection<AvesEntry>>().addToSelection(collection.sortedEntries);
-      case EntrySetAction.selectNone:
+      case .selectNone:
         context.read<Selection<AvesEntry>>().clearSelection();
       // browsing
-      case EntrySetAction.searchCollection:
-      case EntrySetAction.toggleTitleSearch:
-      case EntrySetAction.addDynamicAlbum:
-      case EntrySetAction.addShortcut:
-      case EntrySetAction.setHome:
+      case .searchCollection:
+      case .toggleTitleSearch:
+      case .addDynamicAlbum:
+      case .addShortcut:
+      case .setHome:
       // browsing or selecting
-      case EntrySetAction.map:
-      case EntrySetAction.slideshow:
-      case EntrySetAction.stats:
-      case EntrySetAction.rescan:
-      case EntrySetAction.emptyBin:
+      case .map:
+      case .slideshow:
+      case .stats:
+      case .rescan:
+      case .emptyBin:
       // selecting
-      case EntrySetAction.share:
-      case EntrySetAction.delete:
-      case EntrySetAction.restore:
-      case EntrySetAction.copy:
-      case EntrySetAction.move:
-      case EntrySetAction.rename:
-      case EntrySetAction.convert:
-      case EntrySetAction.toggleFavourite:
-      case EntrySetAction.rotateCCW:
-      case EntrySetAction.rotateCW:
-      case EntrySetAction.flip:
-      case EntrySetAction.editDate:
-      case EntrySetAction.editLocation:
-      case EntrySetAction.editTitleDescription:
-      case EntrySetAction.editRating:
-      case EntrySetAction.editTags:
-      case EntrySetAction.removeMetadata:
+      case .share:
+      case .delete:
+      case .restore:
+      case .copy:
+      case .move:
+      case .rename:
+      case .convert:
+      case .toggleFavourite:
+      case .rotateCCW:
+      case .rotateCW:
+      case .flip:
+      case .editDate:
+      case .editLocation:
+      case .editTitleDescription:
+      case .editRating:
+      case .editTags:
+      case .removeMetadata:
         _actionDelegate.onActionSelected(context, action);
     }
   }

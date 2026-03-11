@@ -135,22 +135,22 @@ abstract class Geometry extends TopologyJsonObject {
   static Geometry? build(Map<String, dynamic> data) {
     final type = _parseTopoJsonObjectType(data['type'] as String?);
     switch (type) {
-      case TopoJsonObjectType.topology:
+      case .topology:
       case null:
         return null;
-      case TopoJsonObjectType.point:
+      case .point:
         return Point.parse(data);
-      case TopoJsonObjectType.multipoint:
+      case .multipoint:
         return MultiPoint.parse(data);
-      case TopoJsonObjectType.linestring:
+      case .linestring:
         return LineString.parse(data);
-      case TopoJsonObjectType.multilinestring:
+      case .multilinestring:
         return MultiLineString.parse(data);
-      case TopoJsonObjectType.polygon:
+      case .polygon:
         return Polygon.parse(data);
-      case TopoJsonObjectType.multipolygon:
+      case .multipolygon:
         return MultiPolygon.parse(data);
-      case TopoJsonObjectType.geometrycollection:
+      case .geometrycollection:
         return GeometryCollection.parse(data);
     }
   }

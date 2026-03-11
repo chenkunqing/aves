@@ -377,9 +377,9 @@ mixin EntryStorageMixin on FeedbackMixin, PermissionAwareMixin, SizeAwareMixin {
 
     final entriesByDestination = <String, Set<AvesEntry>>{};
     switch (moveType) {
-      case MoveType.copy:
-      case MoveType.move:
-      case MoveType.export:
+      case .copy:
+      case .move:
+      case .export:
         final destinationAlbumFilter = await pickAlbum(
           context: context,
           moveType: moveType,
@@ -393,9 +393,9 @@ mixin EntryStorageMixin on FeedbackMixin, PermissionAwareMixin, SizeAwareMixin {
           ..remove(destinationAlbum)
           ..insert(0, destinationAlbum);
         entriesByDestination[destinationAlbum] = entries;
-      case MoveType.toBin:
+      case .toBin:
         entriesByDestination[AndroidFileUtils.trashDirPath] = entries;
-      case MoveType.fromBin:
+      case .fromBin:
         groupBy<AvesEntry, String?>(entries, (e) => e.directory).forEach((originAlbum, dirEntries) {
           if (originAlbum != null) {
             entriesByDestination[originAlbum] = dirEntries.toSet();

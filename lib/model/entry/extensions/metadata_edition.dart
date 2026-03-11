@@ -51,12 +51,12 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
       final metadata = {
         MetadataType.xmp: await _editXmp((descriptions) {
           switch (appliedModifier.action) {
-            case DateEditAction.setCustom:
-            case DateEditAction.copyField:
-            case DateEditAction.copyItem:
-            case DateEditAction.extractFromTitle:
+            case .setCustom:
+            case .copyField:
+            case .copyItem:
+            case .extractFromTitle:
               editCreateDateXmp(descriptions, appliedModifier.setDateTime);
-            case DateEditAction.shift:
+            case .shift:
               final xmpDate = XMP.getString(descriptions, XmpAttributes.xmpCreateDate, namespace: XmpNamespaces.xmp);
               if (xmpDate != null) {
                 final date = DateTime.tryParse(xmpDate);
@@ -68,7 +68,7 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
                   reportService.recordError('failed to parse XMP date=$xmpDate');
                 }
               }
-            case DateEditAction.remove:
+            case .remove:
               editCreateDateXmp(descriptions, null);
           }
           return true;
@@ -531,12 +531,12 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
     Set<MetadataField> mainMetadataDate() => {isExifEditionSupported ? MetadataField.exifDateOriginal : MetadataField.xmpXmpCreateDate};
 
     switch (modifier.action) {
-      case DateEditAction.copyField:
+      case .copyField:
         DateTime? date;
         final source = modifier.copyFieldSource;
         if (source != null) {
           switch (source) {
-            case DateFieldSource.fileModifiedDate:
+            case .fileModifiedDate:
               try {
                 if (path != null) {
                   final file = File(path!);
@@ -550,14 +550,14 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
           }
         }
         return date != null ? DateModifier.setCustom(mainMetadataDate(), date) : null;
-      case DateEditAction.extractFromTitle:
+      case .extractFromTitle:
         final date = parseUnknownDateFormat(bestTitle);
         return date != null ? DateModifier.setCustom(mainMetadataDate(), date) : null;
-      case DateEditAction.setCustom:
-      case DateEditAction.copyItem:
+      case .setCustom:
+      case .copyItem:
         return DateModifier.setCustom(mainMetadataDate(), modifier.setDateTime!);
-      case DateEditAction.shift:
-      case DateEditAction.remove:
+      case .shift:
+      case .remove:
         return modifier;
     }
   }

@@ -31,13 +31,13 @@ extension ExtraAppExportItem on AppExportItem {
 
   Future<void> import(Object jsonObject, CollectionSource source) async {
     switch (this) {
-      case AppExportItem.covers:
+      case .covers:
         covers.import(jsonObject, source);
-      case AppExportItem.dynamicAlbums:
+      case .dynamicAlbums:
         dynamicAlbums.import(jsonObject);
-      case AppExportItem.favourites:
+      case .favourites:
         favourites.import(jsonObject, source);
-      case AppExportItem.settings:
+      case .settings:
         await settings.import(jsonObject);
         albumGrouping.setGroups(settings.albumGroups);
         tagGrouping.setGroups(settings.tagGroups);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/entry/entry.dart';
@@ -416,14 +415,14 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     }
 
     switch (moveType) {
-      case MoveType.copy:
+      case .copy:
         addEntries(movedEntries);
-      case MoveType.move:
-      case MoveType.export:
+      case .move:
+      case .export:
         cleanEmptyAlbums(fromAlbums.nonNulls.toSet());
         addDirectories(albums: destinationAlbums);
-      case MoveType.toBin:
-      case MoveType.fromBin:
+      case .toBin:
+      case .fromBin:
         updateDerivedFilters(movedEntries);
     }
     invalidateAlbumFilterSummary(directories: fromAlbums);
@@ -526,8 +525,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       if (startAnalysisService) {
         final lifecycleState = AvesApp.lifecycleStateNotifier.value;
         switch (lifecycleState) {
-          case AppLifecycleState.resumed:
-          case AppLifecycleState.inactive:
+          case .resumed:
+          case .inactive:
             await AnalysisService.startService(
               force: force,
               entryIds: entries?.map((entry) => entry.id).toList(),

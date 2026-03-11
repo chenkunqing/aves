@@ -184,11 +184,11 @@ class MpvVideoController extends AvesVideoController {
     final hardwareAcceleration = settings.videoHardwareAcceleration;
     String hwdec;
     switch (settings.videoHardwareAcceleration) {
-      case VideoHardwareAcceleration.disabled:
+      case .disabled:
         hwdec = 'no';
-      case VideoHardwareAcceleration.enabled:
+      case .enabled:
         hwdec = 'auto-safe';
-      case VideoHardwareAcceleration.forced:
+      case .forced:
         hwdec = 'mediacodec';
     }
     _controllerNotifier.value = VideoController(
@@ -261,13 +261,13 @@ class MpvVideoController extends AvesVideoController {
   @override
   bool get isReady {
     switch (_status) {
-      case VideoStatus.error:
-      case VideoStatus.idle:
-      case VideoStatus.initialized:
+      case .error:
+      case .idle:
+      case .initialized:
         return false;
-      case VideoStatus.paused:
-      case VideoStatus.playing:
-      case VideoStatus.completed:
+      case .paused:
+      case .playing:
+      case .completed:
         return _firstFrameRendered;
     }
   }
@@ -382,19 +382,19 @@ class MpvVideoController extends AvesVideoController {
   Future<MediaStreamSummary?> getSelectedStream(MediaStreamType type) async {
     final track = _instance.state.track;
     switch (type) {
-      case MediaStreamType.video:
+      case .video:
         final video = track.video;
         if (video != VideoTrack.no()) {
           final index = video == VideoTrack.auto() ? 0 : _videoTracks.indexOf(video);
           return video.toAves(index);
         }
-      case MediaStreamType.audio:
+      case .audio:
         final audio = track.audio;
         if (audio != AudioTrack.no()) {
           final index = audio == AudioTrack.auto() ? 0 : _audioTracks.indexOf(audio);
           return audio.toAves(index);
         }
-      case MediaStreamType.text:
+      case .text:
         final subtitle = track.subtitle;
         if (subtitle != SubtitleTrack.no()) {
           final index = subtitle == SubtitleTrack.auto() ? 0 : _subtitleTracks.indexOf(subtitle);
@@ -414,13 +414,13 @@ class MpvVideoController extends AvesVideoController {
       if (newIndex != null) {
         // select track
         switch (type) {
-          case MediaStreamType.video:
+          case .video:
             await _instance.setVideoTrack(_videoTracks[selected.index ?? 0]);
             break;
-          case MediaStreamType.audio:
+          case .audio:
             await _instance.setAudioTrack(_audioTracks[selected.index ?? 0]);
             break;
-          case MediaStreamType.text:
+          case .text:
             await _instance.setSubtitleTrack(_subtitleTracks[selected.index ?? 0]);
             break;
         }
@@ -428,13 +428,13 @@ class MpvVideoController extends AvesVideoController {
     } else if (current != null) {
       // deselect track
       switch (type) {
-        case MediaStreamType.video:
+        case .video:
           await _instance.setVideoTrack(VideoTrack.no());
           break;
-        case MediaStreamType.audio:
+        case .audio:
           await _instance.setAudioTrack(AudioTrack.no());
           break;
-        case MediaStreamType.text:
+        case .text:
           await _instance.setSubtitleTrack(SubtitleTrack.no());
           break;
       }

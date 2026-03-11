@@ -18,11 +18,11 @@ class TimeAxisSpec {
     required DateTime last,
   }) {
     switch (level) {
-      case DateLevel.ymd:
+      case .ymd:
         return TimeAxisSpec.days(locale, first, last);
-      case DateLevel.ym:
+      case .ym:
         return TimeAxisSpec.months(locale, first, last);
-      case DateLevel.y:
+      case .y:
       default:
         return TimeAxisSpec.years(locale, first, last);
     }

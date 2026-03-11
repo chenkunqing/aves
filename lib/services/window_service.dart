@@ -141,7 +141,7 @@ class PlatformWindowService implements WindowService {
     }
 
     switch (orientation) {
-      case Orientation.landscape:
+      case .landscape:
         // first use the `sensor` variant to flip according to the sensor,
         // then switch to a specific landscape orientation
         // so that it no longer listens to the sensor
@@ -153,7 +153,7 @@ class PlatformWindowService implements WindowService {
           default:
             await apply(screenOrientationLandscape);
         }
-      case Orientation.portrait:
+      case .portrait:
         await apply(screenOrientationUserPortrait);
       default:
         await apply(screenOrientationUnspecified);
