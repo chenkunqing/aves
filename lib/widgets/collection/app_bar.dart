@@ -67,6 +67,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
   final EntrySetActionDelegate _actionDelegate = EntrySetActionDelegate();
   late AnimationController _browseToSelectAnimation;
   final ValueNotifier<bool> _isSelectingNotifier = ValueNotifier(false);
+  final ValueNotifier<String?> _actionPopupExpandedNotifier = ValueNotifier(null);
   final FocusNode _queryBarFocusNode = FocusNode();
   late final Listenable _queryFocusRequestNotifier;
   double _statusBarHeight = 0;
@@ -152,6 +153,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     _queryFocusRequestNotifier.removeListener(_onQueryFocusRequest);
     _queryBarFocusNode.removeListener(_onQueryBarFocusChanged);
     _isSelectingNotifier.dispose();
+    _actionPopupExpandedNotifier.dispose();
     _browseToSelectAnimation.dispose();
     _subscriptions
       ..forEach((sub) => sub.cancel())
@@ -439,6 +441,10 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
           (action) => _buildButtonIcon(context, action, enabled: canApply(action), selection: selection),
         );
 
+    bool showInMenu(EntrySetAction? v) => v == null || (isVisible(v) && !quickActions.contains(v));
+    PopupMenuItem<EntrySetAction> toMenuItem(EntrySetAction action) => _toMenuItem(action, enabled: canApply(action), selection: selection);
+
+    final l10n = context.l10n;
     final animations = context.select<Settings, AccessibilityAnimations>((v) => v.accessibilityAnimations);
     return [
       ...quickActionButtons,
@@ -446,15 +452,10 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
         // key is expected by test driver
         key: const Key('appbar-menu-button'),
         itemBuilder: (context) {
-          bool _isValidForMenu(EntrySetAction? v) => v == null || (!quickActions.contains(v) && isVisible(v));
-          final generalMenuItems = EntrySetActions.general
-              .where(_isValidForMenu)
-              .map(
-                (action) => _toMenuItem(action, enabled: canApply(action), selection: selection),
-              );
+          final generalMenuItems = EntrySetActions.general.where(showInMenu).map(toMenuItem);
 
           final allContextualActions = isSelecting ? EntrySetActions.pageSelection : EntrySetActions.pageBrowsing;
-          final contextualMenuActions = allContextualActions.where(_isValidForMenu).fold(<EntrySetAction?>[], (prev, v) {
+          final contextualMenuActions = allContextualActions.where(showInMenu).fold(<EntrySetAction?>[], (prev, v) {
             if (v == null && (prev.isEmpty || prev.last == null)) return prev;
             return [...prev, v];
           });
@@ -462,6 +463,11 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
             contextualMenuActions.removeLast();
           }
 
+          final exportMenuActions = EntrySetActions.export.where(showInMenu).map(toMenuItem).toList();
+          final editMenuActions = [
+            _buildRotateAndFlipMenuItems(context, canApply: canApply),
+            ...EntrySetActions.edit.where(showInMenu).map(toMenuItem),
+          ];
           final contextualMenuItems = <PopupMenuEntry<EntrySetAction>>[
             ...contextualMenuActions.map(
               (action) {
@@ -469,17 +475,26 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
                 return _toMenuItem(action, enabled: canApply(action), selection: selection);
               },
             ),
-            if (isSelecting && !settings.isReadOnly && appMode == AppMode.main && !isTrash)
-              PopupMenuExpansionPanel<EntrySetAction>(
-                enabled: hasSelection,
-                value: 'edit',
-                icon: AIcons.edit,
-                title: context.l10n.collectionActionEdit,
-                items: [
-                  _buildRotateAndFlipMenuItems(context, canApply: canApply),
-                  ...EntrySetActions.edit.where((v) => isVisible(v) && !quickActions.contains(v)).map((action) => _toMenuItem(action, enabled: canApply(action), selection: selection)),
-                ],
-              ),
+            if (isSelecting && !settings.isReadOnly && appMode == AppMode.main && !isTrash) ...[
+              if (exportMenuActions.isNotEmpty)
+                PopupMenuExpansionPanel<EntrySetAction>(
+                  enabled: hasSelection,
+                  value: 'export',
+                  expandedNotifier: _actionPopupExpandedNotifier,
+                  icon: AIcons.export,
+                  title: l10n.entryActionExport,
+                  items: exportMenuActions,
+                ),
+              if (editMenuActions.isNotEmpty)
+                PopupMenuExpansionPanel<EntrySetAction>(
+                  enabled: hasSelection,
+                  value: 'edit',
+                  expandedNotifier: _actionPopupExpandedNotifier,
+                  icon: AIcons.edit,
+                  title: l10n.collectionActionEdit,
+                  items: editMenuActions,
+                ),
+            ],
           ];
 
           return [
@@ -491,9 +506,13 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
           ];
         },
         onSelected: (action) async {
+          _actionPopupExpandedNotifier.value = null;
           // wait for the popup menu to hide before proceeding with the action
           await Future.delayed(animations.popUpAnimationDelay * timeDilation);
           await _onActionSelected(action);
+        },
+        onCanceled: () {
+          _actionPopupExpandedNotifier.value = null;
         },
         popUpAnimationStyle: animations.popUpAnimationStyle,
       ),
@@ -739,6 +758,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
       case .move:
       case .rename:
       case .convert:
+      case .exportGpx:
       case .toggleFavourite:
       case .rotateCCW:
       case .rotateCW:

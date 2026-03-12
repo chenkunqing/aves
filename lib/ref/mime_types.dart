@@ -96,6 +96,7 @@ class MimeTypes {
 
   // non-media
   static const csv = 'text/csv';
+  static const gpx = 'application/gpx+xml';
   static const json = 'application/json';
   static const octetStream = 'application/octet-stream';
   static const plainText = 'text/plain';
@@ -164,6 +165,7 @@ class MimeTypes {
     bmp: '.bmp',
     csv: '.csv',
     gif: '.gif',
+    gpx: '.gpx',
     jpeg: '.jpg',
     json: '.json',
     png: '.png',

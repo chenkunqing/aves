@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/dynamic_albums.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/favourites.dart';
+import 'package:aves/model/entry/extensions/location.dart';
 import 'package:aves/model/entry/extensions/metadata_edition.dart';
 import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
+import 'package:aves/model/entry/sort.dart';
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/container/set_and.dart';
@@ -23,6 +27,8 @@ import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/vaults/vaults.dart';
+import 'package:aves/ref/locales.dart';
+import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/app_service.dart';
 import 'package:aves/services/common/image_op_events.dart';
 import 'package:aves/services/common/services.dart';
@@ -31,6 +37,7 @@ import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/utils/collection_utils.dart';
 import 'package:aves/utils/mime_utils.dart';
+import 'package:aves/widgets/about/app_ref.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/entry_editor.dart';
 import 'package:aves/widgets/common/action_mixins/entry_storage.dart';
@@ -52,10 +59,13 @@ import 'package:aves/widgets/map/map_page.dart';
 import 'package:aves/widgets/search/collection_search_delegate.dart';
 import 'package:aves/widgets/stats/stats_page.dart';
 import 'package:aves/widgets/viewer/slideshow_page.dart';
+import 'package:aves_map/aves_map.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:gpx/gpx.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
@@ -110,6 +120,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .move:
       case .rename:
       case .convert:
+      case .exportGpx:
       case .rotateCCW:
       case .rotateCW:
       case .flip:
@@ -166,6 +177,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .move:
       case .rename:
       case .convert:
+      case .exportGpx:
       case .toggleFavourite:
       case .rotateCCW:
       case .rotateCW:
@@ -227,6 +239,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _rename(context);
       case .convert:
         _convert(context);
+      case .exportGpx:
+        _exportGpx(context);
       case .toggleFavourite:
         _toggleFavourite(context);
       case .rotateCCW:
@@ -428,6 +442,70 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .convertMotionPhotoToStillImage:
         final todoItems = entries.where((entry) => entry.isMotionPhoto).toSet();
         await _edit(context, todoItems, (entry) => entry.removeTrailerVideo());
+    }
+  }
+
+  Future<void> _exportGpx(BuildContext context) async {
+    final entries = _getTargetItems(context).where((entry) => entry.hasGps).sorted(AvesEntrySort.compareByDate).toList();
+    if (entries.isEmpty) return;
+
+    final waypoints = entries
+        .map((entry) {
+          final latLng = entry.latLng;
+          return latLng != null
+              ? Wpt(
+                  lat: latLng.latitude,
+                  lon: latLng.longitude,
+                  time: entry.bestDate,
+                  desc: entry.bestTitle,
+                )
+              : null;
+        })
+        .nonNulls
+        .toList();
+    final bounds = ZoomedBounds.fromPoints(points: waypoints.map((v) => LatLng(v.lat!, v.lon!)).toSet());
+
+    final dateTime = DateTime.now();
+    final gpx = Gpx()
+      ..creator = device.userAgent
+      ..metadata = Metadata(
+        author: Person(
+          name: device.userAgent,
+          link: Link(href: AppReference.avesGithub),
+        ),
+        time: dateTime,
+        bounds: Bounds(
+          minlat: bounds.sw.latitude,
+          minlon: bounds.sw.longitude,
+          maxlat: bounds.ne.latitude,
+          maxlon: bounds.ne.longitude,
+        ),
+      )
+      ..wpts = waypoints
+      ..rtes = [
+        Rte(rtepts: waypoints),
+      ]
+      ..trks = [
+        Trk(
+          trksegs: [
+            Trkseg(trkpts: waypoints),
+          ],
+        ),
+      ];
+
+    final body = GpxWriter().asString(gpx);
+    const mimeType = MimeTypes.gpx;
+    final success = await storageService.createFile(
+      'aves-gpx-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(dateTime)}${MimeTypes.extensionFor(mimeType)}',
+      mimeType,
+      Uint8List.fromList(utf8.encode(body)),
+    );
+    if (success != null) {
+      if (success) {
+        showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
+      } else {
+        showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
+      }
     }
   }
 

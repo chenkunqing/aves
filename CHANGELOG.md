@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Added
+
+- Collection: GPX export
+
 ### Changed
 
 - upgraded Flutter to stable v3.41.4
