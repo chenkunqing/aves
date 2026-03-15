@@ -99,6 +99,7 @@ class _AppDrawerState extends State<AppDrawer> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _scrollController.dispose();
     super.dispose();
   }
 
