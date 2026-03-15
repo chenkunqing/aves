@@ -217,9 +217,9 @@ class Dependencies {
       sourceUrl: 'https://github.com/foresightmobile/flutter_markdown_plus',
     ),
     Dependency(
-      name: 'Flutter Staggered Animations',
+      name: 'Flutter Staggered Animations (Aves fork)',
       license: mit,
-      sourceUrl: 'https://github.com/mobiten/flutter_staggered_animations',
+      sourceUrl: 'https://github.com/deckerst/flutter_staggered_animations',
     ),
     Dependency(
       name: 'Material Design Icons Flutter',

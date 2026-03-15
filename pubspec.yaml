@@ -94,6 +94,9 @@ dependencies:
   flutter_map:
   flutter_markdown_plus:
   flutter_staggered_animations:
+    git:
+      url: https://github.com/deckerst/flutter_staggered_animations
+      ref: aves
   get_it:
   gpx:
   http:
