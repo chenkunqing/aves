@@ -52,8 +52,6 @@ class ExoVideoController extends AvesVideoController {
 
   @override
   Future<void> dispose() async {
-    await super.dispose();
-
     _stopListening();
     await _statusStreamController.close();
     await _timedTextStreamController.close();
@@ -66,6 +64,8 @@ class ExoVideoController extends AvesVideoController {
     canSetSpeedNotifier.dispose();
     canSelectStreamNotifier.dispose();
     sarNotifier.dispose();
+
+    await super.dispose();
   }
 
   void _startListening() {

@@ -138,6 +138,13 @@ dependencies:
   volume_controller:
   xml:
 
+dependency_overrides:
+  media_kit_video:
+    git:
+      url: https://github.com/deckerst/media-kit.git
+      path: media_kit_video
+      ref: video_controller_disposal
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
