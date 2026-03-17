@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/covered/location.dart';
@@ -12,6 +13,7 @@ import 'package:aves/widgets/common/basic/popup/menu_row.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/behaviour/pop/scope.dart';
 import 'package:aves/widgets/common/behaviour/pop/tv_navigation.dart';
+import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/debug/app_debug_action.dart';
 import 'package:aves/widgets/debug/cache.dart';
 import 'package:aves/widgets/debug/capabilities.dart';
@@ -72,22 +74,28 @@ class AppDebugPage extends StatelessWidget {
         body: AvesPopScope(
           handlers: [tvNavigationPopHandler],
           child: SafeArea(
-            child: ListView(
-              padding: const EdgeInsets.all(8),
-              children: const [
-                DebugGeneralSection(),
-                DebugLeakingSection(),
-                DebugCacheSection(),
-                DebugCapabilitiesSection(),
-                DebugColorSection(),
-                DebugAppDatabaseSection(),
-                DebugErrorReportingSection(),
-                DebugSettingsSection(),
-                DebugOSAppSection(),
-                DebugOSCodecSection(),
-                DebugOSPathSection(),
-                DebugOSStorageSection(),
-              ],
+            bottom: false,
+            child: Selector<MediaQueryData, double>(
+              selector: (context, mq) => max(mq.effectiveBottomPadding, mq.systemGestureInsets.bottom),
+              builder: (context, mqPaddingBottom, child) {
+                return ListView(
+                  padding: const EdgeInsets.all(8) + EdgeInsets.only(bottom: mqPaddingBottom),
+                  children: const [
+                    DebugGeneralSection(),
+                    DebugLeakingSection(),
+                    DebugCacheSection(),
+                    DebugCapabilitiesSection(),
+                    DebugColorSection(),
+                    DebugAppDatabaseSection(),
+                    DebugErrorReportingSection(),
+                    DebugSettingsSection(),
+                    DebugOSAppSection(),
+                    DebugOSCodecSection(),
+                    DebugOSPathSection(),
+                    DebugOSStorageSection(),
+                  ],
+                );
+              },
             ),
           ),
         ),
