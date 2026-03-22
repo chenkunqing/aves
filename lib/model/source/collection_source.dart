@@ -42,7 +42,7 @@ typedef SourceScope = Set<CollectionFilter>?;
 mixin SourceBase {
   EventBus get eventBus;
 
-  Map<int, AvesEntry> get entryById;
+  AvesEntry? getEntryById(int id);
 
   Set<AvesEntry> get allEntries;
 
@@ -96,7 +96,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       LeakTracking.dispatchObjectDisposed(object: this);
     }
     vaults.removeListener(_onVaultsChanged);
-    _rawEntries.forEach((v) => v.dispose());
+    _disposeAllEntries();
   }
 
   set canAnalyze(bool enabled);
@@ -106,27 +106,25 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   @override
   EventBus get eventBus => _eventBus;
 
-  final Map<int, AvesEntry> _entryById = {};
+  @override
+  AvesEntry? getEntryById(int id) => _entriesById[id];
+
+  final Map<int, AvesEntry> _entriesById = {};
 
   @override
-  Map<int, AvesEntry> get entryById => Map.unmodifiable(_entryById);
-
-  final Set<AvesEntry> _rawEntries = {};
-
-  @override
-  Set<AvesEntry> get allEntries => Set.unmodifiable(_rawEntries);
+  Set<AvesEntry> get allEntries => Set.unmodifiable(_entriesById.values);
 
   Set<AvesEntry>? _visibleEntries, _trashedEntries;
 
   @override
   Set<AvesEntry> get visibleEntries {
-    _visibleEntries ??= Set.unmodifiable(_applyHiddenFilters(_rawEntries));
+    _visibleEntries ??= Set.unmodifiable(_applyHiddenFilters(_entriesById.values));
     return _visibleEntries!;
   }
 
   @override
   Set<AvesEntry> get trashedEntries {
-    _trashedEntries ??= Set.unmodifiable(_applyTrashFilter(_rawEntries));
+    _trashedEntries ??= Set.unmodifiable(_applyTrashFilter(_entriesById.values));
     return _trashedEntries!;
   }
 
@@ -188,21 +186,25 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     updateTags();
   }
 
+  void _disposeEntries(bool Function(int id, AvesEntry entry) test) {
+    final todoEntries = _entriesById.entries.where((kv) => test(kv.key, kv.value)).toSet();
+    todoEntries.forEach((kv) => _entriesById.remove(kv.key)?.dispose());
+  }
+
+  void _disposeAllEntries() => _disposeEntries((_, _) => true);
+
   void addEntries(Set<AvesEntry> entries, {bool notify = true}) {
     if (entries.isEmpty) return;
-
-    final newIdMapEntries = Map.fromEntries(entries.map((entry) => MapEntry(entry.id, entry)));
-    if (_rawEntries.isNotEmpty) {
-      final newIds = newIdMapEntries.keys.toSet();
-      _rawEntries.removeWhere((entry) => newIds.contains(entry.id));
-    }
 
     entries.where((entry) => entry.catalogDateMillis == null).forEach((entry) {
       entry.catalogDateMillis = _savedDates[entry.id];
     });
 
-    _entryById.addAll(newIdMapEntries);
-    _rawEntries.addAll(entries);
+    final newEntriesById = Map.fromEntries(entries.map((entry) => MapEntry(entry.id, entry)));
+    final newIds = newEntriesById.keys.toSet();
+    _disposeEntries((id, _) => newIds.contains(id));
+
+    _entriesById.addAll(newEntriesById);
     _invalidate(entries: entries, notify: notify);
 
     addDirectories(albums: _applyHiddenFilters(entries).map((entry) => entry.directory).toSet(), notify: notify);
@@ -214,26 +216,24 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   Future<void> removeEntries(Set<String> uris, {required bool includeTrash}) async {
     if (uris.isEmpty) return;
 
-    final entries = _rawEntries.where((entry) => uris.contains(entry.uri)).toSet();
+    final oldEntries = allEntries.where((entry) => uris.contains(entry.uri)).toSet();
     if (!includeTrash) {
-      entries.removeWhere(TrashFilter.instance.test);
+      oldEntries.removeWhere(TrashFilter.instance.test);
     }
-    if (entries.isEmpty) return;
+    if (oldEntries.isEmpty) return;
 
-    final ids = entries.map((entry) => entry.id).toSet();
-    await favourites.removeIds(ids);
-    await covers.removeIds(ids);
-    await localMediaDb.removeIds(ids);
+    final oldIds = oldEntries.map((entry) => entry.id).toSet();
+    await favourites.removeIds(oldIds);
+    await covers.removeIds(oldIds);
+    await localMediaDb.removeIds(oldIds);
 
-    ids.forEach((id) => _entryById.remove);
-    _rawEntries.removeAll(entries);
-    updateDerivedFilters(entries);
-    eventBus.fire(EntryRemovedEvent(entries));
+    _disposeEntries((id, _) => oldIds.contains(id));
+    updateDerivedFilters(oldEntries);
+    eventBus.fire(EntryRemovedEvent(oldEntries));
   }
 
   void clearEntries() {
-    _entryById.clear();
-    _rawEntries.clear();
+    _disposeAllEntries();
     _invalidate();
 
     // do not update directories/locations/tags here
@@ -358,7 +358,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     final replacedUris = movedOps
         .map((movedOp) => movedOp.newFields[EntryFields.path] as String?)
         .map((targetPath) {
-          final existingEntry = _rawEntries.firstWhereOrNull((entry) => entry.path == targetPath && !entry.trashed);
+          final existingEntry = allEntries.firstWhereOrNull((entry) => entry.path == targetPath && !entry.trashed);
           return existingEntry?.uri;
         })
         .nonNulls
