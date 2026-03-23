@@ -222,6 +222,11 @@ class Dependencies {
       sourceUrl: 'https://github.com/deckerst/flutter_staggered_animations',
     ),
     Dependency(
+      name: 'Material Color Utilities',
+      license: apache2,
+      sourceUrl: 'https://github.com/material-foundation/material-color-utilities/tree/main/dart',
+    ),
+    Dependency(
       name: 'Material Design Icons Flutter',
       license: mit,
       sourceUrl: 'https://github.com/ziofat/material_design_icons_flutter',
@@ -235,11 +240,6 @@ class Dependencies {
       name: 'Overlay Support',
       license: apache2,
       sourceUrl: 'https://github.com/boyan01/overlay_support',
-    ),
-    Dependency(
-      name: 'Palette Generator',
-      license: bsd3,
-      sourceUrl: 'https://github.com/flutter/packages/tree/main/packages/palette_generator',
     ),
     Dependency(
       name: 'Panorama (Aves fork)',

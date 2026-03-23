@@ -56,8 +56,8 @@ dependencies:
     path: plugins/aves_services_google
   aves_video:
     path: plugins/aves_video
-#  aves_video_exo:
-#    path: plugins/aves_video_exo
+  #  aves_video_exo:
+  #    path: plugins/aves_video_exo
   aves_video_mpv:
     path: plugins/aves_video_mpv
   aves_ui:
@@ -103,12 +103,12 @@ dependencies:
   latlong2:
   leak_tracker:
   local_auth:
+  material_color_utilities:
   material_design_icons_flutter:
   material_symbols_icons:
   network_info_plus:
   overlay_support:
   package_info_plus:
-  palette_generator: # discontinued on 2025/04/30
   panorama:
     git:
       url: https://github.com/deckerst/aves_panorama.git

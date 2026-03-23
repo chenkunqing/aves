@@ -3,8 +3,10 @@ import 'package:aves/model/covers.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/extensions/theme.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:provider/provider.dart';
 
 class AColors {
@@ -88,11 +90,11 @@ abstract class AvesColorsData {
 
   static Future<Color> appColorFromPackageName(String packageName) async {
     final appIconImage = AppIconImage(packageName: packageName, size: 24);
-    final scheme = await ColorScheme.fromImageProvider(
+    final scheme = await ColorExtractor.getDynamicScheme(
       provider: appIconImage,
       dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
-    return scheme.primaryFixedDim;
+    return Color(MaterialDynamicColors.primaryFixedDim.getArgb(scheme));
   }
 
   void clearAppColor(String album) => _appColors.remove(album);
