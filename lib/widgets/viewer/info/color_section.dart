@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/images.dart';
@@ -86,19 +85,22 @@ class _ColorSectionSliverState extends State<ColorSectionSliver> {
     );
   }
 
-  // `PaletteGenerator.fromImage()` directly blocks the main isolate,
+  // Extracting colors directly may block the main isolate,
   // so we use another isolate to compute the palette
   Future<List<Color>> _loadPalette(ImageProvider provider) async {
     final stream = provider.resolve(ImageConfiguration.empty);
-    final imageCompleter = Completer<ui.Image>();
+    final imageInfoCompleter = Completer<ImageInfo>();
     late ImageStreamListener listener;
     listener = ImageStreamListener((info, _) {
       stream.removeListener(listener);
-      imageCompleter.complete(info.image);
+      imageInfoCompleter.complete(info);
     });
+
     stream.addListener(listener);
-    final image = await imageCompleter.future;
-    final imageData = await image.toByteData();
+    final imageInfo = await imageInfoCompleter.future;
+    final imageData = await imageInfo.image.toByteData();
+    imageInfo.dispose();
+
     if (imageData == null) {
       throw StateError('Failed to encode the image.');
     }

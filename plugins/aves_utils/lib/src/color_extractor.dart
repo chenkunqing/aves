@@ -29,6 +29,7 @@ class ColorExtractor {
   }) async {
     final ui.Image scaledImage = await _imageProviderToScaled(provider, maxDimension ?? 112.0);
     final ByteData? imageBytes = await scaledImage.toByteData();
+    scaledImage.dispose();
     final quantizerResult = await extractColorsFromImageBytes(imageBytes!);
     final colorToCount = quantizerResult.colorToCount.map(
       (key, value) => MapEntry<int, int>(_getArgbFromAbgr(key), value),
@@ -57,10 +58,10 @@ class ColorExtractor {
 
   // Scale image size down to reduce computation time of color extraction.
   static Future<ui.Image> _imageProviderToScaled(ImageProvider imageProvider, double maxDimension) async {
-    final ImageStream stream = imageProvider.resolve(
+    final stream = imageProvider.resolve(
       ImageConfiguration(size: Size(maxDimension, maxDimension)),
     );
-    final imageCompleter = Completer<ui.Image>();
+    final imageInfoCompleter = Completer<ImageInfo>();
     late ImageStreamListener listener;
     late ui.Image scaledImage;
     Timer? loadFailureTimeout;
@@ -69,14 +70,14 @@ class ColorExtractor {
       (info, sync) async {
         loadFailureTimeout?.cancel();
         stream.removeListener(listener);
-        final ui.Image image = info.image;
-        final int width = image.width;
-        final int height = image.height;
-        double paintWidth = width.toDouble();
-        double paintHeight = height.toDouble();
+        final image = info.image;
+        final width = image.width;
+        final height = image.height;
+        var paintWidth = width.toDouble();
+        var paintHeight = height.toDouble();
         assert(width > 0 && height > 0);
 
-        final bool rescale = width > maxDimension || height > maxDimension;
+        final rescale = width > maxDimension || height > maxDimension;
         if (rescale) {
           paintWidth = (width > height) ? maxDimension : (maxDimension / height) * width;
           paintHeight = (height > width) ? maxDimension : (maxDimension / width) * height;
@@ -90,24 +91,28 @@ class ColorExtractor {
           filterQuality: FilterQuality.none,
         );
 
-        final ui.Picture picture = pictureRecorder.endRecording();
+        final picture = pictureRecorder.endRecording();
         scaledImage = await picture.toImage(paintWidth.toInt(), paintHeight.toInt());
-        imageCompleter.complete(info.image);
+        picture.dispose();
+
+        imageInfoCompleter.complete(info);
       },
       onError: (exception, stackTrace) {
         loadFailureTimeout?.cancel();
         stream.removeListener(listener);
-        imageCompleter.completeError(Exception('Failed to render image: $exception'), stackTrace);
+        imageInfoCompleter.completeError(Exception('Failed to render image: $exception'), stackTrace);
       },
     );
 
     loadFailureTimeout = Timer(const Duration(seconds: 5), () {
       stream.removeListener(listener);
-      imageCompleter.completeError(TimeoutException('Timeout occurred trying to load image'));
+      imageInfoCompleter.completeError(TimeoutException('Timeout occurred trying to load image'));
     });
 
     stream.addListener(listener);
-    await imageCompleter.future;
+    final imageInfo = await imageInfoCompleter.future;
+    imageInfo.dispose();
+
     return scaledImage;
   }
 
