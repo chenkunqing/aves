@@ -440,8 +440,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
           _browse(context);
         }
       case .convertMotionPhotoToStillImage:
-        final todoItems = entries.where((entry) => entry.isMotionPhoto).toSet();
-        await _edit(context, todoItems, (entry) => entry.removeTrailerVideo());
+        final todoEntries = entries.where((entry) => entry.isMotionPhoto).toSet();
+        await _edit(context, todoEntries, (entry) => entry.removeTrailerVideo());
     }
   }
 
@@ -522,18 +522,21 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
   Future<void> _edit(
     BuildContext context,
-    Set<AvesEntry> todoItems,
+    Set<AvesEntry> todoEntries,
     Future<Set<EntryDataType>> Function(AvesEntry entry) op, {
     bool showResult = true,
+    bool isFixingUndated = false,
   }) async {
-    final selectionDirs = todoItems.map((e) => e.directory).nonNulls.toSet();
-    final todoCount = todoItems.length;
+    final selectionDirs = todoEntries.map((e) => e.directory).nonNulls.toSet();
+    final todoCount = todoEntries.length;
 
-    if (!await checkStoragePermissionForAlbums(context, selectionDirs, entries: todoItems)) return;
+    if (!await checkStoragePermissionForAlbums(context, selectionDirs, entries: todoEntries)) return;
 
-    Set<String> obsoleteTags = todoItems.expand((entry) => entry.tags).toSet();
-    Set<String> obsoleteCountryCodes = todoItems.where((entry) => entry.hasAddress).map((entry) => entry.addressDetails?.countryCode).nonNulls.toSet();
-    Set<String> obsoleteStateCodes = todoItems.where((entry) => entry.hasAddress).map((entry) => entry.addressDetails?.stateCode).nonNulls.toSet();
+    if (!isFixingUndated && !await checkUndatedItems(context, todoEntries)) return;
+
+    Set<String> obsoleteTags = todoEntries.expand((entry) => entry.tags).toSet();
+    Set<String> obsoleteCountryCodes = todoEntries.where((entry) => entry.hasAddress).map((entry) => entry.addressDetails?.countryCode).nonNulls.toSet();
+    Set<String> obsoleteStateCodes = todoEntries.where((entry) => entry.hasAddress).map((entry) => entry.addressDetails?.stateCode).nonNulls.toSet();
 
     final dataTypes = <EntryDataType>{};
     final source = context.read<CollectionSource>();
@@ -541,7 +544,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     var cancelled = false;
     await showOpReport<ImageOpEvent>(
       context: context,
-      opStream: Stream.fromIterable(todoItems).asyncMap((entry) async {
+      opStream: Stream.fromIterable(todoEntries).asyncMap((entry) async {
         if (cancelled) {
           return ImageOpEvent(success: true, skipped: true, uri: entry.uri);
         } else {
@@ -648,7 +651,13 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     await _edit(context, entries, (entry) => entry.flip());
   }
 
-  Future<void> editDate(BuildContext context, {Set<AvesEntry>? entries, DateModifier? modifier, bool showResult = true}) async {
+  Future<void> editDate(
+    BuildContext context, {
+    Set<AvesEntry>? entries,
+    DateModifier? modifier,
+    bool showResult = true,
+    bool isFixingUndated = false,
+  }) async {
     entries ??= await _getEditableTargetItems(context, canEdit: (entry) => entry.canEditDate);
     if (entries == null || entries.isEmpty) return;
 
@@ -658,7 +667,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     }
     if (modifier == null) return;
 
-    await _edit(context, entries, (entry) => entry.editDate(modifier!), showResult: showResult);
+    await _edit(context, entries, (entry) => entry.editDate(modifier!), showResult: showResult, isFixingUndated: isFixingUndated);
   }
 
   Future<void> _editLocation(BuildContext context) async {
@@ -667,14 +676,15 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
     final collection = context.read<CollectionLens>();
     final locationByEntry = await selectLocation(context, entries, collection);
-    if (locationByEntry == null) return;
+    if (locationByEntry == null || locationByEntry.isEmpty) return;
 
-    await _edit(context, locationByEntry.keys.toSet(), (entry) => entry.editLocation(locationByEntry[entry]));
+    final todoEntries = locationByEntry.keys.toSet();
+    await _edit(context, todoEntries, (entry) => entry.editLocation(locationByEntry[entry]));
   }
 
   Future<LatLng?> editLocationByMap(BuildContext context, Set<AvesEntry> entries, LatLng clusterLocation, CollectionLens mapCollection) async {
-    final editableEntries = await _getEditableItems(context, entries, canEdit: (entry) => entry.canEditLocation);
-    if (editableEntries == null || editableEntries.isEmpty) return null;
+    final todoEntries = await _getEditableItems(context, entries, canEdit: (entry) => entry.canEditLocation);
+    if (todoEntries == null || todoEntries.isEmpty) return null;
 
     final location = await Navigator.maybeOf(context)?.push(
       MaterialPageRoute(
@@ -688,7 +698,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     );
     if (location == null) return null;
 
-    await _edit(context, editableEntries, (entry) => entry.editLocation(location));
+    await _edit(context, todoEntries, (entry) => entry.editLocation(location));
     return location;
   }
 
@@ -702,10 +712,10 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       return;
     }
 
-    final editableEntries = await _getEditableItems(context, entries, canEdit: (entry) => entry.canEditLocation);
-    if (editableEntries == null || editableEntries.isEmpty) return;
+    final todoEntries = await _getEditableItems(context, entries, canEdit: (entry) => entry.canEditLocation);
+    if (todoEntries == null || todoEntries.isEmpty) return;
 
-    await _edit(context, editableEntries, (entry) => entry.editLocation(ExtraAvesEntryMetadataEdition.removalLocation));
+    await _edit(context, todoEntries, (entry) => entry.editLocation(ExtraAvesEntryMetadataEdition.removalLocation));
   }
 
   Future<void> _editTitleDescription(BuildContext context) async {

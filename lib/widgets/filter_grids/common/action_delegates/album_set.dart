@@ -22,6 +22,7 @@ import 'package:aves/services/media/enums.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/utils/android_file_utils.dart';
 import 'package:aves/view/view.dart';
+import 'package:aves/widgets/common/action_mixins/entry_editor.dart';
 import 'package:aves/widgets/common/action_mixins/entry_storage.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -44,7 +45,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
-class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> with EntryStorageMixin {
+class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> with EntryEditorMixin, EntryStorageMixin {
   final Iterable<FilterGridItem<AlbumBaseFilter>> _items;
 
   AlbumChipSetActionDelegate(Iterable<FilterGridItem<AlbumBaseFilter>> items) : _items = items;
@@ -536,6 +537,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       // access to the destination parent is required to create the underlying destination folder
       if (!await checkStoragePermissionForAlbums(context, {destinationAlbumParent})) return;
     }
+
+    if (!await checkUndatedItems(context, todoEntries)) return;
 
     source.pauseMonitoring();
     final opId = mediaEditService.newOpId;
