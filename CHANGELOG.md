@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+## <a id="v1.14.2"></a>[v1.14.2] - 2026-03-30
+
 ### Added
 
 - Collection: GPX export
@@ -17,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - cataloguing items having wrong type from Media Store
 - video player incorrectly looping when configured otherwise
 - recovered items staying in bin forever
+- undated item handling for some file operations
 
 ## <a id="v1.14.1"></a>[v1.14.1] - 2026-02-21
 
