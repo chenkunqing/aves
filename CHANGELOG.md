@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Fixed
+
+- undated item handling for date editing
+
 ## <a id="v1.14.2"></a>[v1.14.2] - 2026-03-30
 
 ### Added
