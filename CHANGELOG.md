@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Added
+
+- improved cataloguing for AVIF still images (requires rescan)
+
 ## <a id="v1.14.3"></a>[v1.14.3] - 2026-04-06
 
 ### Fixed
