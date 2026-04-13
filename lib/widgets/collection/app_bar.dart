@@ -246,6 +246,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
                             },
                             child: FilterBar(
                               filters: visibleFilters,
+                              interactive: true,
                               onTap: onFilterTap,
                               onRemove: onFilterTap,
                             ),
