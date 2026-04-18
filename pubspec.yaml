@@ -14,8 +14,8 @@ version: 1.14.3+167
 environment:
   # this project bundles Flutter SDK via `flutter_wrapper`
   # cf https://github.com/passsy/flutter_wrapper
-  flutter: 3.41.6
-  sdk: ">=3.11.4 <4.0.0"
+  flutter: 3.41.7
+  sdk: ">=3.11.5 <4.0.0"
 
 workspace:
   - plugins/aves_magnifier
