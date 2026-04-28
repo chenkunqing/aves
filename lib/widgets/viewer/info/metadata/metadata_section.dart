@@ -31,6 +31,7 @@ class MetadataSectionSliver extends StatefulWidget {
 
 class _MetadataSectionSliverState extends State<MetadataSectionSliver> {
   final ValueNotifier<String?> _expandedDirectoryNotifier = ValueNotifier(null);
+  bool _showMetadata = false;
 
   AvesEntry get entry => widget.entry;
 
@@ -49,6 +50,7 @@ class _MetadataSectionSliverState extends State<MetadataSectionSliver> {
     super.didUpdateWidget(oldWidget);
     _unregisterWidget(oldWidget);
     _registerWidget(widget);
+    _showMetadata = false;
     _getMetadata();
   }
 
@@ -116,14 +118,20 @@ class _MetadataSectionSliverState extends State<MetadataSectionSliver> {
                         ]
                       : [
                           const SectionRow(icon: AIcons.info),
-                          ...metadata.entries.map(
-                            (kv) => MetadataDirTile(
-                              entry: entry,
-                              title: kv.key,
-                              dir: kv.value,
-                              expandedDirectoryNotifier: _expandedDirectoryNotifier,
+                          if (!_showMetadata)
+                            AvesOutlinedButton(
+                              label: MaterialLocalizations.of(context).moreButtonTooltip,
+                              onPressed: () => setState(() => _showMetadata = true),
+                            )
+                          else
+                            ...metadata.entries.map(
+                              (kv) => MetadataDirTile(
+                                entry: entry,
+                                title: kv.key,
+                                dir: kv.value,
+                                expandedDirectoryNotifier: _expandedDirectoryNotifier,
+                              ),
                             ),
-                          ),
                         ],
                 ),
               );
