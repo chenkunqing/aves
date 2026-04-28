@@ -8,6 +8,9 @@ class ViewerThumbnailPreview extends StatefulWidget {
   final int displayedIndex;
   final double availableWidth;
 
+  static const double _extent = 56;
+  static const double _verticalPadding = 8;
+
   const ViewerThumbnailPreview({
     super.key,
     required this.entries,
@@ -18,7 +21,7 @@ class ViewerThumbnailPreview extends StatefulWidget {
   @override
   State<ViewerThumbnailPreview> createState() => _ViewerThumbnailPreviewState();
 
-  static double get preferredHeight => ThumbnailScroller.preferredHeight;
+  static double get preferredHeight => _extent + _verticalPadding * 2;
 }
 
 class _ViewerThumbnailPreviewState extends State<ViewerThumbnailPreview> {
@@ -52,12 +55,22 @@ class _ViewerThumbnailPreviewState extends State<ViewerThumbnailPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return ThumbnailScroller(
-      availableWidth: widget.availableWidth,
-      entryCount: entryCount,
-      entryBuilder: (index) => 0 <= index && index < entryCount ? entries[index] : null,
-      indexNotifier: _entryIndexNotifier,
-      onTap: (index) => ShowEntryNotification(animate: false, index: index).dispatch(context),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+      child: Container(
+        color: Colors.black54,
+        padding: const EdgeInsets.symmetric(vertical: ViewerThumbnailPreview._verticalPadding),
+        child: ThumbnailScroller(
+          availableWidth: widget.availableWidth,
+          entryCount: entryCount,
+          entryBuilder: (index) => 0 <= index && index < entryCount ? entries[index] : null,
+          indexNotifier: _entryIndexNotifier,
+          onTap: (index) => ShowEntryNotification(animate: false, index: index).dispatch(context),
+          extent: ViewerThumbnailPreview._extent,
+          borderRadius: BorderRadius.circular(4),
+          highlightBorderColor: Colors.white,
+        ),
+      ),
     );
   }
 

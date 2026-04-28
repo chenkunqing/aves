@@ -15,6 +15,9 @@ class ThumbnailScroller extends StatefulWidget {
   final void Function(int index)? onTap;
   final Object? Function(AvesEntry entry)? heroTagger;
   final bool scrollable, highlightable, showLocation;
+  final double? extent;
+  final BorderRadius? borderRadius;
+  final Color? highlightBorderColor;
 
   const ThumbnailScroller({
     super.key,
@@ -27,12 +30,17 @@ class ThumbnailScroller extends StatefulWidget {
     this.highlightable = false,
     this.showLocation = true,
     this.scrollable = true,
+    this.extent,
+    this.borderRadius,
+    this.highlightBorderColor,
   });
 
   @override
   State<ThumbnailScroller> createState() => _ThumbnailScrollerState();
 
-  static double get preferredHeight => _ThumbnailScrollerState.thumbnailExtent;
+  static double get preferredHeight => _ThumbnailScrollerState.defaultExtent;
+
+  static double preferredHeightFor(double extent) => extent;
 }
 
 class _ThumbnailScrollerState extends State<ThumbnailScroller> {
@@ -40,9 +48,12 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
   late ScrollController _scrollController;
   bool _isAnimating = false, _isScrolling = false;
 
-  static const double thumbnailExtent = 48;
+  static const double defaultExtent = 48;
   static const double separatorWidth = 2;
-  static const double itemExtent = thumbnailExtent + separatorWidth;
+
+  double get thumbnailExtent => widget.extent ?? defaultExtent;
+
+  double get itemExtent => thumbnailExtent + separatorWidth;
 
   int get entryCount => widget.entryCount;
 
@@ -50,7 +61,7 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
 
   bool get scrollable => widget.scrollable;
 
-  static double widthFor(int pageCount) => pageCount == 0 ? 0 : pageCount * thumbnailExtent + (pageCount - 1) * separatorWidth;
+  double widthFor(int pageCount) => pageCount == 0 ? 0 : pageCount * thumbnailExtent + (pageCount - 1) * separatorWidth;
 
   @override
   void initState() {
@@ -125,7 +136,10 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
     final pageEntry = widget.entryBuilder(index);
     if (pageEntry == null) return const SizedBox();
 
-    return Stack(
+    final radius = widget.borderRadius ?? BorderRadius.zero;
+    final highlightColor = widget.highlightBorderColor;
+
+    Widget thumbnail = Stack(
       children: [
         GestureDetector(
           onTap: () {
@@ -135,9 +149,6 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
           child: DecoratedThumbnail(
             entry: pageEntry,
             tileExtent: thumbnailExtent,
-            // the retrieval task queue can pile up for thumbnails of heavy pages
-            // (e.g. thumbnails of 15MP HEIF images inside 100MB+ HEIC containers)
-            // so we cancel these requests when possible
             cancellableNotifier: _cancellableNotifier,
             selectable: false,
             highlightable: widget.highlightable,
@@ -148,8 +159,21 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
           child: ValueListenableBuilder<int?>(
             valueListenable: indexNotifier,
             builder: (context, currentIndex, child) {
+              final isCurrent = currentIndex == index;
+              if (highlightColor != null) {
+                return AnimatedContainer(
+                  width: thumbnailExtent,
+                  height: thumbnailExtent,
+                  duration: ADurations.thumbnailScrollerShadeAnimation,
+                  decoration: BoxDecoration(
+                    color: isCurrent ? Colors.transparent : Colors.black45,
+                    borderRadius: radius,
+                    border: isCurrent ? Border.all(color: highlightColor, width: 2) : null,
+                  ),
+                );
+              }
               return AnimatedContainer(
-                color: currentIndex == index ? Colors.transparent : Colors.black45,
+                color: isCurrent ? Colors.transparent : Colors.black45,
                 width: thumbnailExtent,
                 height: thumbnailExtent,
                 duration: ADurations.thumbnailScrollerShadeAnimation,
@@ -159,6 +183,12 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
         ),
       ],
     );
+
+    if (radius != BorderRadius.zero) {
+      thumbnail = ClipRRect(borderRadius: radius, child: thumbnail);
+    }
+
+    return thumbnail;
   }
 
   Future<void> _goTo(int index) async {
