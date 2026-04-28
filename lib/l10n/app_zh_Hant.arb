@@ -1652,7 +1652,7 @@
     "@organizeSwipeDownHint": {},
     "organizeSwipeLeftRightHint": "左右滑跳過",
     "@organizeSwipeLeftRightHint": {},
-    "organizeMarkedForDeletion": "已標記 {count} 項",
+    "organizeMarkedForDeletion": "待刪除 {count} 項",
     "@organizeMarkedForDeletion": {
       "placeholders": {
         "count": {
