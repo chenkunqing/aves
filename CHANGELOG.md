@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - improved cataloguing for AVIF still images (requires rescan)
+- Search: custom aspect ratio filter with configurable tolerance
+- Collection: temporary candidate basket to keep selected items across filter changes
+- Viewer: show recommended print size at 300 DPI for raster images
+
+### Removed
+
+- Viewer: no longer hide overlay on playing video
 
 ### Changed
 

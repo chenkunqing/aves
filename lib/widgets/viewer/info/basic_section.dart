@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aves/app_mode.dart';
 import 'package:aves/image_providers/app_icon_image_provider.dart';
 import 'package:aves/model/app_inventory.dart';
@@ -288,6 +290,16 @@ class _BasicInfo extends StatefulWidget {
 }
 
 class _BasicInfoState extends State<_BasicInfo> {
+  static const _centimetersPerInch = 2.54;
+  static const _standardPrintSizes = [
+    _PrintSizePreset(labelEn: '5"', labelZh: '5\u5bf8', widthInches: 5, heightInches: 3.5),
+    _PrintSizePreset(labelEn: '6"', labelZh: '6\u5bf8', widthInches: 6, heightInches: 4),
+    _PrintSizePreset(labelEn: '7"', labelZh: '7\u5bf8', widthInches: 7, heightInches: 5),
+    _PrintSizePreset(labelEn: '8"', labelZh: '8\u5bf8', widthInches: 8, heightInches: 6),
+    _PrintSizePreset(labelEn: '10"', labelZh: '10\u5bf8', widthInches: 10, heightInches: 8),
+    _PrintSizePreset(labelEn: '12"', labelZh: '12\u5bf8', widthInches: 12, heightInches: 10),
+  ];
+
   Future<String?> _ownerPackageLoader = SynchronousFuture(null);
   Future<void> _appNameLoader = SynchronousFuture(null);
 
@@ -323,6 +335,7 @@ class _BasicInfoState extends State<_BasicInfo> {
     final date = entry.bestDate;
     final dateText = date != null ? formatDateTime(date, locale, use24hour) : infoUnknown;
     final showResolution = !entry.isSvg && entry.isSized;
+    final printSizeText = _getPrintSizeText(context, locale);
     final sizeText = entry.sizeBytes != null ? formatFileSize(locale, entry.sizeBytes!) : infoUnknown;
     final path = entry.path;
 
@@ -339,6 +352,7 @@ class _BasicInfoState extends State<_BasicInfo> {
                 l10n.viewerInfoLabelDate: dateText,
                 if (entry.isVideo) ..._buildVideoRows(context),
                 if (showResolution) l10n.viewerInfoLabelResolution: context.applyDirectionality(getRasterResolutionText(locale)),
+                if (printSizeText != null) _printSizeLabel(context): context.applyDirectionality(printSizeText),
                 l10n.viewerInfoLabelSize: context.applyDirectionality(sizeText),
                 if (!entry.trashed) l10n.viewerInfoLabelUri: entry.uri,
                 l10n.viewerInfoLabelPath: ?path,
@@ -358,6 +372,38 @@ class _BasicInfoState extends State<_BasicInfo> {
     return {
       context.l10n.viewerInfoLabelDuration: entry.durationText,
     };
+  }
+
+  String? _getPrintSizeText(BuildContext context, String locale) {
+    if (!entry.isImage || !entry.isSized || entry.isSvg) return null;
+
+    final sizeInches = entry.maxPrintSizeAt300DpiInches;
+    if (sizeInches.width <= 0 || sizeInches.height <= 0) return null;
+
+    final numberFormat = NumberFormat('0.0', locale);
+    final widthInches = numberFormat.format(sizeInches.width);
+    final heightInches = numberFormat.format(sizeInches.height);
+    final widthCentimeters = numberFormat.format(sizeInches.width * _centimetersPerInch);
+    final heightCentimeters = numberFormat.format(sizeInches.height * _centimetersPerInch);
+    final preset = _getBestPrintSizePreset(sizeInches);
+    final isChinese = context.locale.startsWith('zh');
+    final recommendation = preset == null
+        ? ''
+        : isChinese
+        ? '\uff0c\u9002\u5408\u5370${preset.labelZh}\u53ca\u4ee5\u4e0b'
+        : ', fits ${preset.labelEn} or smaller';
+
+    return '$widthInches x $heightInches in ($widthCentimeters x $heightCentimeters cm) @ ${standardPrintDpi.toInt()} DPI$recommendation';
+  }
+
+  _PrintSizePreset? _getBestPrintSizePreset(Size sizeInches) {
+    final longSide = max(sizeInches.width, sizeInches.height);
+    final shortSide = min(sizeInches.width, sizeInches.height);
+    return _standardPrintSizes.reversed.firstWhereOrNull((preset) => longSide >= preset.longSide && shortSide >= preset.shortSide);
+  }
+
+  String _printSizeLabel(BuildContext context) {
+    return context.locale.startsWith('zh') ? '\u5efa\u8bae\u6253\u5370\u5c3a\u5bf8' : 'Recommended print size';
   }
 
   InfoValueSpanBuilder _ownerHandler(String? ownerPackage) {
@@ -406,4 +452,22 @@ class _BasicInfoState extends State<_BasicInfo> {
 
     return s;
   }
+}
+
+class _PrintSizePreset {
+  final String labelEn;
+  final String labelZh;
+  final double widthInches;
+  final double heightInches;
+
+  const _PrintSizePreset({
+    required this.labelEn,
+    required this.labelZh,
+    required this.widthInches,
+    required this.heightInches,
+  });
+
+  double get longSide => max(widthInches, heightInches);
+
+  double get shortSide => min(widthInches, heightInches);
 }

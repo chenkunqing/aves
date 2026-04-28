@@ -13,6 +13,8 @@ import 'package:aves/utils/android_file_utils.dart';
 import 'package:aves/utils/time_utils.dart';
 import 'package:intl/intl.dart';
 
+const standardPrintDpi = 300.0;
+
 extension ExtraAvesEntryProps on AvesEntry {
   bool get isValid => !isMissingAtPath && sizeBytes != 0 && width > 0 && height > 0;
 
@@ -48,6 +50,12 @@ extension ExtraAvesEntryProps on AvesEntry {
       if (h > w) return Size(h * dar, h);
     }
     return size;
+  }
+
+  Size get maxPrintSizeAt300DpiInches {
+    final size = displaySize;
+    if (size.width <= 0 || size.height <= 0) return Size.zero;
+    return Size(size.width / standardPrintDpi, size.height / standardPrintDpi);
   }
 
   // text
