@@ -6,6 +6,7 @@ import 'package:aves/app_mode.dart';
 import 'package:aves/geo/uri.dart';
 import 'package:aves/l10n/l10n.dart';
 import 'package:aves/model/app/intent.dart';
+import 'package:aves/model/candidate_basket.dart';
 import 'package:aves/model/app_inventory.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/filters/recent.dart';
@@ -237,6 +238,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
       providers: [
         Provider<AppFlavor>.value(value: widget.flavor),
         ChangeNotifierProvider<Settings>.value(value: settings),
+        ChangeNotifierProvider<CandidateBasket>(create: (context) => CandidateBasket()),
         ListenableProvider<ValueNotifier<AppMode>>.value(value: _appModeNotifier),
         Provider<CollectionSource>.value(value: _mediaStoreSource),
         Provider<TvRailController>.value(value: _tvRailController),

@@ -16,6 +16,7 @@ import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/utils/time_utils.dart';
 import 'package:aves/widgets/collection/app_bar.dart';
+import 'package:aves/widgets/collection/candidate_basket_bar.dart';
 import 'package:aves/widgets/collection/draggable_thumb_label.dart';
 import 'package:aves/widgets/collection/grid/list_details_theme.dart';
 import 'package:aves/widgets/collection/grid/section_layout.dart';
@@ -602,6 +603,7 @@ class _CollectionScrollViewState extends State<_CollectionScrollView> with Widge
                 child: _buildEmptyContent(collection),
               )
             : const SectionedListSliver<AvesEntry>(),
+        const CandidateBasketPaddingSliver(),
         const NavBarPaddingSliver(),
         const BottomPaddingSliver(),
         const TvTileGridBottomPaddingSliver(),

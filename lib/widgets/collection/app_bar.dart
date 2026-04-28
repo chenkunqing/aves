@@ -9,6 +9,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/query.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/query.dart';
+import 'package:aves/model/candidate_basket.dart';
 import 'package:aves/model/selection.dart';
 import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/settings.dart';
@@ -20,9 +21,11 @@ import 'package:aves/theme/themes.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/aves_app.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
+import 'package:aves/widgets/collection/candidate_basket_bar.dart';
 import 'package:aves/widgets/collection/entry_set_action_delegate.dart';
 import 'package:aves/widgets/collection/filter_bar.dart';
 import 'package:aves/widgets/collection/query_bar.dart';
+import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/move_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/rate_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/tag_button.dart';
@@ -62,7 +65,7 @@ class CollectionAppBar extends StatefulWidget {
   State<CollectionAppBar> createState() => _CollectionAppBarState();
 }
 
-class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, SingleTickerProviderStateMixin, WidgetsBindingObserver, FeedbackMixin {
   final Set<StreamSubscription> _subscriptions = {};
   final EntrySetActionDelegate _actionDelegate = EntrySetActionDelegate();
   late AnimationController _browseToSelectAnimation;
@@ -187,6 +190,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
   @override
   Widget build(BuildContext context) {
     final appMode = context.watch<ValueNotifier<AppMode>>().value;
+    context.watch<CandidateBasket>();
     final selection = context.watch<Selection<AvesEntry>>();
     final isSelecting = selection.isSelecting;
     _isSelectingNotifier.value = isSelecting;
@@ -210,7 +214,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
                     contentHeight: appBarContentHeight,
                     pinned: context.select<Selection<AvesEntry>, bool>((selection) => selection.isSelecting),
                     leading: _buildAppBarLeading(
-                      hasDrawer: appMode.canNavigate,
+                      hasDrawer: appMode.canNavigate && collection.fixedSelection == null,
                       isSelecting: isSelecting,
                     ),
                     title: _buildAppBarTitle(isSelecting),
@@ -329,7 +333,13 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     } else {
       final appMode = context.watch<ValueNotifier<AppMode>>().value;
       Widget title = Text(
-        appMode.isPickingMedia ? l10n.collectionPickPageTitle : (isTrash ? l10n.binPageTitle : l10n.collectionPageTitle),
+        appMode.isPickingMedia
+            ? l10n.collectionPickPageTitle
+            : isTrash
+                ? l10n.binPageTitle
+                : collection.fixedSelection != null
+                    ? CandidateBasketBar.candidateBasketTitle(context)
+                    : l10n.collectionPageTitle,
         softWrap: false,
         overflow: TextOverflow.fade,
         maxLines: 1,
@@ -393,24 +403,29 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     required bool Function(EntrySetAction action) canApply,
   }) {
     final isSelecting = selection.isSelecting;
-
-    return [
+    final canShowBasketAction = _canShowBasketSelectionAction(appMode, selection);
+    final actions = [
       ...EntrySetActions.general,
       ...isSelecting ? EntrySetActions.pageSelection : EntrySetActions.pageBrowsing,
-    ].nonNulls.where(isVisible).map((action) {
-      final enabled = canApply(action);
-      return CaptionedButton(
-        iconButtonBuilder: (context, focusNode) => _buildButtonIcon(
-          context,
-          action,
-          enabled: enabled,
-          selection: selection,
-          focusNode: focusNode,
-        ),
-        captionText: _buildButtonCaption(context, action, enabled: enabled),
-        onPressed: enabled ? () => _onActionSelected(action) : null,
-      );
-    }).toList();
+    ].nonNulls.where(isVisible).toList();
+
+    return [
+      if (canShowBasketAction) _buildBasketCaptionedButton(context, selection),
+      ...actions.map((action) {
+        final enabled = canApply(action);
+        return CaptionedButton(
+          iconButtonBuilder: (context, focusNode) => _buildButtonIcon(
+            context,
+            action,
+            enabled: enabled,
+            selection: selection,
+            focusNode: focusNode,
+          ),
+          captionText: _buildButtonCaption(context, action, enabled: enabled),
+          onPressed: enabled ? () => _onActionSelected(action) : null,
+        );
+      }),
+    ];
   }
 
   static double _iconButtonWidth(BuildContext context) {
@@ -432,10 +447,11 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     final isSelecting = selection.isSelecting;
     final selectedItemCount = selection.selectedItems.length;
     final hasSelection = selectedItemCount > 0;
+    final canShowBasketAction = _canShowBasketSelectionAction(appMode, selection);
 
     final browsingQuickActions = settings.collectionBrowsingQuickActions;
     final selectionQuickActions = isTrash ? _trashSelectionQuickActions : settings.collectionSelectionQuickActions;
-    final quickActions = (isSelecting ? selectionQuickActions : browsingQuickActions).take(max(0, availableCount - 1)).toList();
+    final quickActions = (isSelecting ? selectionQuickActions : browsingQuickActions).take(max(0, availableCount - (canShowBasketAction ? 2 : 1))).toList();
     final quickActionButtons = quickActions
         .where(isVisible)
         .map(
@@ -448,6 +464,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     final l10n = context.l10n;
     final animations = context.select<Settings, AccessibilityAnimations>((v) => v.accessibilityAnimations);
     return [
+      if (canShowBasketAction) _buildBasketIconButton(context, selection),
       ...quickActionButtons,
       PopupMenuButton<EntrySetAction>(
         // key is expected by test driver
@@ -818,5 +835,64 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
         ),
       ),
     );
+  }
+
+  bool _canShowBasketSelectionAction(AppMode appMode, Selection<AvesEntry> selection) {
+    return appMode == AppMode.main && selection.isSelecting && selection.selectedItems.isNotEmpty && !isTrash;
+  }
+
+  Widget _buildBasketIconButton(BuildContext context, Selection<AvesEntry> selection) {
+    final allSelectedInBasket = _allSelectedInBasket(selection);
+    return IconButton(
+      key: const Key('candidate-basket-toggle'),
+      icon: Icon(allSelectedInBasket ? Icons.remove_shopping_cart_outlined : Icons.add_shopping_cart_outlined),
+      onPressed: () => _toggleSelectionBasket(selection),
+      tooltip: allSelectedInBasket ? CandidateBasketBar.removeActionLabel(context) : CandidateBasketBar.addActionLabel(context),
+    );
+  }
+
+  Widget _buildBasketCaptionedButton(BuildContext context, Selection<AvesEntry> selection) {
+    final allSelectedInBasket = _allSelectedInBasket(selection);
+    return CaptionedButton(
+      iconButtonBuilder: (context, focusNode) => IconButton(
+        key: const Key('candidate-basket-toggle'),
+        icon: Icon(allSelectedInBasket ? Icons.remove_shopping_cart_outlined : Icons.add_shopping_cart_outlined),
+        onPressed: () => _toggleSelectionBasket(selection),
+        focusNode: focusNode,
+        tooltip: allSelectedInBasket ? CandidateBasketBar.removeActionLabel(context) : CandidateBasketBar.addActionLabel(context),
+      ),
+      captionText: CaptionedButtonText(
+        text: allSelectedInBasket ? CandidateBasketBar.removeActionLabel(context) : CandidateBasketBar.addActionLabel(context),
+        enabled: true,
+      ),
+      onPressed: () => _toggleSelectionBasket(selection),
+    );
+  }
+
+  bool _allSelectedInBasket(Selection<AvesEntry> selection) {
+    final selectedEntries = _getExpandedSelectedItems(selection);
+    if (selectedEntries.isEmpty) return false;
+    return context.read<CandidateBasket>().containsAll(selectedEntries);
+  }
+
+  void _toggleSelectionBasket(Selection<AvesEntry> selection) {
+    final selectedEntries = _getExpandedSelectedItems(selection);
+    if (selectedEntries.isEmpty) return;
+
+    final basket = context.read<CandidateBasket>();
+    if (basket.containsAll(selectedEntries)) {
+      final removedCount = basket.removeAll(selectedEntries);
+      if (removedCount > 0) {
+        showFeedback(context, FeedbackType.info, CandidateBasketBar.removedFeedback(context, removedCount));
+      }
+    } else {
+      final addedCount = basket.addAll(selectedEntries);
+      if (addedCount > 0) {
+        showFeedback(context, FeedbackType.info, CandidateBasketBar.addedFeedback(context, addedCount));
+      } else {
+        showFeedback(context, FeedbackType.info, CandidateBasketBar.addActionLabel(context));
+      }
+    }
+    selection.browse();
   }
 }

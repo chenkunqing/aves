@@ -34,7 +34,7 @@ class SettingsDefaults {
   static const keepScreenOn = KeepScreenOn.viewerOnly;
   static const homePage = HomePageSetting.collection;
   static const confirm = true;
-  static const setMetadataDateBeforeFileOp = false;
+  static const setMetadataDateBeforeFileOp = true;
   static final drawerTypeBookmarks = [
     null,
     RecentlyAddedFilter.instance,

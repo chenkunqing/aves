@@ -6,6 +6,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/query.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/highlight.dart';
+import 'package:aves/model/candidate_basket.dart';
 import 'package:aves/model/selection.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
@@ -14,6 +15,7 @@ import 'package:aves/services/app_service.dart';
 import 'package:aves/services/intent_service.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/widgets/collection/collection_grid.dart';
+import 'package:aves/widgets/collection/candidate_basket_bar.dart';
 import 'package:aves/widgets/common/basic/draggable_scrollbar/notifications.dart';
 import 'package:aves/widgets/common/basic/insets.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
@@ -38,12 +40,14 @@ class CollectionPage extends StatefulWidget {
 
   final CollectionSource source;
   final Set<CollectionFilter?>? filters;
+  final List<AvesEntry>? fixedSelection;
   final bool Function(AvesEntry element)? highlightTest;
 
   const CollectionPage({
     super.key,
     required this.source,
     required this.filters,
+    this.fixedSelection,
     this.highlightTest,
   });
 
@@ -63,6 +67,7 @@ class _CollectionPageState extends State<CollectionPage> {
     _collection = CollectionLens(
       source: widget.source,
       filters: widget.filters,
+      fixedSelection: widget.fixedSelection,
     );
     super.initState();
     _subscriptions.add(
@@ -142,8 +147,12 @@ class _CollectionPageState extends State<CollectionPage> {
             page = Selector<Settings, bool>(
               selector: (context, s) => s.enableBottomNavigationBar,
               builder: (context, enableBottomNavigationBar, child) {
-                final canNavigate = context.select<ValueNotifier<AppMode>, bool>((v) => v.value.canNavigate);
+                final appMode = context.select<ValueNotifier<AppMode>, AppMode>((v) => v.value);
+                final hasBasket = context.select<CandidateBasket, bool>((basket) => basket.isNotEmpty);
+                final isPreview = _collection.fixedSelection != null;
+                final canNavigate = context.select<ValueNotifier<AppMode>, bool>((v) => v.value.canNavigate) && !isPreview;
                 final showBottomNavigationBar = canNavigate && enableBottomNavigationBar;
+                final showCandidateBasket = hasBasket && !settings.useTvLayout && appMode == AppMode.main && !isPreview;
 
                 return NotificationListener<DraggableScrollbarNotification>(
                   onNotification: (notification) {
@@ -154,10 +163,20 @@ class _CollectionPageState extends State<CollectionPage> {
                     body: body,
                     floatingActionButton: _buildFab(context, hasSelection),
                     drawer: canNavigate ? AppDrawer(currentCollection: _collection) : null,
-                    bottomNavigationBar: showBottomNavigationBar
-                        ? AppBottomNavBar(
-                            events: _draggableScrollBarEventStreamController.stream,
-                            currentCollection: _collection,
+                    bottomNavigationBar: showBottomNavigationBar || showCandidateBasket
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (showCandidateBasket)
+                                CandidateBasketBar(
+                                  padBottomSafeArea: !showBottomNavigationBar,
+                                ),
+                              if (showBottomNavigationBar)
+                                AppBottomNavBar(
+                                  events: _draggableScrollBarEventStreamController.stream,
+                                  currentCollection: _collection,
+                                ),
+                            ],
                           )
                         : null,
                     resizeToAvoidBottomInset: false,
