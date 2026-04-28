@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/entry/extensions/favourites.dart';
 import 'package:aves/model/organize_basket.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
@@ -140,15 +141,33 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
       constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
       child: AspectRatio(
         aspectRatio: entry.displayAspectRatio,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: ThumbnailImage(
-            entry: entry,
-            extent: maxWidth,
-            devicePixelRatio: dpr,
-            fit: BoxFit.contain,
-            showLoadingBackground: true,
-          ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: ThumbnailImage(
+                entry: entry,
+                extent: maxWidth,
+                devicePixelRatio: dpr,
+                fit: BoxFit.contain,
+                showLoadingBackground: true,
+              ),
+            ),
+            if (entry.isFavourite)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(AIcons.favourite, size: 18, color: Colors.white),
+                ),
+              ),
+          ],
         ),
       ),
     );
