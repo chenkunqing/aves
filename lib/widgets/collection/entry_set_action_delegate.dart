@@ -58,6 +58,7 @@ import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/map/map_page.dart';
 import 'package:aves/widgets/search/collection_search_delegate.dart';
 import 'package:aves/widgets/stats/stats_page.dart';
+import 'package:aves/widgets/viewer/organize_page.dart';
 import 'package:aves/widgets/viewer/slideshow_page.dart';
 import 'package:aves_map/aves_map.dart';
 import 'package:aves_model/aves_model.dart';
@@ -106,6 +107,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       // browsing or selecting
       case .map:
       case .slideshow:
+      case .organize:
       case .stats:
         return isMain;
       case .rescan:
@@ -166,6 +168,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         return !isSelecting && hasItems;
       case .map:
       case .slideshow:
+      case .organize:
       case .stats:
       case .rescan:
         return (!isSelecting && hasItems) || (isSelecting && hasSelection);
@@ -219,6 +222,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _goToMap(context);
       case .slideshow:
         _goToSlideshow(context);
+      case .organize:
+        _goToOrganize(context);
       case .stats:
         _goToStats(context);
       case .rescan:
@@ -825,6 +830,26 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         settings: const RouteSettings(name: SlideshowPage.routeName),
         builder: (context) {
           return SlideshowPage(
+            collection: CollectionLens(
+              source: collection.source,
+              filters: collection.filters,
+              fixedSelection: entries.toList(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _goToOrganize(BuildContext context) {
+    final collection = context.read<CollectionLens>();
+    final entries = _getTargetItems(context);
+
+    Navigator.maybeOf(context)?.push(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: OrganizePage.routeName),
+        builder: (context) {
+          return OrganizePage(
             collection: CollectionLens(
               source: collection.source,
               filters: collection.filters,

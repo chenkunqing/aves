@@ -567,6 +567,7 @@
   "menuActionSelectNone": "Select none",
   "menuActionMap": "Map",
   "menuActionSlideshow": "Slideshow",
+  "menuActionOrganize": "Organize",
   "menuActionStats": "Stats",
 
   "viewDialogSortSectionTitle": "Sort",
@@ -1126,5 +1127,29 @@
   "panoramaEnableSensorControl": "Enable sensor control",
   "panoramaDisableSensorControl": "Disable sensor control",
 
-  "sourceViewerPageTitle": "Source"
+  "sourceViewerPageTitle": "Source",
+
+  "organizeSwipeUpHint": "Swipe up to delete",
+  "organizeSwipeDownHint": "Pull down to favorite",
+  "organizeSwipeLeftRightHint": "Swipe to skip",
+  "organizeMarkedForDeletion": "{count, plural, =1{{count} item marked} other{{count} items marked}}",
+  "@organizeMarkedForDeletion": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "organizeExitConfirmationMessage": "{count, plural, =1{Move {count} item to the recycle bin?} other{Move {count} items to the recycle bin?}}",
+  "@organizeExitConfirmationMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "organizeUndoTooltip": "Undo",
+  "organizeComplete": "All items reviewed"
 }

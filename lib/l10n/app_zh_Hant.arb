@@ -417,6 +417,8 @@
     "@menuActionMap": {},
     "menuActionSlideshow": "幻燈片",
     "@menuActionSlideshow": {},
+    "menuActionOrganize": "整理",
+    "@menuActionOrganize": {},
     "menuActionStats": "統計資料",
     "@menuActionStats": {},
     "viewDialogSortSectionTitle": "排序",
@@ -1642,5 +1644,34 @@
     "mapStyleEditorDialogUserAgent": "用戶代理（UA）",
     "@mapStyleEditorDialogUserAgent": {},
     "settingsViewerShowZoomLevel": "顯示縮放等級",
-    "@settingsViewerShowZoomLevel": {}
+    "@settingsViewerShowZoomLevel": {},
+
+    "organizeSwipeUpHint": "上滑刪除",
+    "@organizeSwipeUpHint": {},
+    "organizeSwipeDownHint": "下拉收藏",
+    "@organizeSwipeDownHint": {},
+    "organizeSwipeLeftRightHint": "左右滑跳過",
+    "@organizeSwipeLeftRightHint": {},
+    "organizeMarkedForDeletion": "已標記 {count} 項",
+    "@organizeMarkedForDeletion": {
+      "placeholders": {
+        "count": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "organizeExitConfirmationMessage": "{count, plural, other{將 {count} 項移入回收站？}}",
+    "@organizeExitConfirmationMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int",
+          "format": "decimalPattern"
+        }
+      }
+    },
+    "organizeUndoTooltip": "撤銷",
+    "@organizeUndoTooltip": {},
+    "organizeComplete": "所有項目已整理完畢",
+    "@organizeComplete": {}
 }

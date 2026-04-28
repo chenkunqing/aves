@@ -46,6 +46,7 @@ class AIcons {
   static const name = Symbols.match_word;
   static const newTier = Symbols.fiber_new;
   static const opacity = Symbols.opacity;
+  static const organize = Symbols.swipe;
   static const palette = Symbols.palette;
   static const path = Symbols.account_tree;
   static const privacy = Symbols.shield_person;

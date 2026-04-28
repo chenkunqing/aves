@@ -8,6 +8,7 @@ export 'src/actions/map_cluster.dart';
 export 'src/actions/move_type.dart';
 export 'src/actions/settings.dart';
 export 'src/actions/share.dart';
+export 'src/actions/organize.dart';
 export 'src/actions/slideshow.dart';
 export 'src/editor/enums.dart';
 export 'src/entry/base.dart';

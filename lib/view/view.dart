@@ -6,6 +6,7 @@ export 'src/actions/explorer.dart';
 export 'src/actions/map.dart';
 export 'src/actions/map_cluster.dart';
 export 'src/actions/share.dart';
+export 'src/actions/organize.dart';
 export 'src/actions/slideshow.dart';
 export 'src/editor/enums.dart';
 export 'src/metadata/convert_action.dart';

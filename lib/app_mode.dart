@@ -11,6 +11,7 @@ enum AppMode {
   screenSaver,
   setWallpaper,
   slideshow,
+  organize,
   view,
   edit,
 }

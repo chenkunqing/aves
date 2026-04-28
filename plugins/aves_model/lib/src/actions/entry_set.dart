@@ -14,6 +14,7 @@ enum EntrySetAction {
   // browsing or selecting
   map,
   slideshow,
+  organize,
   stats,
   rescan,
   // selecting
@@ -55,6 +56,7 @@ class EntrySetActions {
     null,
     EntrySetAction.map,
     EntrySetAction.slideshow,
+    EntrySetAction.organize,
     EntrySetAction.stats,
     null,
     EntrySetAction.rescan,
@@ -67,6 +69,7 @@ class EntrySetActions {
     EntrySetAction.toggleTitleSearch,
     EntrySetAction.map,
     EntrySetAction.slideshow,
+    EntrySetAction.organize,
     EntrySetAction.stats,
     // only available as a quick action
     EntrySetAction.selectAll,
@@ -84,6 +87,7 @@ class EntrySetActions {
     null,
     EntrySetAction.map,
     EntrySetAction.slideshow,
+    EntrySetAction.organize,
     EntrySetAction.stats,
     null,
     EntrySetAction.rescan,
@@ -102,6 +106,7 @@ class EntrySetActions {
     EntrySetAction.exportGpx,
     EntrySetAction.map,
     EntrySetAction.slideshow,
+    EntrySetAction.organize,
     EntrySetAction.stats,
     EntrySetAction.selectAll,
     // editing actions are in their subsection

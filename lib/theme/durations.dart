@@ -42,6 +42,10 @@ class ADurations {
   static const viewerActionFeedbackAnimation = Duration(milliseconds: 600);
   static const viewerHorizontalPageAnimation = Duration(seconds: 1);
 
+  // organize mode animations
+  static const organizeCardDismiss = Duration(milliseconds: 300);
+  static const organizeCardSnapBack = Duration(milliseconds: 400);
+
   // info animations
   static const mapStyleSwitchAnimation = Duration(milliseconds: 300);
   static const xmpStructArrayCardTransition = Duration(milliseconds: 300);

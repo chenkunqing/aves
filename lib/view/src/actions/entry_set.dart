@@ -24,6 +24,7 @@ extension ExtraEntrySetActionView on EntrySetAction {
       // browsing or selecting
       EntrySetAction.map => l10n.menuActionMap,
       EntrySetAction.slideshow => l10n.menuActionSlideshow,
+      EntrySetAction.organize => l10n.menuActionOrganize,
       EntrySetAction.stats => l10n.menuActionStats,
       EntrySetAction.rescan => l10n.collectionActionRescan,
       // selecting
@@ -71,6 +72,7 @@ extension ExtraEntrySetActionView on EntrySetAction {
       // browsing or selecting
       EntrySetAction.map => AIcons.map,
       EntrySetAction.slideshow => AIcons.slideshow,
+      EntrySetAction.organize => AIcons.organize,
       EntrySetAction.stats => AIcons.stats,
       EntrySetAction.rescan => AIcons.refresh,
       // selecting

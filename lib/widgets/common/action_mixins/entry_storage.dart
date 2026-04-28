@@ -191,6 +191,7 @@ mixin EntryStorageMixin on FeedbackMixin, PermissionAwareMixin, SizeAwareMixin, 
     required MoveType moveType,
     required Map<String, Set<AvesEntry>> entriesByDestination,
     bool hideShowAction = false,
+    bool skipUndatedCheck = false,
     VoidCallback? onSuccess,
   }) async {
     if (moveType == MoveType.move) {
@@ -251,7 +252,7 @@ mixin EntryStorageMixin on FeedbackMixin, PermissionAwareMixin, SizeAwareMixin, 
       }
     }
 
-    if ({MoveType.move, MoveType.copy, MoveType.toBin}.contains(moveType) && !await checkUndatedItems(context, entries)) return false;
+    if (!skipUndatedCheck && {MoveType.move, MoveType.copy, MoveType.toBin}.contains(moveType) && !await checkUndatedItems(context, entries)) return false;
 
     final source = context.read<CollectionSource>();
     source.pauseMonitoring();

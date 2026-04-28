@@ -382,6 +382,7 @@ class _HomePageState extends State<HomePage> {
       case .previewMap:
       case .screenSaver:
       case .slideshow:
+      case .organize:
         routeName = _initialRouteName ?? settings.homeNavItem.route;
         filters = _initialFilters ?? (settings.homeNavItem.route == CollectionPage.routeName ? settings.homeCustomCollection : {});
     }
