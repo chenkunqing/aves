@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/settings/enums/widget_outline.dart';
 import 'package:aves/model/settings/settings.dart';
@@ -18,6 +19,7 @@ import 'package:aves/widgets/home_widget.dart';
 import 'package:aves/widgets/viewer/controls/controller.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves/widgets/viewer/hero.dart';
+import 'package:aves/widgets/viewer/multipage/conductor.dart';
 import 'package:aves/widgets/viewer/video/conductor.dart';
 import 'package:aves/widgets/viewer/view/conductor.dart';
 import 'package:aves/widgets/viewer/visual/error.dart';
@@ -424,13 +426,25 @@ class _EntryPageViewState extends State<EntryPageView> with TickerProviderStateM
               _onTap(alignment: alignment);
             }
           },
-          onLongPress: canGestureToOtherApps ? _startGlobalDrag : null,
+          onLongPress: mainEntry.isMotionPhoto && !entry.isVideo
+              ? _onMotionPhotoLongPress
+              : canGestureToOtherApps
+                  ? _startGlobalDrag
+                  : null,
           onDoubleTap: onDoubleTap,
           child: child!,
         );
       },
       child: child,
     );
+  }
+
+  void _onMotionPhotoLongPress() {
+    final controller = context.read<MultiPageConductor>().getController(mainEntry);
+    if (controller != null) {
+      controller.longPressActive = true;
+      controller.page = 1;
+    }
   }
 
   Future<void> _startGlobalDrag() async {

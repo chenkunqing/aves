@@ -12,6 +12,7 @@ class MultiPageController {
   final ValueNotifier<int?> pageNotifier = ValueNotifier(null);
 
   bool _disposed = false;
+  bool longPressActive = false;
   MultiPageInfo? _info;
 
   final StreamController<MultiPageInfo?> _infoStreamController = StreamController.broadcast();

@@ -164,7 +164,7 @@ mixin EntryViewControllerMixin<T extends StatefulWidget> on State<T> {
       // auto play/pause when changing page
       Future<void> _onPageChanged() async {
         await pauseVideoControllers();
-        if (videoAutoPlayEnabled || (entry.isMotionPhoto && shouldAutoPlayMotionPhoto)) {
+        if (videoAutoPlayEnabled || (entry.isMotionPhoto && (shouldAutoPlayMotionPhoto || multiPageController.longPressActive))) {
           final page = multiPageController.page;
           final pageInfo = multiPageInfo.getByIndex(page)!;
           if (pageInfo.isVideo) {

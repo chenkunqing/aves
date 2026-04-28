@@ -63,10 +63,7 @@ class _MultiEntryScrollerState extends State<MultiEntryScroller> with AutomaticK
             final mainEntry = entries[index % entries.length];
 
             final child = mainEntry.isMultiPage
-                ? PageEntryBuilder(
-                    multiPageController: context.read<MultiPageConductor>().getController(mainEntry),
-                    builder: (pageEntry) => _buildViewer(mainEntry, pageEntry: pageEntry),
-                  )
+                ? _buildMultiPageViewer(context, mainEntry)
                 : _buildViewer(mainEntry);
 
             return Selector<Settings, bool>(
@@ -86,6 +83,26 @@ class _MultiEntryScrollerState extends State<MultiEntryScroller> with AutomaticK
         ),
       ),
     );
+  }
+
+  Widget _buildMultiPageViewer(BuildContext context, AvesEntry mainEntry) {
+    final multiPageController = context.read<MultiPageConductor>().getController(mainEntry);
+    Widget child = PageEntryBuilder(
+      multiPageController: multiPageController,
+      builder: (pageEntry) => _buildViewer(mainEntry, pageEntry: pageEntry),
+    );
+    if (mainEntry.isMotionPhoto && multiPageController != null) {
+      child = Listener(
+        onPointerUp: (_) {
+          if (multiPageController.longPressActive) {
+            multiPageController.longPressActive = false;
+            multiPageController.page = 0;
+          }
+        },
+        child: child,
+      );
+    }
+    return child;
   }
 
   Widget _buildViewer(AvesEntry mainEntry, {AvesEntry? pageEntry}) {
