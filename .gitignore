@@ -50,3 +50,13 @@ app.*.map.json
 
 # generated files
 /lib/l10ngen/app_localizations*
+PROJECT_SUPPLEMENT.template.md
+AGENTS.md
+CHANGELOG.md
+CHANGELOG.md
+
+# Claude Code local config
+.claude/
+
+# Temp analysis files
+architecture.html
