@@ -90,7 +90,7 @@ class SettingsDefaults {
   static const showOverlayDescription = false;
   static const showOverlayRatingTags = false;
   static const showOverlayShootingDetails = false;
-  static const showOverlayThumbnailPreview = false;
+  static const showOverlayThumbnailPreview = true;
   static const viewerGestureSideTapNext = false;
   static const viewerUseCutout = true;
   static const enableMotionPhotoAutoPlay = false;

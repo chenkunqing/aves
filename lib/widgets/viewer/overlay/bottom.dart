@@ -237,6 +237,15 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
                     ),
                   ),
                 ),
+              if (settings.showOverlayThumbnailPreview && !isWallpaperMode)
+                FadeTransition(
+                  opacity: _thumbnailOpacity,
+                  child: ViewerThumbnailPreview(
+                    availableWidth: availableWidth,
+                    displayedIndex: widget.index,
+                    entries: widget.entries,
+                  ),
+                ),
               (showMultiPageOverlay && collapsedPageScroller)
                   ? Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -258,15 +267,6 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
                       ],
                     )
                   : viewerButtonRow,
-              if (settings.showOverlayThumbnailPreview && !isWallpaperMode)
-                FadeTransition(
-                  opacity: _thumbnailOpacity,
-                  child: ViewerThumbnailPreview(
-                    availableWidth: availableWidth,
-                    displayedIndex: widget.index,
-                    entries: widget.entries,
-                  ),
-                ),
             ],
           ),
         );
