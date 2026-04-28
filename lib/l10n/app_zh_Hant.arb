@@ -633,6 +633,8 @@
     "@searchAlbumsSectionTitle": {},
     "searchRatingSectionTitle": "評分",
     "@searchRatingSectionTitle": {},
+    "searchAspectRatioSectionTitle": "照片比例",
+    "@searchAspectRatioSectionTitle": {},
     "searchMetadataSectionTitle": "元資料",
     "@searchMetadataSectionTitle": {},
     "settingsPageTitle": "設定",

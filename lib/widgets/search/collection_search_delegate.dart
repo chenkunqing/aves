@@ -32,6 +32,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
 import 'package:aves/widgets/common/search/delegate.dart';
 import 'package:aves/widgets/common/search/page.dart';
+import 'package:aves/widgets/dialogs/filter_editors/custom_aspect_ratio_dialog.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,13 +58,20 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     MimeFilter.video,
     TypeFilter.animated,
     TypeFilter.motionPhoto,
-    AspectRatioFilter.portrait,
-    AspectRatioFilter.landscape,
     TypeFilter.panorama,
     TypeFilter.sphericalVideo,
     TypeFilter.geotiff,
     TypeFilter.hdr,
     TypeFilter.raw,
+  ];
+
+  static final aspectRatioFilters = [
+    AspectRatioFilter.landscape,
+    AspectRatioFilter.portrait,
+    AspectRatioFilter.ratio4x3,
+    AspectRatioFilter.ratio16x9,
+    AspectRatioFilter.ratio1x1,
+    AspectRatioFilter.customPrompt,
   ];
 
   static final _monthFilters = List.generate(12, (i) => DateFilter(DateLevel.m, DateTime(1, i + 1)));
@@ -158,6 +166,7 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
                     _buildStateFilters(isVisible),
                     _buildPlaceFilters(isVisible),
                     _buildTagFilters(isVisible),
+                    _buildAspectRatioFilters(context, isVisible),
                     _buildRatingFilters(context, isVisible),
                     _buildMetadataFilters(context, isVisible),
                   ],
@@ -176,7 +185,14 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     required List<CollectionFilter> filters,
     HeroType Function(CollectionFilter filter)? heroTypeBuilder,
   }) {
-    void onTap(filter) => _select(context, {filter is QueryFilter ? QueryFilter(filter.query) : filter});
+    void onTap(filter) {
+      if (filter is AspectRatioFilter && filter.isCustomPrompt) {
+        _showCustomAspectRatioDialog(context);
+        return;
+      }
+      _select(context, {filter is QueryFilter ? QueryFilter(filter.query) : filter});
+    }
+
     const onLongPress = AvesFilterChip.showDefaultLongPressMenu;
     return title != null
         ? TitledExpandableFilterRow(
@@ -306,6 +322,15 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     );
   }
 
+  Widget _buildAspectRatioFilters(BuildContext context, CollectionFilterPredicate containQuery) {
+    final filters = aspectRatioFilters.where(containQuery).toList();
+    return _buildFilterRow(
+      context: context,
+      title: context.l10n.searchAspectRatioSectionTitle,
+      filters: filters,
+    );
+  }
+
   Widget _buildRatingFilters(BuildContext context, CollectionFilterPredicate containQuery) {
     return _buildFilterRow(
       context: context,
@@ -349,6 +374,17 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
   QueryFilter? _buildQueryFilter(bool colorful) {
     final cleanQuery = query.trim();
     return cleanQuery.isNotEmpty ? QueryFilter(cleanQuery, colorful: colorful) : null;
+  }
+
+  Future<void> _showCustomAspectRatioDialog(BuildContext context) async {
+    final filter = await showDialog<AspectRatioFilter>(
+      context: context,
+      builder: (context) => const CustomAspectRatioDialog(),
+      routeSettings: const RouteSettings(name: CustomAspectRatioDialog.routeName),
+    );
+    if (filter != null && context.mounted) {
+      _select(context, {filter});
+    }
   }
 
   Future<void> _select(BuildContext context, Set<CollectionFilter?> filters) async {
