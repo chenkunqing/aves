@@ -37,6 +37,7 @@ import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves/widgets/viewer/debug/debug_page.dart';
 import 'package:aves/widgets/viewer/entry_viewer_page.dart';
 import 'package:aves/widgets/viewer/multipage/conductor.dart';
+import 'package:aves/widgets/viewer/organize_page.dart';
 import 'package:aves/widgets/viewer/source_viewer_page.dart';
 import 'package:aves/widgets/viewer/video/conductor.dart';
 import 'package:aves_model/aves_model.dart';
@@ -118,6 +119,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .setAs:
         case .cast:
           return !settings.useTvLayout;
+        case .organizeFromHere:
+          return canWrite && collection != null;
         case .info:
         case .share:
           return true;
@@ -295,6 +298,9 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .convertMotionPhotoToStillImage:
       case .viewMotionPhotoVideo:
         _metadataActionDelegate.onActionSelected(context, targetEntry, collection, action);
+      // organize
+      case .organizeFromHere:
+        _goToOrganize(context, targetEntry);
       // debug
       case .debug:
         _goToDebug(context, targetEntry);
@@ -504,6 +510,29 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
             return utf8.decode(data);
           },
         ),
+      ),
+    );
+  }
+
+  void _goToOrganize(BuildContext context, AvesEntry targetEntry) {
+    final _collection = collection;
+    if (_collection == null) return;
+
+    final entries = _collection.sortedEntries.toList();
+    final initialIndex = entries.indexOf(targetEntry).clamp(0, entries.length - 1);
+
+    Navigator.maybeOf(context)?.push(
+      MaterialPageRoute(
+        settings: const RouteSettings(name: OrganizePage.routeName),
+        builder: (context) {
+          return OrganizePage(
+            collection: CollectionLens(
+              source: _collection.source,
+              fixedSelection: entries,
+            ),
+            initialIndex: initialIndex,
+          );
+        },
       ),
     );
   }

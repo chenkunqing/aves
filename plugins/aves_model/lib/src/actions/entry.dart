@@ -52,6 +52,8 @@ enum EntryAction {
   // metadata / motion photo
   convertMotionPhotoToStillImage,
   viewMotionPhotoVideo,
+  // organize
+  organizeFromHere,
   // debug
   debug,
 }
@@ -68,6 +70,7 @@ class EntryActions {
     EntryAction.toggleFavourite,
     EntryAction.rotateScreen,
     EntryAction.viewSource,
+    EntryAction.organizeFromHere,
   ];
 
   static const export = [

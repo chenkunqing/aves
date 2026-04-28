@@ -67,6 +67,8 @@ extension ExtraEntryActionView on EntryAction {
       // metadata / motion photo
       EntryAction.convertMotionPhotoToStillImage => l10n.entryActionConvertMotionPhotoToStillImage,
       EntryAction.viewMotionPhotoVideo => l10n.entryActionViewMotionPhotoVideo,
+      // organize
+      EntryAction.organizeFromHere => l10n.menuActionOrganize,
       // debug
       EntryAction.debug => 'Debug',
     };
@@ -145,6 +147,8 @@ extension ExtraEntryActionView on EntryAction {
       // metadata / motion photo
       EntryAction.convertMotionPhotoToStillImage => AIcons.convertToStillImage,
       EntryAction.viewMotionPhotoVideo => AIcons.openVideoPart,
+      // organize
+      EntryAction.organizeFromHere => AIcons.organize,
       // debug
       EntryAction.debug => AIcons.debug,
     };

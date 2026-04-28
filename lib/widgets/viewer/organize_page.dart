@@ -24,10 +24,12 @@ class OrganizePage extends StatefulWidget {
   static const routeName = '/collection/organize';
 
   final CollectionLens collection;
+  final int initialIndex;
 
   const OrganizePage({
     super.key,
     required this.collection,
+    this.initialIndex = 0,
   });
 
   @override
@@ -37,7 +39,7 @@ class OrganizePage extends StatefulWidget {
 class _OrganizePageState extends State<OrganizePage> {
   final ValueNotifier<AppMode> _appModeNotifier = ValueNotifier(AppMode.organize);
   final OrganizeBasket _basket = OrganizeBasket();
-  final ValueNotifier<int> _indexNotifier = ValueNotifier(0);
+  late final ValueNotifier<int> _indexNotifier;
   final GlobalKey<OrganizeCardStackState> _cardStackKey = GlobalKey();
   late final CollectionLens _organizeCollection;
   late final List<AvesEntry> _entries;
@@ -49,6 +51,7 @@ class _OrganizePageState extends State<OrganizePage> {
   @override
   void initState() {
     super.initState();
+    _indexNotifier = ValueNotifier(widget.initialIndex);
     _organizeCollection = CollectionLens(
       source: source,
       listenToSource: false,
