@@ -104,6 +104,7 @@ class _RasterImageViewState extends State<RasterImageView> {
     _fullImageStream?.removeListener(_fullImageListener);
     _fullImageStream = null;
     _fullImageInfo?.dispose();
+    _fullImageInfo = null;
   }
 
   void _onFullImageCompleted(ImageInfo image, bool synchronousCall) {
