@@ -18,6 +18,7 @@ class ThumbnailScroller extends StatefulWidget {
   final double? extent;
   final BorderRadius? borderRadius;
   final Color? highlightBorderColor;
+  final bool circular;
 
   const ThumbnailScroller({
     super.key,
@@ -33,6 +34,7 @@ class ThumbnailScroller extends StatefulWidget {
     this.extent,
     this.borderRadius,
     this.highlightBorderColor,
+    this.circular = false,
   });
 
   @override
@@ -136,6 +138,7 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
     final pageEntry = widget.entryBuilder(index);
     if (pageEntry == null) return const SizedBox();
 
+    final isCircular = widget.circular;
     final radius = widget.borderRadius ?? BorderRadius.zero;
     final highlightColor = widget.highlightBorderColor;
 
@@ -160,20 +163,22 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
             valueListenable: indexNotifier,
             builder: (context, currentIndex, child) {
               final isCurrent = currentIndex == index;
-              if (highlightColor != null) {
+              final useDecoration = highlightColor != null || isCircular || radius != BorderRadius.zero;
+              if (useDecoration) {
                 return AnimatedContainer(
                   width: thumbnailExtent,
                   height: thumbnailExtent,
                   duration: ADurations.thumbnailScrollerShadeAnimation,
                   decoration: BoxDecoration(
-                    color: isCurrent ? Colors.transparent : Colors.black45,
-                    borderRadius: radius,
-                    border: isCurrent ? Border.all(color: highlightColor, width: 2) : null,
+                    color: Colors.transparent,
+                    shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+                    borderRadius: isCircular ? null : (radius != BorderRadius.zero ? radius : null),
+                    border: isCurrent && highlightColor != null ? Border.all(color: highlightColor, width: 2) : null,
                   ),
                 );
               }
               return AnimatedContainer(
-                color: isCurrent ? Colors.transparent : Colors.black45,
+                color: Colors.transparent,
                 width: thumbnailExtent,
                 height: thumbnailExtent,
                 duration: ADurations.thumbnailScrollerShadeAnimation,
@@ -184,7 +189,9 @@ class _ThumbnailScrollerState extends State<ThumbnailScroller> {
       ],
     );
 
-    if (radius != BorderRadius.zero) {
+    if (isCircular) {
+      thumbnail = ClipOval(child: thumbnail);
+    } else if (radius != BorderRadius.zero) {
       thumbnail = ClipRRect(borderRadius: radius, child: thumbnail);
     }
 

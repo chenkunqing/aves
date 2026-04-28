@@ -12,7 +12,6 @@ import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves/widgets/viewer/multipage/controller.dart';
 import 'package:aves/widgets/viewer/overlay/multipage.dart';
 import 'package:aves/widgets/viewer/overlay/selection_button.dart';
-import 'package:aves/widgets/viewer/overlay/thumbnail_preview.dart';
 import 'package:aves/widgets/viewer/overlay/viewer_buttons.dart';
 import 'package:aves/widgets/viewer/overlay/wallpaper_buttons.dart';
 import 'package:aves/widgets/viewer/page_entry_builder.dart';
@@ -89,8 +88,7 @@ class ViewerBottomOverlay extends StatelessWidget {
   static double actionSafeHeight(BuildContext context) {
     final mqPaddingBottom = context.select<MediaQueryData, double>((mq) => max(mq.effectiveBottomPadding, mq.systemGestureInsets.bottom));
     final buttonHeight = ViewerButtons.preferredHeight(context);
-    final thumbnailHeight = (settings.showOverlayThumbnailPreview ? ViewerThumbnailPreview.preferredHeight : 0);
-    return mqPaddingBottom + buttonHeight + thumbnailHeight;
+    return mqPaddingBottom + buttonHeight;
   }
 }
 
@@ -235,15 +233,6 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
                       availableWidth: availableWidth,
                       scrollable: true,
                     ),
-                  ),
-                ),
-              if (settings.showOverlayThumbnailPreview && !isWallpaperMode)
-                FadeTransition(
-                  opacity: _thumbnailOpacity,
-                  child: ViewerThumbnailPreview(
-                    availableWidth: availableWidth,
-                    displayedIndex: widget.index,
-                    entries: widget.entries,
                   ),
                 ),
               (showMultiPageOverlay && collapsedPageScroller)

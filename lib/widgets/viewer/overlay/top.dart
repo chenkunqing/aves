@@ -10,6 +10,7 @@ import 'package:aves/widgets/viewer/multipage/conductor.dart';
 import 'package:aves/widgets/viewer/overlay/details/details.dart';
 import 'package:aves/widgets/viewer/overlay/histogram.dart';
 import 'package:aves/widgets/viewer/overlay/minimap.dart';
+import 'package:aves/widgets/viewer/overlay/thumbnail_preview.dart';
 import 'package:aves/widgets/viewer/page_entry_builder.dart';
 import 'package:aves/widgets/viewer/view/conductor.dart';
 import 'package:aves/widgets/viewer/view/controller.dart';
@@ -126,6 +127,12 @@ class ViewerTopOverlay extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+            if (settings.showOverlayThumbnailPreview)
+              ViewerThumbnailPreview(
+                availableWidth: availableSize.width,
+                displayedIndex: index,
+                entries: entries,
               ),
             SafeArea(
               top: !showInfo,
