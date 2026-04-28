@@ -737,7 +737,7 @@
     "organizeSwipeUpHint": "上滑删除",
     "organizeSwipeDownHint": "下拉收藏",
     "organizeSwipeLeftRightHint": "左右滑跳过",
-    "organizeMarkedForDeletion": "已标记 {count} 项",
+    "organizeMarkedForDeletion": "待删除 {count} 项",
     "@organizeMarkedForDeletion": {
       "placeholders": {
         "count": {
@@ -756,5 +756,6 @@
       }
     },
     "organizeUndoTooltip": "撤销",
-    "organizeComplete": "所有项目已整理完毕"
+    "organizeComplete": "所有项目已整理完毕",
+    "organizeCopyToAlbum": "复制到相册"
 }

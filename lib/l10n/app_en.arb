@@ -1132,7 +1132,7 @@
   "organizeSwipeUpHint": "Swipe up to delete",
   "organizeSwipeDownHint": "Pull down to favorite",
   "organizeSwipeLeftRightHint": "Swipe to skip",
-  "organizeMarkedForDeletion": "{count, plural, =1{{count} item marked} other{{count} items marked}}",
+  "organizeMarkedForDeletion": "{count, plural, =1{{count} to delete} other{{count} to delete}}",
   "@organizeMarkedForDeletion": {
     "placeholders": {
       "count": {
@@ -1151,5 +1151,6 @@
     }
   },
   "organizeUndoTooltip": "Undo",
-  "organizeComplete": "All items reviewed"
+  "organizeComplete": "All items reviewed",
+  "organizeCopyToAlbum": "Copy to Album"
 }

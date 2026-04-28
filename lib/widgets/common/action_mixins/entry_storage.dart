@@ -337,7 +337,8 @@ mixin EntryStorageMixin on FeedbackMixin, PermissionAwareMixin, SizeAwareMixin, 
             }
           }
 
-          if (!toBin || (toBin && settings.confirmAfterMoveToBin)) {
+          final isOrganize = appMode == AppMode.organize;
+          if (!isOrganize && (!toBin || (toBin && settings.confirmAfterMoveToBin))) {
             showFeedback(
               context,
               FeedbackType.info,

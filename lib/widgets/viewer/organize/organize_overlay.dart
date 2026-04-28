@@ -1,8 +1,14 @@
 import 'package:aves/model/entry/entry.dart';
+import 'package:aves/model/filters/covered/stored_album.dart';
+import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/organize_basket.dart';
+import 'package:aves/model/settings/settings.dart';
+import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/thumbnail/image.dart';
+import 'package:aves/widgets/filter_grids/common/filter_nav_page.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +17,8 @@ class OrganizeOverlay extends StatelessWidget {
   final int totalCount;
   final VoidCallback onUndo;
   final bool showHints;
+  final Future<void> Function(String albumPath) onCopyToAlbum;
+  final ValueNotifier<int> albumOrderNotifier;
 
   const OrganizeOverlay({
     super.key,
@@ -18,6 +26,8 @@ class OrganizeOverlay extends StatelessWidget {
     required this.totalCount,
     required this.onUndo,
     required this.showHints,
+    required this.onCopyToAlbum,
+    required this.albumOrderNotifier,
   });
 
   @override
@@ -30,7 +40,7 @@ class OrganizeOverlay extends StatelessWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: _buildBottomBar(context, l10n),
+          child: _buildBottomSection(context, l10n),
         ),
         Positioned(
           left: 0,
@@ -79,56 +89,62 @@ class OrganizeOverlay extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, dynamic l10n) {
+  Widget _buildBottomSection(BuildContext context, dynamic l10n) {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Selector<OrganizeBasket, int>(
-              selector: (context, basket) => basket.deletionCount,
-              builder: (context, count, child) {
-                if (count == 0) return const SizedBox(width: 48);
-                return GestureDetector(
-                  onTap: () => _showDeletionPreview(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(AIcons.bin, size: 18, color: Colors.white),
-                        const SizedBox(width: 6),
-                        Text(
-                          l10n.organizeMarkedForDeletion(count),
-                          style: const TextStyle(color: Colors.white, fontSize: 13),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Selector<OrganizeBasket, int>(
+                  selector: (context, basket) => basket.deletionCount,
+                  builder: (context, count, child) {
+                    if (count == 0) return const SizedBox(width: 48);
+                    return GestureDetector(
+                      onTap: () => _showDeletionPreview(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(AIcons.bin, size: 18, color: Colors.white),
+                            const SizedBox(width: 6),
+                            Text(
+                              l10n.organizeMarkedForDeletion(count),
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Selector<OrganizeBasket, bool>(
+                  selector: (context, basket) => basket.canUndo,
+                  builder: (context, canUndo, child) {
+                    return FloatingActionButton.small(
+                      heroTag: 'organize_undo',
+                      onPressed: canUndo ? onUndo : null,
+                      backgroundColor: canUndo ? Colors.white : Colors.white24,
+                      child: Icon(
+                        Icons.undo,
+                        color: canUndo ? Colors.black87 : Colors.white38,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            Selector<OrganizeBasket, bool>(
-              selector: (context, basket) => basket.canUndo,
-              builder: (context, canUndo, child) {
-                return FloatingActionButton.small(
-                  heroTag: 'organize_undo',
-                  onPressed: canUndo ? onUndo : null,
-                  backgroundColor: canUndo ? Colors.white : Colors.white24,
-                  child: Icon(
-                    Icons.undo,
-                    color: canUndo ? Colors.black87 : Colors.white38,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+          _OrganizeAlbumStrip(onCopyToAlbum: onCopyToAlbum, albumOrderNotifier: albumOrderNotifier),
+        ],
       ),
     );
   }
@@ -146,6 +162,114 @@ class OrganizeOverlay extends StatelessWidget {
             _HintChip(icon: Icons.arrow_downward, label: l10n.organizeSwipeDownHint, color: Colors.amber),
             const SizedBox(height: 8),
             _HintChip(icon: Icons.swap_horiz, label: l10n.organizeSwipeLeftRightHint, color: Colors.blue),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrganizeAlbumStrip extends StatelessWidget {
+  final Future<void> Function(String albumPath) onCopyToAlbum;
+  final ValueNotifier<int> albumOrderNotifier;
+
+  const _OrganizeAlbumStrip({required this.onCopyToAlbum, required this.albumOrderNotifier});
+
+  List<String> _buildAlbumList(CollectionSource source) {
+    final rawAlbums = source.rawAlbums;
+    final recent = settings.recentDestinationAlbums.where(rawAlbums.contains).toList();
+    final remaining = rawAlbums.whereNot(recent.contains).map((album) => StoredAlbumFilter(album, null)).toSet();
+    final sorted = remaining.map((filter) => FilterGridItem(filter, source.recentEntry(filter))).toList()
+      ..sort(FilterNavigationPage.compareFiltersByDate);
+    return [...recent, ...sorted.map((v) => v.filter.album)];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final source = context.read<CollectionSource>();
+
+    return ValueListenableBuilder<int>(
+      valueListenable: albumOrderNotifier,
+      builder: (context, _, child) {
+        final albums = _buildAlbumList(source);
+        if (albums.isEmpty) return const SizedBox();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.7),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                child: Text(
+                  l10n.organizeCopyToAlbum,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ),
+              SizedBox(
+                height: 52,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  itemCount: albums.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final album = albums[index];
+                    final displayName = source.getStoredAlbumDisplayName(context, album);
+                    return _AlbumChip(
+                      albumPath: album,
+                      displayName: displayName,
+                      onTap: () => onCopyToAlbum(album),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AlbumChip extends StatelessWidget {
+  final String albumPath;
+  final String displayName;
+  final VoidCallback onTap;
+
+  static const _maxChars = 8;
+
+  const _AlbumChip({
+    required this.albumPath,
+    required this.displayName,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final truncated = displayName.length > _maxChars ? '${displayName.substring(0, _maxChars)}...' : displayName;
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 64,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.download, size: 22, color: Colors.white70),
+            const SizedBox(height: 2),
+            Text(
+              truncated,
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

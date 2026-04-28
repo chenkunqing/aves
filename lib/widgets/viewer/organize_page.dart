@@ -1,6 +1,7 @@
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/organize_basket.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/icons.dart';
@@ -45,6 +46,7 @@ class _OrganizePageState extends State<OrganizePage> {
   late final List<AvesEntry> _entries;
   final _actionDelegate = _OrganizeActionDelegate();
   final ValueNotifier<bool> _showHintsNotifier = ValueNotifier(true);
+  final ValueNotifier<int> _albumOrderNotifier = ValueNotifier(0);
 
   CollectionSource get source => widget.collection.source;
 
@@ -67,6 +69,7 @@ class _OrganizePageState extends State<OrganizePage> {
     _basket.dispose();
     _indexNotifier.dispose();
     _showHintsNotifier.dispose();
+    _albumOrderNotifier.dispose();
     _organizeCollection.dispose();
     super.dispose();
   }
@@ -108,6 +111,8 @@ class _OrganizePageState extends State<OrganizePage> {
                             totalCount: _entries.length,
                             onUndo: _onUndo,
                             showHints: showHints,
+                            onCopyToAlbum: _onCopyToAlbum,
+                            albumOrderNotifier: _albumOrderNotifier,
                           );
                         },
                       ),
@@ -124,6 +129,28 @@ class _OrganizePageState extends State<OrganizePage> {
     if (action is UndoMarkForDeletion) {
       _cardStackKey.currentState?.goToIndex(action.atIndex);
     }
+  }
+
+  Future<void> _onCopyToAlbum(String albumPath) async {
+    final currentIndex = _indexNotifier.value;
+    if (currentIndex >= _entries.length) return;
+
+    final entry = _entries[currentIndex];
+    final success = await _actionDelegate.doQuickMove(
+      context,
+      moveType: MoveType.copy,
+      entriesByDestination: {albumPath: {entry}},
+      skipUndatedCheck: true,
+      onSuccess: () {
+        settings.recentDestinationAlbums = settings.recentDestinationAlbums
+          ..remove(albumPath)
+          ..insert(0, albumPath);
+        _albumOrderNotifier.value++;
+      },
+    );
+    if (!success || !mounted) return;
+
+    _cardStackKey.currentState?.goToIndex(currentIndex + 1);
   }
 
   Future<void> _onExitRequested() async {
