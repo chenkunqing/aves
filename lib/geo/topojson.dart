@@ -161,6 +161,8 @@ abstract class Geometry extends TopologyJsonObject {
   }
 
   bool containsPoint(Topology topology, List<num> point) => false;
+
+  double minSquaredDistanceTo(Topology topology, List<num> point) => double.infinity;
 }
 
 class Point extends Geometry {
@@ -203,6 +205,22 @@ class Polygon extends Geometry {
   bool containsPoint(Topology topology, List<num> point) {
     return topology._pointInRings(point, rings(topology));
   }
+
+  @override
+  double minSquaredDistanceTo(Topology topology, List<num> point) {
+    final px = point[0].toDouble();
+    final py = point[1].toDouble();
+    var minDist = double.infinity;
+    for (final ring in rings(topology)) {
+      for (final vertex in ring) {
+        final dx = vertex[0].toDouble() - px;
+        final dy = vertex[1].toDouble() - py;
+        final dist = dx * dx + dy * dy;
+        if (dist < minDist) minDist = dist;
+      }
+    }
+    return minDist;
+  }
 }
 
 class MultiPolygon extends Geometry {
@@ -221,6 +239,24 @@ class MultiPolygon extends Geometry {
   bool containsPoint(Topology topology, List<num> point) {
     return polygons(topology).any((polygon) => topology._pointInRings(point, polygon));
   }
+
+  @override
+  double minSquaredDistanceTo(Topology topology, List<num> point) {
+    final px = point[0].toDouble();
+    final py = point[1].toDouble();
+    var minDist = double.infinity;
+    for (final polygon in polygons(topology)) {
+      for (final ring in polygon) {
+        for (final vertex in ring) {
+          final dx = vertex[0].toDouble() - px;
+          final dy = vertex[1].toDouble() - py;
+          final dist = dx * dx + dy * dy;
+          if (dist < minDist) minDist = dist;
+        }
+      }
+    }
+    return minDist;
+  }
 }
 
 class GeometryCollection extends Geometry {
@@ -231,5 +267,15 @@ class GeometryCollection extends Geometry {
   @override
   bool containsPoint(Topology topology, List<num> point) {
     return geometries.any((geometry) => geometry.containsPoint(topology, point));
+  }
+
+  @override
+  double minSquaredDistanceTo(Topology topology, List<num> point) {
+    var minDist = double.infinity;
+    for (final geometry in geometries) {
+      final dist = geometry.minSquaredDistanceTo(topology, point);
+      if (dist < minDist) minDist = dist;
+    }
+    return minDist;
   }
 }

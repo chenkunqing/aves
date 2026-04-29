@@ -11,7 +11,7 @@ import 'package:latlong2/latlong.dart';
 final CountryTopology countryTopology = CountryTopology._private();
 
 class CountryTopology {
-  static const topoJsonAsset = 'assets/countries-50m.json';
+  static const topoJsonAsset = 'assets/countries-10m.json';
 
   CountryTopology._private();
 
@@ -69,18 +69,32 @@ class CountryTopology {
     }
   }
 
+  // ~0.5 degrees squared, covering small islands and coastline gaps (~50km)
+  static const _nearestThresholdSquared = 0.25;
+
   static int? _getNumeric(Topology topology, List<Geometry> mruCountries, LatLng position) {
     final point = [position.longitude, position.latitude];
-    final hit = mruCountries.firstWhereOrNull((country) => country.containsPoint(topology, point));
-    if (hit == null) return null;
+    var hit = mruCountries.firstWhereOrNull((country) => country.containsPoint(topology, point));
+
+    if (hit == null) {
+      var minDist = double.infinity;
+      for (final country in mruCountries) {
+        final dist = country.minSquaredDistanceTo(topology, point);
+        if (dist < minDist) {
+          minDist = dist;
+          hit = country;
+        }
+      }
+      if (minDist > _nearestThresholdSquared) return null;
+    }
 
     // promote hit countries, assuming given positions are likely to come from the same countries
-    if (mruCountries.first != hit) {
+    if (hit != null && mruCountries.first != hit) {
       mruCountries.remove(hit);
       mruCountries.insert(0, hit);
     }
 
-    final idString = (hit.id as String?);
+    final idString = (hit?.id as String?);
     final code = idString == null ? null : int.tryParse(idString);
     return code;
   }
