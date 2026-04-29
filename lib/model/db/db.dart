@@ -144,7 +144,7 @@ abstract class LocalMediaDb {
 
   Future<void> removeEntryFacesByIds(Set<int> ids);
 
-  Future<Map<int, String>> loadEntryFacesWithoutEmbeddings();
+  Future<Map<int, String>> loadEntryFacesNeedingEmbeddings(String modelVersion);
 
   // face embeddings
 

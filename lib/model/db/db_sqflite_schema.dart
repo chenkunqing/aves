@@ -156,18 +156,22 @@ class SqfliteLocalMediaDbSchema {
           ')',
         );
       case faceEmbeddingsTable:
-        return db.execute(
-          'CREATE TABLE $faceEmbeddingsTable('
-          'faceId INTEGER PRIMARY KEY AUTOINCREMENT'
-          ', entryId INTEGER NOT NULL'
-          ', boundingBox TEXT NOT NULL'
-          ', embedding BLOB NOT NULL'
-          ', personId INTEGER'
-          ')',
-        ).then((_) async {
-          await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
-          await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
-        });
+        return db
+            .execute(
+              'CREATE TABLE $faceEmbeddingsTable('
+              'faceId INTEGER PRIMARY KEY AUTOINCREMENT'
+              ', entryId INTEGER NOT NULL'
+              ', boundingBox TEXT NOT NULL'
+              ', embedding BLOB NOT NULL'
+              ', modelVersion TEXT NOT NULL'
+              ', personId INTEGER'
+              ')',
+            )
+            .then((_) async {
+              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
+              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
+              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
+            });
       case personsTable:
         return db.execute(
           'CREATE TABLE $personsTable('

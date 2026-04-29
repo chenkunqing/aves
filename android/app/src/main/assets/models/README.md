@@ -2,9 +2,15 @@
 
 Place `mobilefacenet.tflite` in this directory.
 
+Current bundled model ID: `mobilefacenet-112x112-192-v1`
+
 ## Requirements
 - Input: 112x112x3 RGB float tensor, normalized to [-1, 1]
 - Output: 1x192 float tensor (L2-normalized embedding)
+
+## Integration Notes
+- Face embeddings are versioned by model ID in the local database.
+- Changing the bundled model ID requires re-extracting embeddings for existing faces.
 
 ## How to obtain
 

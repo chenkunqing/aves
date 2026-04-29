@@ -20,6 +20,10 @@ All notable changes to this project will be documented in this file.
 - Viewer: no longer hide overlay on playing video
 - build: package compressed native libraries for `izzy` flavor
 
+### Fixed
+
+- Analysis: preserve all face embeddings for multi-face images and version embeddings by recognition model for safer rescans
+
 ### Removed
 
 - build: `libre_rom` flavor, now redundant with `libre` flavor

@@ -5,6 +5,7 @@ class FaceEmbeddingRow {
   final int entryId;
   final String boundingBox;
   final Uint8List embedding;
+  final String modelVersion;
   final int? personId;
 
   const FaceEmbeddingRow({
@@ -12,6 +13,7 @@ class FaceEmbeddingRow {
     required this.entryId,
     required this.boundingBox,
     required this.embedding,
+    required this.modelVersion,
     this.personId,
   });
 
@@ -21,24 +23,27 @@ class FaceEmbeddingRow {
       entryId: map['entryId'] as int,
       boundingBox: map['boundingBox'] as String,
       embedding: map['embedding'] as Uint8List,
+      modelVersion: map['modelVersion'] as String? ?? '',
       personId: map['personId'] as int?,
     );
   }
 
   Map<String, Object?> toMap() => {
-        if (faceId != null) 'faceId': faceId,
-        'entryId': entryId,
-        'boundingBox': boundingBox,
-        'embedding': embedding,
-        'personId': personId,
-      };
+    if (faceId != null) 'faceId': faceId,
+    'entryId': entryId,
+    'boundingBox': boundingBox,
+    'embedding': embedding,
+    'modelVersion': modelVersion,
+    'personId': personId,
+  };
 
-  FaceEmbeddingRow copyWith({int? personId}) {
+  FaceEmbeddingRow copyWith({String? modelVersion, int? personId}) {
     return FaceEmbeddingRow(
       faceId: faceId,
       entryId: entryId,
       boundingBox: boundingBox,
       embedding: embedding,
+      modelVersion: modelVersion ?? this.modelVersion,
       personId: personId ?? this.personId,
     );
   }

@@ -32,6 +32,7 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
+            "getModelInfo" -> result.success(createModelInfo())
             "extractEmbeddings" -> ioScope.launch { safe(call, result, ::extractEmbeddings) }
             else -> result.notImplemented()
         }
@@ -39,7 +40,7 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
 
     private fun getInterpreter(): Interpreter {
         if (interpreter == null) {
-            val model = FileUtil.loadMappedFile(context, "models/mobilefacenet.tflite")
+            val model = FileUtil.loadMappedFile(context, MODEL_ASSET_PATH)
             val options = Interpreter.Options().apply {
                 numThreads = 4
             }
@@ -66,7 +67,10 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
         try {
             val bitmap = loadBitmap(uri, width, height)
             if (bitmap == null) {
-                result.success(hashMapOf("embeddings" to listOf<ByteArray>()))
+                result.success(hashMapOf(
+                    "modelInfo" to createModelInfo(),
+                    "embeddings" to listOf<ByteArray>(),
+                ))
                 return
             }
 
@@ -104,11 +108,20 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
 
             bitmap.recycle()
 
-            result.success(hashMapOf("embeddings" to embeddings))
+            result.success(hashMapOf(
+                "modelInfo" to createModelInfo(),
+                "embeddings" to embeddings,
+            ))
         } catch (e: Exception) {
             result.error("extractEmbeddings-exception", e.message, e.stackTraceToString())
         }
     }
+
+    private fun createModelInfo() = hashMapOf(
+        "modelVersion" to MODEL_VERSION,
+        "assetPath" to MODEL_ASSET_PATH,
+        "inputSize" to INPUT_SIZE,
+    )
 
     private fun bitmapToInputBuffer(bitmap: Bitmap): ByteBuffer {
         val buffer = ByteBuffer.allocateDirect(1 * INPUT_SIZE * INPUT_SIZE * 3 * 4)
@@ -177,6 +190,8 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
     companion object {
         private val LOG_TAG = LogUtils.createTag<FaceRecognitionHandler>()
         const val CHANNEL = "deckers.thibault/aves/face_recognition"
+        private const val MODEL_ASSET_PATH = "models/mobilefacenet.tflite"
+        private const val MODEL_VERSION = "mobilefacenet-112x112-192-v1"
         private const val INPUT_SIZE = 112
         private const val MAX_BITMAP_DIMENSION = 720
     }

@@ -65,6 +65,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom17(db);
         case 18:
           await _upgradeFrom18(db);
+        case 19:
+          await _upgradeFrom19(db);
       }
       oldVersion++;
     }
@@ -617,10 +619,12 @@ class LocalMediaDbUpgrader {
       ', entryId INTEGER NOT NULL'
       ', boundingBox TEXT NOT NULL'
       ', embedding BLOB NOT NULL'
+      ', modelVersion TEXT NOT NULL DEFAULT \'\''
       ', personId INTEGER'
       ')',
     );
     await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
 
     await db.execute(
@@ -630,5 +634,16 @@ class LocalMediaDbUpgrader {
       ', coverEntryId INTEGER'
       ')',
     );
+  }
+
+  static Future<void> _upgradeFrom19(Database db) async {
+    debugPrint('upgrading DB from v19');
+
+    final columns = await db.rawQuery('PRAGMA table_info($faceEmbeddingsTable)');
+    final hasModelVersion = columns.any((row) => row['name'] == 'modelVersion');
+    if (!hasModelVersion) {
+      await db.execute('ALTER TABLE $faceEmbeddingsTable ADD COLUMN modelVersion TEXT NOT NULL DEFAULT \'\'');
+    }
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
   }
 }

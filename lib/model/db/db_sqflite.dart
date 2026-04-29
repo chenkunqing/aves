@@ -56,7 +56,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       await path,
       onCreate: (db, version) => SqfliteLocalMediaDbSchema.createLatestVersion(db),
       onUpgrade: LocalMediaDbUpgrader.upgradeDb,
-      version: 19,
+      version: 20,
     );
 
     final maxIdRows = await _db.rawQuery('SELECT MAX(id) AS maxId FROM $entryTable');
@@ -779,12 +779,15 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   }
 
   @override
-  Future<Map<int, String>> loadEntryFacesWithoutEmbeddings() async {
+  Future<Map<int, String>> loadEntryFacesNeedingEmbeddings(String modelVersion) async {
     final result = <int, String>{};
     final rows = await _db.rawQuery(
       'SELECT ef.entryId, ef.boundingBoxes FROM $entryFacesTable ef '
+      'LEFT JOIN $faceEmbeddingsTable fe ON fe.entryId = ef.entryId AND fe.modelVersion = ? '
       'WHERE ef.faceCount > 0 AND ef.boundingBoxes IS NOT NULL '
-      'AND ef.entryId NOT IN (SELECT DISTINCT entryId FROM $faceEmbeddingsTable)',
+      'GROUP BY ef.entryId, ef.boundingBoxes, ef.faceCount '
+      'HAVING COUNT(fe.faceId) != ef.faceCount',
+      [modelVersion],
     );
     for (final row in rows) {
       final entryId = row['entryId'] as int;

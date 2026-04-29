@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/props.dart';
@@ -45,21 +46,20 @@ mixin FaceMixin on SourceBase {
 
         if (result.faceCount > 0 && result.boundingBoxes != null) {
           try {
-            final embeddings = await faceRecognitionService.extractEmbeddings(
+            final recognitionResult = await faceRecognitionService.extractEmbeddings(
               uri: entry.uri,
               width: entry.width,
               height: entry.height,
               boundingBoxes: result.boundingBoxes!,
             );
-            final boxesJson = jsonDecode(result.boundingBoxes!) as List;
-            for (int i = 0; i < embeddings.length && i < boxesJson.length; i++) {
-              await localMediaDb.saveFaceEmbeddings(entry.id, [
-                FaceEmbeddingRow(
-                  entryId: entry.id,
-                  boundingBox: jsonEncode(boxesJson[i]),
-                  embedding: embeddings[i],
-                ),
-              ]);
+            final rows = _buildFaceEmbeddings(
+              entryId: entry.id,
+              boundingBoxes: result.boundingBoxes!,
+              embeddings: recognitionResult.embeddings,
+              modelVersion: recognitionResult.model.version,
+            );
+            if (rows.isNotEmpty) {
+              await localMediaDb.saveFaceEmbeddings(entry.id, rows);
             }
           } catch (e) {
             debugPrint('face embedding extraction failed for entry id=${entry.id}: $e');
@@ -86,7 +86,8 @@ mixin FaceMixin on SourceBase {
   Future<void> extractMissingEmbeddings(AnalysisController controller) async {
     if (controller.isStopping) return;
 
-    final missing = await localMediaDb.loadEntryFacesWithoutEmbeddings();
+    final model = await faceRecognitionService.getModel();
+    final missing = await localMediaDb.loadEntryFacesNeedingEmbeddings(model.version);
     if (missing.isEmpty) return;
 
     state = SourceState.detectingFaces;
@@ -106,21 +107,20 @@ mixin FaceMixin on SourceBase {
       }
 
       try {
-        final embeddings = await faceRecognitionService.extractEmbeddings(
+        final recognitionResult = await faceRecognitionService.extractEmbeddings(
           uri: avesEntry.uri,
           width: avesEntry.width,
           height: avesEntry.height,
           boundingBoxes: boundingBoxes,
         );
-        final boxesJson = jsonDecode(boundingBoxes) as List;
-        for (int i = 0; i < embeddings.length && i < boxesJson.length; i++) {
-          await localMediaDb.saveFaceEmbeddings(entryId, [
-            FaceEmbeddingRow(
-              entryId: entryId,
-              boundingBox: jsonEncode(boxesJson[i]),
-              embedding: embeddings[i],
-            ),
-          ]);
+        final rows = _buildFaceEmbeddings(
+          entryId: entryId,
+          boundingBoxes: boundingBoxes,
+          embeddings: recognitionResult.embeddings,
+          modelVersion: recognitionResult.model.version,
+        );
+        if (rows.isNotEmpty) {
+          await localMediaDb.saveFaceEmbeddings(entryId, rows);
         }
       } catch (e) {
         debugPrint('face embedding extraction failed for entry id=$entryId: $e');
@@ -128,5 +128,24 @@ mixin FaceMixin on SourceBase {
 
       setProgress(done: ++progressDone, total: progressTotal);
     }
+  }
+
+  List<FaceEmbeddingRow> _buildFaceEmbeddings({
+    required int entryId,
+    required String boundingBoxes,
+    required List<Uint8List> embeddings,
+    required String modelVersion,
+  }) {
+    final boxesJson = jsonDecode(boundingBoxes) as List;
+    final rowCount = embeddings.length < boxesJson.length ? embeddings.length : boxesJson.length;
+    return List.generate(
+      rowCount,
+      (index) => FaceEmbeddingRow(
+        entryId: entryId,
+        boundingBox: jsonEncode(boxesJson[index]),
+        embedding: embeddings[index],
+        modelVersion: modelVersion,
+      ),
+    );
   }
 }
