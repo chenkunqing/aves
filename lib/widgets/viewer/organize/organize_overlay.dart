@@ -22,6 +22,7 @@ class OrganizeOverlay extends StatelessWidget {
   final Future<void> Function() onCreateAlbum;
   final ValueNotifier<int> albumOrderNotifier;
   final ValueNotifier<String?> undoMessageNotifier;
+  final ValueNotifier<bool> isMoveMode;
 
   const OrganizeOverlay({
     super.key,
@@ -34,6 +35,7 @@ class OrganizeOverlay extends StatelessWidget {
     required this.onCreateAlbum,
     required this.albumOrderNotifier,
     required this.undoMessageNotifier,
+    required this.isMoveMode,
   });
 
   @override
@@ -171,7 +173,7 @@ class OrganizeOverlay extends StatelessWidget {
               ],
             ),
           ),
-          _OrganizeAlbumStrip(onCopyToAlbum: onCopyToAlbum, onCreateAlbum: onCreateAlbum, albumOrderNotifier: albumOrderNotifier),
+          _OrganizeAlbumStrip(onCopyToAlbum: onCopyToAlbum, onCreateAlbum: onCreateAlbum, albumOrderNotifier: albumOrderNotifier, isMoveMode: isMoveMode),
         ],
       ),
     );
@@ -201,8 +203,9 @@ class _OrganizeAlbumStrip extends StatelessWidget {
   final Future<void> Function(String albumPath) onCopyToAlbum;
   final Future<void> Function() onCreateAlbum;
   final ValueNotifier<int> albumOrderNotifier;
+  final ValueNotifier<bool> isMoveMode;
 
-  const _OrganizeAlbumStrip({required this.onCopyToAlbum, required this.onCreateAlbum, required this.albumOrderNotifier});
+  const _OrganizeAlbumStrip({required this.onCopyToAlbum, required this.onCreateAlbum, required this.albumOrderNotifier, required this.isMoveMode});
 
   List<String> _buildAlbumList(CollectionSource source) {
     final rawAlbums = source.rawAlbums;
@@ -232,12 +235,40 @@ class _OrganizeAlbumStrip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 4),
-                child: Text(
-                  l10n.organizeCopyToAlbum,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
+              ValueListenableBuilder<bool>(
+                valueListenable: isMoveMode,
+                builder: (context, isMove, child) {
+                  return GestureDetector(
+                    onTap: () => isMoveMode.value = !isMoveMode.value,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 12, bottom: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isMove ? Icons.content_cut : Icons.copy,
+                            size: 14,
+                            color: isMove ? Colors.orange : Colors.white70,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isMove ? l10n.organizeMoveToAlbum : l10n.organizeCopyToAlbum,
+                            style: TextStyle(
+                              color: isMove ? Colors.orange : Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(
+                            Icons.swap_vert,
+                            size: 14,
+                            color: isMove ? Colors.orange : Colors.white70,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
               SizedBox(
                 height: 52,
@@ -265,7 +296,7 @@ class _OrganizeAlbumStrip extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
             ],
           ),
         );

@@ -1154,5 +1154,6 @@
   "organizeUndoDeletion": "Undo delete",
   "organizeUndoFavourite": "Undo favourite",
   "organizeComplete": "All items reviewed",
-  "organizeCopyToAlbum": "Copy to Album"
+  "organizeCopyToAlbum": "Copy to Album",
+  "organizeMoveToAlbum": "Move to Album"
 }

@@ -49,6 +49,7 @@ class _OrganizePageState extends State<OrganizePage> {
   late final ValueNotifier<bool> _showHintsNotifier;
   final ValueNotifier<int> _albumOrderNotifier = ValueNotifier(0);
   final ValueNotifier<String?> _undoMessageNotifier = ValueNotifier(null);
+  final ValueNotifier<bool> _isMoveMode = ValueNotifier(false);
 
   CollectionSource get source => widget.collection.source;
 
@@ -74,6 +75,7 @@ class _OrganizePageState extends State<OrganizePage> {
     _showHintsNotifier.dispose();
     _albumOrderNotifier.dispose();
     _undoMessageNotifier.dispose();
+    _isMoveMode.dispose();
     _organizeCollection.dispose();
     super.dispose();
   }
@@ -123,6 +125,7 @@ class _OrganizePageState extends State<OrganizePage> {
                             onCreateAlbum: _onCreateAlbum,
                             albumOrderNotifier: _albumOrderNotifier,
                             undoMessageNotifier: _undoMessageNotifier,
+                            isMoveMode: _isMoveMode,
                           );
                         },
                       ),
@@ -167,9 +170,11 @@ class _OrganizePageState extends State<OrganizePage> {
     if (currentIndex >= _entries.length) return;
 
     final entry = _entries[currentIndex];
+    final moveType = _isMoveMode.value ? MoveType.move : MoveType.copy;
+    final innerContext = _cardStackKey.currentContext ?? context;
     final success = await _actionDelegate.doQuickMove(
-      context,
-      moveType: MoveType.copy,
+      innerContext,
+      moveType: moveType,
       entriesByDestination: {albumPath: {entry}},
       skipUndatedCheck: true,
       onSuccess: () {
@@ -181,6 +186,11 @@ class _OrganizePageState extends State<OrganizePage> {
     );
     if (!success || !mounted) return;
 
+    final l10n = context.l10n;
+    final isCopy = moveType == MoveType.copy;
+    _undoMessageNotifier.value = isCopy
+        ? l10n.collectionCopySuccessFeedback(1)
+        : l10n.collectionMoveSuccessFeedback(1);
     _cardStackKey.currentState?.goToIndex(currentIndex + 1);
   }
 
@@ -195,8 +205,9 @@ class _OrganizePageState extends State<OrganizePage> {
 
     if (confirmed == true) {
       final entries = _basket.deletionEntries;
+      final innerContext = _cardStackKey.currentContext ?? context;
       final success = await _actionDelegate.doQuickMove(
-        context,
+        innerContext,
         moveType: MoveType.toBin,
         entriesByDestination: {AndroidFileUtils.trashDirPath: entries},
         skipUndatedCheck: true,
