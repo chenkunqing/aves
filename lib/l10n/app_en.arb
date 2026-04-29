@@ -254,6 +254,9 @@
   "mapStyleGoogleHybrid": "Google Maps (Hybrid)",
   "mapStyleGoogleTerrain": "Google Maps (Terrain)",
   "mapStyleOsmLiberty": "OSM Liberty",
+  "mapStyleAuto": "Auto",
+  "mapStyleAmap": "Amap",
+  "mapStyleArcgisWorldStreetMap": "ArcGIS World Street Map",
 
   "maxBrightnessNever": "Never",
   "maxBrightnessAlways": "Always",
@@ -1092,6 +1095,8 @@
   "mapPointNorthUpTooltip": "Point north up",
   "mapAttributionOsmData": "Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors",
   "mapAttributionOsmLiberty": "Tiles by [OpenMapTiles](https://www.openmaptiles.org/), [CC BY](http://creativecommons.org/licenses/by/4.0) • Hosted by [OpenFreeMap](https://openfreemap.org)",
+  "mapAttributionAmap": "Tiles by [Amap](https://www.amap.com/) © AutoNavi",
+  "mapAttributionArcgis": "Tiles by [Esri](https://www.esri.com/) © Esri, HERE, Garmin, USGS",
   "openMapPageTooltip": "View on Map page",
   "mapEmptyRegion": "No images in this region",
 

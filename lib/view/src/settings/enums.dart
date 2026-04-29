@@ -65,10 +65,13 @@ extension ExtraDisplayRefreshRateModeView on DisplayRefreshRateMode {
 extension ExtraEntryMapStyleView on EntryMapStyle {
   String getName(BuildContext context) {
     final l10n = context.l10n;
+    if (this == EntryMapStyles.auto) return l10n.mapStyleAuto;
     if (this == EntryMapStyles.googleNormal) return l10n.mapStyleGoogleNormal;
     if (this == EntryMapStyles.googleHybrid) return l10n.mapStyleGoogleHybrid;
     if (this == EntryMapStyles.googleTerrain) return l10n.mapStyleGoogleTerrain;
     if (this == EntryMapStyles.osmLiberty) return l10n.mapStyleOsmLiberty;
+    if (this == EntryMapStyles.amap) return l10n.mapStyleAmap;
+    if (this == EntryMapStyles.arcgisWorldStreetMap) return l10n.mapStyleArcgisWorldStreetMap;
     final _name = name;
     if (_name != null) return _name;
     throw Exception('Name is undefined for map style=$this');

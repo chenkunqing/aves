@@ -146,6 +146,9 @@ class _GeoMapState extends State<GeoMap> {
     return Selector<Settings, EntryMapStyle?>(
       selector: (context, s) => s.mapStyle,
       builder: (context, mapStyle, child) {
+        if (mapStyle != null) {
+          mapStyle = EntryMapStyles.resolve(mapStyle, widget.initialCenter);
+        }
         final isHeavy = mapStyle?.isHeavy ?? false;
         final locale = context.locale;
         Widget _buildMarkerWidget(MarkerKey<AvesEntry> key) => ImageMarker(

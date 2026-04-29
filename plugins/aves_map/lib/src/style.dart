@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
 
 // OSM raster tile providers: https://wiki.openstreetmap.org/wiki/Raster_tile_providers
 // OSM vector tile providers: https://wiki.openstreetmap.org/wiki/Vector_tiles#Providers
@@ -105,8 +106,43 @@ class EntryMapStyles {
     isRaster: false,
   );
 
+  // Amap (Gaode) - China coverage
+
+  static const amap = EntryMapStyle(
+    key: 'amap',
+    url: 'https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+  );
+
+  // ArcGIS World Street Map - Global coverage
+
+  static const arcgisWorldStreetMap = EntryMapStyle(
+    key: 'arcgisWorldStreetMap',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  );
+
+  // Auto (location-based)
+
+  static const auto = EntryMapStyle(
+    key: 'auto',
+  );
+
+  static bool _isInChina(LatLng center) {
+    final lat = center.latitude;
+    final lng = center.longitude;
+    return lat >= 3 && lat <= 54 && lng >= 73 && lng <= 136;
+  }
+
+  static EntryMapStyle resolve(EntryMapStyle style, LatLng? center) {
+    if (style != auto) return style;
+    if (center != null && _isInChina(center)) return amap;
+    return arcgisWorldStreetMap;
+  }
+
   // default styles that do not need mobile services
   static List<EntryMapStyle> baseStyles = [
+    auto,
     osmLiberty,
+    arcgisWorldStreetMap,
+    amap,
   ];
 }
