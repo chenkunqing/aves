@@ -22,6 +22,7 @@ kotlinxCoroutines = "1.10.2"
 ksp = "2.3.5"
 material = "1.13.0"
 metadataExtractor = "2.20.0"
+mlkitFaceDetection = "16.1.7"
 mp4parser = "c2898f1832"
 pixymeta = "f4513291b7"
 slf4j = "2.0.17"
@@ -55,6 +56,7 @@ junit = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "juni
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 metadata-extractor = { module = "com.drewnoakes:metadata-extractor", version.ref = "metadataExtractor" }
+mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "mlkitFaceDetection" }
 slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [plugins]

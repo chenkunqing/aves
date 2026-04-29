@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 
 class ColorUtils {
   // `Color(0x00FFFFFF)` is different from `Color(0x00000000)` (or `Colors.transparent`)
@@ -25,6 +27,35 @@ class ColorUtils {
   // r, g, b in [0, 255], luma in [0, 1]
   static double luma(int r, int g, int b) {
     return (r * .299 + g * .587 + b * .114) / 255;
+  }
+}
+
+class ColorMatcher {
+  static const double _neutralChromaThreshold = 15;
+  static const double _hueTolerance = 30;
+  static const double _toneTolerance = 35;
+  static const double _neutralToneTolerance = 20;
+
+  static bool isMatch(int argb1, int argb2) {
+    final hct1 = Hct.fromInt(argb1);
+    final hct2 = Hct.fromInt(argb2);
+
+    final isNeutral1 = hct1.chroma < _neutralChromaThreshold;
+    final isNeutral2 = hct2.chroma < _neutralChromaThreshold;
+
+    if (isNeutral1 && isNeutral2) {
+      return (hct1.tone - hct2.tone).abs() <= _neutralToneTolerance;
+    }
+    if (isNeutral1 != isNeutral2) return false;
+
+    final hueDiff = _circularDistance(hct1.hue, hct2.hue, 360);
+    final toneDiff = (hct1.tone - hct2.tone).abs();
+    return hueDiff <= _hueTolerance && toneDiff <= _toneTolerance;
+  }
+
+  static double _circularDistance(double a, double b, double period) {
+    final diff = (a - b).abs();
+    return math.min(diff, period - diff);
   }
 }
 

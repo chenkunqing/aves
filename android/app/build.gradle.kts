@@ -215,6 +215,7 @@ dependencies {
     implementation(libs.metadata.extractor)
     implementation(libs.glide)
     implementation(libs.google.material)
+    implementation(libs.mlkit.face.detection)
     // SLF4J implementation for `mp4parser`
     implementation(libs.slf4j)
 

@@ -11,6 +11,8 @@ class SqfliteLocalMediaDbSchema {
   static const vaultTable = 'vaults';
   static const trashTable = 'trash';
   static const videoPlaybackTable = 'videoPlayback';
+  static const entryColorsTable = 'entryColors';
+  static const entryFacesTable = 'entryFaces';
 
   static const allTables = [
     entryTable,
@@ -23,6 +25,8 @@ class SqfliteLocalMediaDbSchema {
     vaultTable,
     trashTable,
     videoPlaybackTable,
+    entryColorsTable,
+    entryFacesTable,
   ];
 
   static Future<void> createLatestVersion(Database db) async {
@@ -129,6 +133,22 @@ class SqfliteLocalMediaDbSchema {
           'CREATE TABLE $videoPlaybackTable('
           'id INTEGER PRIMARY KEY'
           ', resumeTimeMillis INTEGER'
+          ')',
+        );
+      case entryColorsTable:
+        return db.execute(
+          'CREATE TABLE $entryColorsTable('
+          'entryId INTEGER'
+          ', colorValue INTEGER'
+          ', PRIMARY KEY (entryId, colorValue)'
+          ')',
+        );
+      case entryFacesTable:
+        return db.execute(
+          'CREATE TABLE $entryFacesTable('
+          'entryId INTEGER PRIMARY KEY'
+          ', faceCount INTEGER'
+          ', boundingBoxes TEXT'
           ')',
         );
       default:

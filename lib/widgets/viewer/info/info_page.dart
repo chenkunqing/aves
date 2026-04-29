@@ -267,7 +267,11 @@ class _InfoPageContentState extends State<_InfoPageContent> {
           if (!settings.useTvLayout)
             SliverPadding(
               padding: horizontalPadding + const EdgeInsets.only(bottom: 8),
-              sliver: ColorSectionSliver(entry: entry),
+              sliver: ColorSectionSliver(
+                entry: entry,
+                collection: collection,
+                onFilterSelection: _onFilterSelection,
+              ),
             ),
           const BottomPaddingSliver(),
         ],

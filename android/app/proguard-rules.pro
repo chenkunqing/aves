@@ -7,6 +7,8 @@
 
 -keep class org.mp4parser.**{ *; }
 
+-keep class com.google.mlkit.** { *; }
+
 # referenced from: com.google.crypto.tink
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.annotation.**

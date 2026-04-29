@@ -17,6 +17,7 @@ import androidx.work.WorkerParameters
 import app.loup.streams_channel.StreamsChannel
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safeSuspend
 import deckers.thibault.aves.channel.calls.DeviceHandler
+import deckers.thibault.aves.channel.calls.FaceDetectionHandler
 import deckers.thibault.aves.channel.calls.GeocodingHandler
 import deckers.thibault.aves.channel.calls.MediaFetchObjectHandler
 import deckers.thibault.aves.channel.calls.MediaStoreHandler
@@ -115,6 +116,7 @@ class AnalysisWorker(context: Context, parameters: WorkerParameters) : Coroutine
         // dart -> platform -> dart
         // - need Context
         MethodChannel(messenger, DeviceHandler.CHANNEL).setMethodCallHandler(DeviceHandler(context))
+        MethodChannel(messenger, FaceDetectionHandler.CHANNEL).setMethodCallHandler(FaceDetectionHandler(context))
         MethodChannel(messenger, GeocodingHandler.CHANNEL).setMethodCallHandler(GeocodingHandler(context))
         MethodChannel(messenger, MediaFetchObjectHandler.CHANNEL).setMethodCallHandler(MediaFetchObjectHandler(context))
         MethodChannel(messenger, MediaStoreHandler.CHANNEL).setMethodCallHandler(MediaStoreHandler(context))

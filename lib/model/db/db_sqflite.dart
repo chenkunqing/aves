@@ -34,6 +34,8 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   static const vaultTable = SqfliteLocalMediaDbSchema.vaultTable;
   static const trashTable = SqfliteLocalMediaDbSchema.trashTable;
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
+  static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
+  static const entryFacesTable = SqfliteLocalMediaDbSchema.entryFacesTable;
 
   static const _entryInsertSliceMaxCount = 10000; // number of entries
   static const _queryCursorBufferSize = 1000; // number of rows
@@ -48,7 +50,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       await path,
       onCreate: (db, version) => SqfliteLocalMediaDbSchema.createLatestVersion(db),
       onUpgrade: LocalMediaDbUpgrader.upgradeDb,
-      version: 15,
+      version: 17,
     );
 
     final maxIdRows = await _db.rawQuery('SELECT MAX(id) AS maxId FROM $entryTable');
@@ -96,6 +98,8 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
         batch.delete(coverTable, where: coverWhere, whereArgs: whereArgs);
         batch.delete(trashTable, where: where, whereArgs: whereArgs);
         batch.delete(videoPlaybackTable, where: where, whereArgs: whereArgs);
+        batch.delete(entryColorsTable, where: 'entryId = ?', whereArgs: whereArgs);
+        batch.delete(entryFacesTable, where: 'entryId = ?', whereArgs: whereArgs);
       }
     });
     await batch.commit(noResult: true);
@@ -686,6 +690,92 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
     // using array in `whereArgs` and using it with `where arg IN ?` is a pain, so we prefer `batch` instead
     final batch = _db.batch();
     ids.forEach((id) => batch.delete(videoPlaybackTable, where: 'id = ?', whereArgs: [id]));
+    await batch.commit(noResult: true);
+  }
+
+  // entry colors
+
+  @override
+  Future<void> clearEntryColors() async {
+    final count = await _db.delete(entryColorsTable, where: '1');
+    debugPrint('$runtimeType clearEntryColors deleted $count rows');
+  }
+
+  @override
+  Future<Map<int, List<int>>> loadAllEntryColors() async {
+    final result = <int, List<int>>{};
+    final cursor = await _db.queryCursor(entryColorsTable, bufferSize: _queryCursorBufferSize);
+    while (await cursor.moveNext()) {
+      final row = cursor.current;
+      final entryId = row['entryId'] as int;
+      final colorValue = row['colorValue'] as int;
+      result.putIfAbsent(entryId, () => []).add(colorValue);
+    }
+    return result;
+  }
+
+  @override
+  Future<void> saveEntryColors(int entryId, List<int> colors) async {
+    if (colors.isEmpty) return;
+    final batch = _db.batch();
+    batch.delete(entryColorsTable, where: 'entryId = ?', whereArgs: [entryId]);
+    for (final color in colors) {
+      batch.insert(
+        entryColorsTable,
+        {'entryId': entryId, 'colorValue': color},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  @override
+  Future<void> removeEntryColorsByIds(Set<int> ids) async {
+    if (ids.isEmpty) return;
+    final batch = _db.batch();
+    ids.forEach((id) => batch.delete(entryColorsTable, where: 'entryId = ?', whereArgs: [id]));
+    await batch.commit(noResult: true);
+  }
+
+  // entry faces
+
+  @override
+  Future<void> clearEntryFaces() async {
+    final count = await _db.delete(entryFacesTable, where: '1');
+    debugPrint('$runtimeType clearEntryFaces deleted $count rows');
+  }
+
+  @override
+  Future<Map<int, int>> loadAllEntryFaces() async {
+    final result = <int, int>{};
+    final cursor = await _db.queryCursor(entryFacesTable, bufferSize: _queryCursorBufferSize);
+    while (await cursor.moveNext()) {
+      final row = cursor.current;
+      final entryId = row['entryId'] as int;
+      final faceCount = row['faceCount'] as int;
+      result[entryId] = faceCount;
+    }
+    return result;
+  }
+
+  @override
+  Future<void> saveEntryFaces(int entryId, int faceCount, String? boundingBoxes) async {
+    await _db.insert(
+      entryFacesTable,
+      {
+        'entryId': entryId,
+        'faceCount': faceCount,
+        'boundingBoxes': boundingBoxes,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  @override
+  Future<void> removeEntryFacesByIds(Set<int> ids) async {
+    if (ids.isEmpty) return;
+    final batch = _db.batch();
+    ids.forEach((id) => batch.delete(entryFacesTable, where: 'entryId = ?', whereArgs: [id]));
     await batch.commit(noResult: true);
   }
 

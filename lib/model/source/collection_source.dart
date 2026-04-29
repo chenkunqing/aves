@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/catalog.dart';
+import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/entry/extensions/keys.dart';
 import 'package:aves/model/entry/extensions/location.dart';
 import 'package:aves/model/entry/sort.dart';
@@ -24,6 +25,7 @@ import 'package:aves/model/source/location/country.dart';
 import 'package:aves/model/source/location/location.dart';
 import 'package:aves/model/source/location/place.dart';
 import 'package:aves/model/source/location/state.dart';
+import 'package:aves/model/source/face.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/model/source/trash.dart';
 import 'package:aves/model/vaults/vaults.dart';
@@ -67,7 +69,7 @@ mixin SourceBase {
   void invalidateEntries();
 }
 
-abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, TrashMixin {
+abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, FaceMixin, TrashMixin {
   static const fullScope = <CollectionFilter>{};
 
   CollectionSource() {
@@ -513,6 +515,11 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
           final opCount = (force ? todoEntries : todoEntries.where(TagMixin.catalogEntriesTest)).length;
           startAnalysisService = opCount > TagMixin.commitCountThreshold;
         }
+        // face detection
+        if (!startAnalysisService) {
+          final opCount = (force ? todoEntries.where((entry) => entry.isImage) : todoEntries.where(FaceMixin.faceDetectionTest)).length;
+          startAnalysisService = opCount > FaceMixin.commitCountThreshold;
+        }
         // ignore locating countries
         // locating places
         if (!startAnalysisService && await availability.canLocatePlaces) {
@@ -541,6 +548,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         updateDerivedFilters(todoEntries);
         await locateEntries(_analysisController, todoEntries);
         updateDerivedFilters(todoEntries);
+        await detectFaces(_analysisController, todoEntries);
       }
     }
     defaultAnalysisController.dispose();

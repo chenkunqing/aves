@@ -5,9 +5,13 @@ import 'dart:typed_data';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/images.dart';
+import 'package:aves/model/entry_colors.dart';
+import 'package:aves/model/filters/color.dart';
+import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/basic/color_indicator.dart';
+import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
 import 'package:aves/widgets/viewer/info/common.dart';
 import 'package:aves_utils/aves_utils.dart';
 import 'package:flex_color_picker/flex_color_picker.dart' as flex;
@@ -18,8 +22,15 @@ import 'package:provider/provider.dart';
 
 class ColorSectionSliver extends StatefulWidget {
   final AvesEntry entry;
+  final CollectionLens? collection;
+  final AFilterCallback? onFilterSelection;
 
-  const ColorSectionSliver({super.key, required this.entry});
+  const ColorSectionSliver({
+    super.key,
+    required this.entry,
+    this.collection,
+    this.onFilterSelection,
+  });
 
   @override
   State<ColorSectionSliver> createState() => _ColorSectionSliverState();
@@ -59,23 +70,7 @@ class _ColorSectionSliverState extends State<ColorSectionSliver> {
               children: [
                 const SectionRow(icon: AIcons.palette),
                 ...colors.map(
-                  (v) => Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ColorIndicator(value: v),
-                        const SizedBox(width: 8),
-                        Directionality(
-                          textDirection: TextDirection.ltr,
-                          child: SelectableText(
-                            '#${v.hex}',
-                            style: const TextStyle(fontFamily: 'monospace'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  (v) => _buildColorItem(context, v),
                 ),
               ],
             ),
@@ -85,9 +80,119 @@ class _ColorSectionSliverState extends State<ColorSectionSliver> {
     );
   }
 
-  // Extracting colors directly may block the main isolate,
-  // so we use another isolate to compute the palette
+  Widget _buildColorItem(BuildContext context, Color color) {
+    final child = Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ColorIndicator(value: color),
+          const SizedBox(width: 8),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: Text(
+              '#${color.hex}',
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (widget.onFilterSelection == null) return child;
+
+    return GestureDetector(
+      onTap: () => _onColorTap(color),
+      child: child,
+    );
+  }
+
+  Future<void> _onColorTap(Color color) async {
+    final collection = widget.collection;
+    if (collection == null) return;
+
+    final source = collection.source;
+    final allEntries = source.visibleEntries;
+    final unindexed = allEntries.where((e) => !entryColors.isIndexed(e.id)).toList();
+
+    if (unindexed.isNotEmpty) {
+      final success = await _buildIndex(context, unindexed);
+      if (!success || !mounted) return;
+    }
+
+    widget.onFilterSelection?.call(ColorFilter(color.toARGB32()));
+  }
+
+  Future<bool> _buildIndex(BuildContext context, List<AvesEntry> entries) async {
+    final total = entries.length;
+    final progressNotifier = ValueNotifier<int>(0);
+
+    unawaited(
+      _indexEntries(entries, (count) {
+        progressNotifier.value = count;
+      }).then((_) {
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop(true);
+        }
+      }),
+    );
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Text('扫描照片色彩'),
+            content: ValueListenableBuilder<int>(
+              valueListenable: progressNotifier,
+              builder: (context, indexed, _) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  LinearProgressIndicator(value: total > 0 ? indexed / total : 0),
+                  const SizedBox(height: 8),
+                  Text('$indexed / $total'),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    progressNotifier.dispose();
+    return result == true;
+  }
+
+  static Future<void> _indexEntries(
+    List<AvesEntry> entries,
+    void Function(int count) onProgress,
+  ) async {
+    var count = 0;
+    for (final entry in entries) {
+      try {
+        final provider = entry.getThumbnail(extent: min(200, entry.displaySize.longestSide));
+        final colors = await _loadPaletteStatic(provider);
+        await entryColors.save(entry.id, colors);
+      } catch (e) {
+        debugPrint('Failed to index colors for entry ${entry.id}: $e');
+      }
+      count++;
+      if (count % 5 == 0 || count == entries.length) {
+        onProgress(count);
+      }
+    }
+  }
+
   Future<List<Color>> _loadPalette(ImageProvider provider) async {
+    final colors = await _loadPaletteStatic(provider);
+    if (colors.isNotEmpty) {
+      unawaited(entryColors.save(widget.entry.id, colors));
+    }
+    return colors;
+  }
+
+  static Future<List<Color>> _loadPaletteStatic(ImageProvider provider) async {
     final stream = provider.resolve(ImageConfiguration.empty);
     final imageInfoCompleter = Completer<ImageInfo>();
     late ImageStreamListener listener;
@@ -108,9 +213,7 @@ class _ColorSectionSliverState extends State<ColorSectionSliver> {
     return await _extractColors(imageData);
   }
 
-  // the isolate does not start unless called from a static method
   static Future<List<Color>> _extractColors(ByteData encodedImage) {
-    // `Isolate.run()` closure supports passing `ByteData` but not `ui.Image`
     return Isolate.run(
       () => ColorExtractor.extract(
         imageBytes: encodedImage,

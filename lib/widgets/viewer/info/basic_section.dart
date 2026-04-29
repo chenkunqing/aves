@@ -12,7 +12,9 @@ import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/aspect_ratio.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
+import 'package:aves/model/entry_faces.dart';
 import 'package:aves/model/filters/date.dart';
+import 'package:aves/model/filters/face_count.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/filters/rating.dart';
@@ -151,6 +153,7 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
       ...dynamicAlbums.all.where((v) => v.test(entry)).toSet(),
       if (entry.rating != 0) RatingFilter(entry.rating),
       ...tags.map(TagFilter.new),
+      if (entryFaces.isGroupPhoto(entry.id)) FaceCountFilter(2),
     };
     return AnimatedBuilder(
       animation: favourites,

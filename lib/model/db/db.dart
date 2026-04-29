@@ -122,6 +122,26 @@ abstract class LocalMediaDb {
 
   Future<void> removeDynamicAlbums(Set<String> names);
 
+  // entry colors
+
+  Future<void> clearEntryColors();
+
+  Future<Map<int, List<int>>> loadAllEntryColors();
+
+  Future<void> saveEntryColors(int entryId, List<int> colors);
+
+  Future<void> removeEntryColorsByIds(Set<int> ids);
+
+  // entry faces
+
+  Future<void> clearEntryFaces();
+
+  Future<Map<int, int>> loadAllEntryFaces();
+
+  Future<void> saveEntryFaces(int entryId, int faceCount, String? boundingBoxes);
+
+  Future<void> removeEntryFacesByIds(Set<int> ids);
+
   // video playback
 
   Future<void> clearVideoPlayback();
