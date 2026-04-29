@@ -290,7 +290,6 @@ class _BasicInfo extends StatefulWidget {
 }
 
 class _BasicInfoState extends State<_BasicInfo> {
-  static const _centimetersPerInch = 2.54;
   static const _standardPrintSizes = [
     _PrintSizePreset(labelEn: '5"', labelZh: '5\u5bf8', widthInches: 5, heightInches: 3.5),
     _PrintSizePreset(labelEn: '6"', labelZh: '6\u5bf8', widthInches: 6, heightInches: 4),
@@ -335,7 +334,7 @@ class _BasicInfoState extends State<_BasicInfo> {
     final date = entry.bestDate;
     final dateText = date != null ? formatDateTime(date, locale, use24hour) : infoUnknown;
     final showResolution = !entry.isSvg && entry.isSized;
-    final printSizeText = _getPrintSizeText(context, locale);
+    final printSizeLines = _getPrintSizeLines(context);
     final sizeText = entry.sizeBytes != null ? formatFileSize(locale, entry.sizeBytes!) : infoUnknown;
     final path = entry.path;
 
@@ -352,7 +351,8 @@ class _BasicInfoState extends State<_BasicInfo> {
                 l10n.viewerInfoLabelDate: dateText,
                 if (entry.isVideo) ..._buildVideoRows(context),
                 if (showResolution) l10n.viewerInfoLabelResolution: context.applyDirectionality(getRasterResolutionText(locale)),
-                if (printSizeText != null) _printSizeLabel(context): context.applyDirectionality(printSizeText),
+                if (printSizeLines != null) _printSizeLabel(context): context.applyDirectionality(printSizeLines.$1),
+                if (printSizeLines?.$2 != null) '': context.applyDirectionality(printSizeLines!.$2!),
                 l10n.viewerInfoLabelSize: context.applyDirectionality(sizeText),
                 if (!entry.trashed) l10n.viewerInfoLabelUri: entry.uri,
                 l10n.viewerInfoLabelPath: ?path,
@@ -374,26 +374,42 @@ class _BasicInfoState extends State<_BasicInfo> {
     };
   }
 
-  String? _getPrintSizeText(BuildContext context, String locale) {
+  static const _hdDpi = 300.0;
+  static const _clearDpi = 200.0;
+
+  (String, String?)? _getPrintSizeLines(BuildContext context) {
     if (!entry.isImage || !entry.isSized || entry.isSvg) return null;
 
-    final sizeInches = entry.maxPrintSizeAt300DpiInches;
-    if (sizeInches.width <= 0 || sizeInches.height <= 0) return null;
+    final sizeAt300 = entry.maxPrintSizeAtDpiInches(_hdDpi);
+    final sizeAt200 = entry.maxPrintSizeAtDpiInches(_clearDpi);
+    if (sizeAt200.width <= 0 || sizeAt200.height <= 0) return null;
 
-    final numberFormat = NumberFormat('0.0', locale);
-    final widthInches = numberFormat.format(sizeInches.width);
-    final heightInches = numberFormat.format(sizeInches.height);
-    final widthCentimeters = numberFormat.format(sizeInches.width * _centimetersPerInch);
-    final heightCentimeters = numberFormat.format(sizeInches.height * _centimetersPerInch);
-    final preset = _getBestPrintSizePreset(sizeInches);
+    final hdPreset = _getBestPrintSizePreset(sizeAt300);
+    final clearPreset = _getBestPrintSizePreset(sizeAt200);
     final isChinese = context.locale.startsWith('zh');
-    final recommendation = preset == null
-        ? ''
-        : isChinese
-        ? '\uff0c\u9002\u5408\u5370${preset.labelZh}\u53ca\u4ee5\u4e0b'
-        : ', fits ${preset.labelEn} or smaller';
 
-    return '$widthInches x $heightInches in ($widthCentimeters x $heightCentimeters cm) @ ${standardPrintDpi.toInt()} DPI$recommendation';
+    if (hdPreset == null && clearPreset == null) {
+      final text = isChinese ? '\u4e0d\u5efa\u8bae\u6253\u5370\uff08\u5206\u8fa8\u7387\u4e0d\u8db3\uff09' : 'Not recommended for printing (low resolution)';
+      return (text, null);
+    }
+
+    String? hdLine;
+    String? clearLine;
+
+    if (hdPreset != null) {
+      hdLine = isChinese
+          ? '\u9002\u5408\u6253\u5370${hdPreset.labelZh}\u7167\u7247\uff08\u9ad8\u6e05\uff09'
+          : 'Suitable for ${hdPreset.labelEn} prints (HD)';
+    }
+    if (clearPreset != null && clearPreset != hdPreset) {
+      clearLine = isChinese
+          ? '\u6700\u5927\u53ef\u6253\u5370${clearPreset.labelZh}\u7167\u7247\uff08\u753b\u8d28\u6e05\u6670\uff09'
+          : 'Max ${clearPreset.labelEn} prints (clear quality)';
+    }
+
+    if (hdLine != null) return (hdLine, clearLine);
+    if (clearLine != null) return (clearLine, null);
+    return null;
   }
 
   _PrintSizePreset? _getBestPrintSizePreset(Size sizeInches) {

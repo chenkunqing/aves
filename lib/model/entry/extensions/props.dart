@@ -58,6 +58,12 @@ extension ExtraAvesEntryProps on AvesEntry {
     return Size(size.width / standardPrintDpi, size.height / standardPrintDpi);
   }
 
+  Size maxPrintSizeAtDpiInches(double dpi) {
+    final size = displaySize;
+    if (size.width <= 0 || size.height <= 0) return Size.zero;
+    return Size(size.width / dpi, size.height / dpi);
+  }
+
   // text
 
   String getResolutionText(String locale) {
