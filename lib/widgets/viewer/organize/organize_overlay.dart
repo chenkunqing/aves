@@ -21,6 +21,7 @@ class OrganizeOverlay extends StatelessWidget {
   final Future<void> Function(String albumPath) onCopyToAlbum;
   final Future<void> Function() onCreateAlbum;
   final ValueNotifier<int> albumOrderNotifier;
+  final ValueNotifier<String?> undoMessageNotifier;
 
   const OrganizeOverlay({
     super.key,
@@ -32,6 +33,7 @@ class OrganizeOverlay extends StatelessWidget {
     required this.onCopyToAlbum,
     required this.onCreateAlbum,
     required this.albumOrderNotifier,
+    required this.undoMessageNotifier,
   });
 
   @override
@@ -150,6 +152,8 @@ class OrganizeOverlay extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                _UndoMessageBubble(notifier: undoMessageNotifier),
+                const SizedBox(width: 8),
                 Selector<OrganizeBasket, bool>(
                   selector: (context, basket) => basket.canUndo,
                   builder: (context, canUndo, child) {
@@ -410,6 +414,67 @@ void _showDeletionPreview(BuildContext context) {
       );
     },
   );
+}
+
+class _UndoMessageBubble extends StatefulWidget {
+  final ValueNotifier<String?> notifier;
+
+  const _UndoMessageBubble({required this.notifier});
+
+  @override
+  State<_UndoMessageBubble> createState() => _UndoMessageBubbleState();
+}
+
+class _UndoMessageBubbleState extends State<_UndoMessageBubble> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  String? _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
+    _opacity = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.0), weight: 10),
+      TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 30),
+    ]).animate(_controller);
+    widget.notifier.addListener(_onMessage);
+  }
+
+  @override
+  void dispose() {
+    widget.notifier.removeListener(_onMessage);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onMessage() {
+    final msg = widget.notifier.value;
+    if (msg == null) return;
+    setState(() => _message = msg);
+    _controller.forward(from: 0);
+    widget.notifier.value = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_message == null) return const SizedBox.shrink();
+    return FadeTransition(
+      opacity: _opacity,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          _message!,
+          style: const TextStyle(color: Colors.white, fontSize: 13),
+        ),
+      ),
+    );
+  }
 }
 
 class _HintChip extends StatelessWidget {

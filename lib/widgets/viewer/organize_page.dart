@@ -48,6 +48,7 @@ class _OrganizePageState extends State<OrganizePage> {
   final _actionDelegate = _OrganizeActionDelegate();
   late final ValueNotifier<bool> _showHintsNotifier;
   final ValueNotifier<int> _albumOrderNotifier = ValueNotifier(0);
+  final ValueNotifier<String?> _undoMessageNotifier = ValueNotifier(null);
 
   CollectionSource get source => widget.collection.source;
 
@@ -72,6 +73,7 @@ class _OrganizePageState extends State<OrganizePage> {
     _indexNotifier.dispose();
     _showHintsNotifier.dispose();
     _albumOrderNotifier.dispose();
+    _undoMessageNotifier.dispose();
     _organizeCollection.dispose();
     super.dispose();
   }
@@ -120,6 +122,7 @@ class _OrganizePageState extends State<OrganizePage> {
                             onCopyToAlbum: _onCopyToAlbum,
                             onCreateAlbum: _onCreateAlbum,
                             albumOrderNotifier: _albumOrderNotifier,
+                            undoMessageNotifier: _undoMessageNotifier,
                           );
                         },
                       ),
@@ -144,7 +147,7 @@ class _OrganizePageState extends State<OrganizePage> {
       UndoMarkForDeletion() => l10n.organizeUndoDeletion,
       UndoToggleFavourite() => l10n.organizeUndoFavourite,
     };
-    _actionDelegate.showFeedback(context, FeedbackType.info, message);
+    _undoMessageNotifier.value = message;
   }
 
   Future<void> _onCreateAlbum() async {
