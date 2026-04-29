@@ -1,6 +1,4 @@
 import 'package:aves/model/settings/settings.dart';
-import 'package:aves/theme/icons.dart';
-import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/settings/navigation/drawer_editor_banner.dart';
 import 'package:flutter/material.dart';
@@ -64,10 +62,9 @@ class _DrawerFixedListTabState<T> extends State<DrawerFixedListTab<T>> {
                     child: ListTile(
                       leading: widget.leading(filter),
                       title: widget.title(filter),
-                      trailing: IconButton(
-                        icon: Icon(visible ? AIcons.hide : AIcons.show),
-                        onPressed: onPressed,
-                        tooltip: visible ? context.l10n.hideTooltip : context.l10n.showTooltip,
+                      trailing: Switch(
+                        value: visible,
+                        onChanged: (_) => onPressed(),
                       ),
                       onTap: settings.useTvLayout ? onPressed : null,
                     ),
