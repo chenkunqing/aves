@@ -30,7 +30,10 @@ class _CustomAspectRatioDialogState extends State<CustomAspectRatioDialog> {
     AspectRatioFilter.ratio5x4,
     AspectRatioFilter.ratio21x9,
     AspectRatioFilter.ratio9x21,
+    AspectRatioFilter.ratio20x9,
+    AspectRatioFilter.ratio195x9,
     AspectRatioFilter.ratio27x10,
+    AspectRatioFilter.ratio3x1,
     AspectRatioFilter.ratio2x1,
     AspectRatioFilter.ratio1x2,
   ];

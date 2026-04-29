@@ -27,6 +27,11 @@ class AspectRatioFilter extends CollectionFilter {
   static final ratio21x9 = AspectRatioFilter(21 / 9, QueryFilter.opEqual, tolerance: 0.03, ratioText: '21${UniChars.ratio}9');
   static final ratio9x21 = AspectRatioFilter(9 / 21, QueryFilter.opEqual, tolerance: 0.03, ratioText: '9${UniChars.ratio}21');
   static final ratio27x10 = AspectRatioFilter(27 / 10, QueryFilter.opEqual, tolerance: 0.05, ratioText: 'XPAN');
+  static final ratio3x1 = AspectRatioFilter(3 / 1, QueryFilter.opEqual, tolerance: 0.05, ratioText: '3${UniChars.ratio}1');
+  static final ratio20x9 = AspectRatioFilter(20 / 9, QueryFilter.opEqual, tolerance: 0.05, ratioText: '20${UniChars.ratio}9');
+  static final ratio9x20 = AspectRatioFilter(9 / 20, QueryFilter.opEqual, tolerance: 0.05, ratioText: '9${UniChars.ratio}20');
+  static final ratio195x9 = AspectRatioFilter(19.5 / 9, QueryFilter.opEqual, tolerance: 0.05, ratioText: '19.5${UniChars.ratio}9');
+  static final ratio9x195 = AspectRatioFilter(9 / 19.5, QueryFilter.opEqual, tolerance: 0.05, ratioText: '9${UniChars.ratio}19.5');
   static final ratio2x1 = AspectRatioFilter(2 / 1, QueryFilter.opEqual, tolerance: 0.03, ratioText: '2${UniChars.ratio}1');
   static final ratio1x2 = AspectRatioFilter(1 / 2, QueryFilter.opEqual, tolerance: 0.03, ratioText: '1${UniChars.ratio}2');
   static final ratio1x1 = AspectRatioFilter(1, QueryFilter.opEqual, tolerance: 0.03, ratioText: '1${UniChars.ratio}1');
@@ -93,7 +98,7 @@ class AspectRatioFilter extends CollectionFilter {
     return '$op $display';
   }
 
-  bool get isPredefinedRatio => this == ratio4x3 || this == ratio3x4 || this == ratio16x9 || this == ratio9x16 || this == ratio3x2 || this == ratio2x3 || this == ratio4x5 || this == ratio5x4 || this == ratio27x10 || this == ratio21x9 || this == ratio9x21 || this == ratio2x1 || this == ratio1x2 || this == ratio1x1;
+  bool get isPredefinedRatio => this == ratio4x3 || this == ratio3x4 || this == ratio16x9 || this == ratio9x16 || this == ratio3x2 || this == ratio2x3 || this == ratio4x5 || this == ratio5x4 || this == ratio27x10 || this == ratio21x9 || this == ratio9x21 || this == ratio3x1 || this == ratio20x9 || this == ratio9x20 || this == ratio195x9 || this == ratio9x195 || this == ratio2x1 || this == ratio1x2 || this == ratio1x1;
 
   @override
   String getLabel(BuildContext context) {
