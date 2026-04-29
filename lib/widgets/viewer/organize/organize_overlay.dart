@@ -17,7 +17,9 @@ class OrganizeOverlay extends StatelessWidget {
   final int totalCount;
   final VoidCallback onUndo;
   final bool showHints;
+  final VoidCallback onShowHints;
   final Future<void> Function(String albumPath) onCopyToAlbum;
+  final Future<void> Function() onCreateAlbum;
   final ValueNotifier<int> albumOrderNotifier;
 
   const OrganizeOverlay({
@@ -26,7 +28,9 @@ class OrganizeOverlay extends StatelessWidget {
     required this.totalCount,
     required this.onUndo,
     required this.showHints,
+    required this.onShowHints,
     required this.onCopyToAlbum,
+    required this.onCreateAlbum,
     required this.albumOrderNotifier,
   });
 
@@ -64,22 +68,34 @@ class OrganizeOverlay extends StatelessWidget {
               onPressed: () => Navigator.maybePop(context),
             ),
             const Spacer(),
-            ValueListenableBuilder<int>(
-              valueListenable: indexNotifier,
-              builder: (context, index, child) {
-                final displayIndex = (index + 1).clamp(1, totalCount);
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    '$displayIndex / $totalCount',
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                );
-              },
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ValueListenableBuilder<int>(
+                  valueListenable: indexNotifier,
+                  builder: (context, index, child) {
+                    final displayIndex = (index + 1).clamp(1, totalCount);
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '$displayIndex / $totalCount',
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.info_outline, size: 20),
+                  color: Colors.white70,
+                  padding: const EdgeInsets.only(left: 4),
+                  constraints: const BoxConstraints(),
+                  onPressed: onShowHints,
+                ),
+              ],
             ),
             const Spacer(),
             Selector<OrganizeBasket, int>(
@@ -151,7 +167,7 @@ class OrganizeOverlay extends StatelessWidget {
               ],
             ),
           ),
-          _OrganizeAlbumStrip(onCopyToAlbum: onCopyToAlbum, albumOrderNotifier: albumOrderNotifier),
+          _OrganizeAlbumStrip(onCopyToAlbum: onCopyToAlbum, onCreateAlbum: onCreateAlbum, albumOrderNotifier: albumOrderNotifier),
         ],
       ),
     );
@@ -179,9 +195,10 @@ class OrganizeOverlay extends StatelessWidget {
 
 class _OrganizeAlbumStrip extends StatelessWidget {
   final Future<void> Function(String albumPath) onCopyToAlbum;
+  final Future<void> Function() onCreateAlbum;
   final ValueNotifier<int> albumOrderNotifier;
 
-  const _OrganizeAlbumStrip({required this.onCopyToAlbum, required this.albumOrderNotifier});
+  const _OrganizeAlbumStrip({required this.onCopyToAlbum, required this.onCreateAlbum, required this.albumOrderNotifier});
 
   List<String> _buildAlbumList(CollectionSource source) {
     final rawAlbums = source.rawAlbums;
@@ -201,7 +218,6 @@ class _OrganizeAlbumStrip extends StatelessWidget {
       valueListenable: albumOrderNotifier,
       builder: (context, _, child) {
         final albums = _buildAlbumList(source);
-        if (albums.isEmpty) return const SizedBox();
 
         return Container(
           decoration: BoxDecoration(
@@ -224,10 +240,18 @@ class _OrganizeAlbumStrip extends StatelessWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  itemCount: albums.length,
+                  itemCount: albums.length + 1,
                   separatorBuilder: (context, index) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
-                    final album = albums[index];
+                    if (index == 0) {
+                      return _AlbumChip(
+                        albumPath: '',
+                        displayName: l10n.newAlbumDialogTitle,
+                        icon: Icons.add,
+                        onTap: onCreateAlbum,
+                      );
+                    }
+                    final album = albums[index - 1];
                     final displayName = source.getStoredAlbumDisplayName(context, album);
                     return _AlbumChip(
                       albumPath: album,
@@ -249,6 +273,7 @@ class _OrganizeAlbumStrip extends StatelessWidget {
 class _AlbumChip extends StatelessWidget {
   final String albumPath;
   final String displayName;
+  final IconData icon;
   final VoidCallback onTap;
 
   static const _maxChars = 8;
@@ -256,6 +281,7 @@ class _AlbumChip extends StatelessWidget {
   const _AlbumChip({
     required this.albumPath,
     required this.displayName,
+    this.icon = Icons.download,
     required this.onTap,
   });
 
@@ -269,7 +295,7 @@ class _AlbumChip extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.download, size: 22, color: Colors.white70),
+            Icon(icon, size: 22, color: Colors.white70),
             const SizedBox(height: 2),
             Text(
               truncated,

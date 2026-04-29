@@ -144,15 +144,12 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
         child: Stack(
           fit: StackFit.expand,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: ThumbnailImage(
-                entry: entry,
-                extent: maxWidth,
-                devicePixelRatio: dpr,
-                fit: BoxFit.contain,
-                showLoadingBackground: true,
-              ),
+            ThumbnailImage(
+              entry: entry,
+              extent: maxWidth,
+              devicePixelRatio: dpr,
+              fit: BoxFit.contain,
+              showLoadingBackground: true,
             ),
             if (entry.isFavourite)
               Positioned(
@@ -186,10 +183,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
             child: Opacity(
               opacity: clampedProgress * 0.6,
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.red,
-                ),
+                color: Colors.red,
                 child: const Center(
                   child: Icon(AIcons.bin, size: 80, color: Colors.white),
                 ),
@@ -203,10 +197,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
             child: Opacity(
               opacity: clampedProgress * 0.6,
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.amber,
-                ),
+                color: Colors.amber,
                 child: const Center(
                   child: Icon(AIcons.favourite, size: 80, color: Colors.white),
                 ),

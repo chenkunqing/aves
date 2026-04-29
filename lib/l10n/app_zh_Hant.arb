@@ -1672,6 +1672,10 @@
     },
     "organizeUndoTooltip": "撤銷",
     "@organizeUndoTooltip": {},
+    "organizeUndoDeletion": "撤銷刪除",
+    "@organizeUndoDeletion": {},
+    "organizeUndoFavourite": "撤銷收藏",
+    "@organizeUndoFavourite": {},
     "organizeComplete": "所有項目已整理完畢",
     "@organizeComplete": {}
 }

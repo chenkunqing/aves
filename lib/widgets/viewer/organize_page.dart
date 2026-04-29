@@ -15,6 +15,7 @@ import 'package:aves/widgets/common/action_mixins/size_aware.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/empty.dart';
+import 'package:aves/widgets/dialogs/filter_editors/create_stored_album_dialog.dart';
 import 'package:aves/widgets/viewer/organize/organize_card_stack.dart';
 import 'package:aves/widgets/viewer/organize/organize_exit_dialog.dart';
 import 'package:aves/widgets/viewer/organize/organize_overlay.dart';
@@ -45,7 +46,7 @@ class _OrganizePageState extends State<OrganizePage> {
   late final CollectionLens _organizeCollection;
   late final List<AvesEntry> _entries;
   final _actionDelegate = _OrganizeActionDelegate();
-  final ValueNotifier<bool> _showHintsNotifier = ValueNotifier(true);
+  late final ValueNotifier<bool> _showHintsNotifier;
   final ValueNotifier<int> _albumOrderNotifier = ValueNotifier(0);
 
   CollectionSource get source => widget.collection.source;
@@ -53,6 +54,7 @@ class _OrganizePageState extends State<OrganizePage> {
   @override
   void initState() {
     super.initState();
+    _showHintsNotifier = ValueNotifier(!settings.hasSeenOrganizeHints);
     _indexNotifier = ValueNotifier(widget.initialIndex);
     _organizeCollection = CollectionLens(
       source: source,
@@ -100,7 +102,10 @@ class _OrganizePageState extends State<OrganizePage> {
                           key: _cardStackKey,
                           entries: _entries,
                           indexNotifier: _indexNotifier,
-                          onFirstInteraction: () => _showHintsNotifier.value = false,
+                          onFirstInteraction: () {
+                            _showHintsNotifier.value = false;
+                            settings.hasSeenOrganizeHints = true;
+                          },
                         ),
                       ),
                       ValueListenableBuilder<bool>(
@@ -111,7 +116,9 @@ class _OrganizePageState extends State<OrganizePage> {
                             totalCount: _entries.length,
                             onUndo: _onUndo,
                             showHints: showHints,
+                            onShowHints: () => _showHintsNotifier.value = true,
                             onCopyToAlbum: _onCopyToAlbum,
+                            onCreateAlbum: _onCreateAlbum,
                             albumOrderNotifier: _albumOrderNotifier,
                           );
                         },
@@ -126,9 +133,30 @@ class _OrganizePageState extends State<OrganizePage> {
 
   void _onUndo() {
     final action = _basket.undo();
+    if (action == null) return;
+
     if (action is UndoMarkForDeletion) {
       _cardStackKey.currentState?.goToIndex(action.atIndex);
     }
+
+    final l10n = context.l10n;
+    final message = switch (action) {
+      UndoMarkForDeletion() => l10n.organizeUndoDeletion,
+      UndoToggleFavourite() => l10n.organizeUndoFavourite,
+    };
+    _actionDelegate.showFeedback(context, FeedbackType.info, message);
+  }
+
+  Future<void> _onCreateAlbum() async {
+    final albumPath = await showDialog<String>(
+      context: context,
+      builder: (context) => const CreateStoredAlbumDialog(),
+    );
+    if (albumPath == null || !mounted) return;
+
+    source.createStoredAlbum(albumPath);
+    _albumOrderNotifier.value++;
+    await _onCopyToAlbum(albumPath);
   }
 
   Future<void> _onCopyToAlbum(String albumPath) async {
