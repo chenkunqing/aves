@@ -68,17 +68,18 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
   static final aspectRatioFilters = [
     AspectRatioFilter.landscape,
     AspectRatioFilter.portrait,
+    AspectRatioFilter.ratio27x10,
+    AspectRatioFilter.customPrompt,
+    AspectRatioFilter.ratio1x1,
     AspectRatioFilter.ratio4x3,
     AspectRatioFilter.ratio3x2,
     AspectRatioFilter.ratio16x9,
     AspectRatioFilter.ratio21x9,
     AspectRatioFilter.ratio20x9,
     AspectRatioFilter.ratio195x9,
-    AspectRatioFilter.ratio27x10,
     AspectRatioFilter.ratio3x1,
     AspectRatioFilter.ratio2x1,
     AspectRatioFilter.ratio5x4,
-    AspectRatioFilter.ratio1x1,
     AspectRatioFilter.ratio4x5,
     AspectRatioFilter.ratio2x3,
     AspectRatioFilter.ratio9x16,
@@ -87,7 +88,6 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     AspectRatioFilter.ratio9x21,
     AspectRatioFilter.ratio1x2,
     AspectRatioFilter.ratio3x4,
-    AspectRatioFilter.customPrompt,
   ];
 
   static final _monthFilters = List.generate(12, (i) => DateFilter(DateLevel.m, DateTime(1, i + 1)));
