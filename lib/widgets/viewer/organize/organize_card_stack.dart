@@ -7,6 +7,7 @@ import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/thumbnail/image.dart';
+import 'package:aves/widgets/viewer/organize/organize_zoom_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +40,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
   _SwipeDirection? _currentDirection;
   bool _showFavouriteAnimation = false;
   int? _pendingIndex;
+  bool _isShowingZoom = false;
 
   static const _dismissThresholdVertical = 0.25;
   static const _dismissThresholdHorizontal = 0.3;
@@ -112,9 +114,9 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
   Widget _buildCurrentCard(Size size) {
     final entry = entries[currentIndex];
     return GestureDetector(
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
+      onScaleStart: _onScaleStart,
+      onScaleUpdate: _onScaleUpdate,
+      onScaleEnd: _onScaleEnd,
       child: AnimatedBuilder(
         animation: Listenable.merge([_dismissController, _snapBackController]),
         builder: (context, child) {
@@ -243,7 +245,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
     }
   }
 
-  void _onPanStart(DragStartDetails details) {
+  void _onScaleStart(ScaleStartDetails details) {
     if (_dismissController.isAnimating || _snapBackController.isAnimating) return;
     widget.onFirstInteraction?.call();
     setState(() {
@@ -254,16 +256,22 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
     });
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
+  void _onScaleUpdate(ScaleUpdateDetails details) {
     if (!_isDragging) return;
+
+    if (details.pointerCount >= 2) {
+      _cancelDragAndShowZoom();
+      return;
+    }
+
     setState(() {
-      _dragOffset += details.delta;
+      _dragOffset += details.focalPointDelta;
       _rotation = _dragOffset.dx / MediaQuery.sizeOf(context).width * _maxRotation;
       _currentDirection = _computeDirection();
     });
   }
 
-  void _onPanEnd(DragEndDetails details) {
+  void _onScaleEnd(ScaleEndDetails details) {
     if (!_isDragging) return;
     _isDragging = false;
 
@@ -290,6 +298,23 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
     } else {
       _snapBack();
     }
+  }
+
+  void _cancelDragAndShowZoom() {
+    setState(() {
+      _isDragging = false;
+      _dragOffset = Offset.zero;
+      _rotation = 0;
+      _currentDirection = null;
+    });
+    _showZoomPreview();
+  }
+
+  Future<void> _showZoomPreview() async {
+    if (_isShowingZoom || currentIndex >= entries.length) return;
+    _isShowingZoom = true;
+    await showOrganizeZoomPreview(context, entries[currentIndex]);
+    _isShowingZoom = false;
   }
 
   _SwipeDirection? _computeDirection() {
