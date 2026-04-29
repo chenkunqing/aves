@@ -14,6 +14,7 @@ import 'package:aves_model/aves_model.dart';
 class SettingsDefaults {
   // app
   static const hasAcceptedTerms = false;
+  static const hasSeenOrganizeHints = false;
   static const canUseAnalysisService = true;
   static const isInstalledAppAccessAllowed = false;
   static const isErrorReportingAllowed = false;

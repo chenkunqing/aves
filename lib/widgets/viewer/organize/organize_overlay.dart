@@ -82,7 +82,42 @@ class OrganizeOverlay extends StatelessWidget {
               },
             ),
             const Spacer(),
-            const SizedBox(width: 48),
+            Selector<OrganizeBasket, int>(
+              selector: (context, basket) => basket.deletionCount,
+              builder: (context, count, child) {
+                if (count == 0) return const SizedBox(width: 48);
+                return GestureDetector(
+                  onTap: () => _showDeletionPreview(context),
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(AIcons.bin, size: 24, color: Colors.white),
+                        Positioned(
+                          top: 4,
+                          right: 2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -97,35 +132,8 @@ class OrganizeOverlay extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Selector<OrganizeBasket, int>(
-                  selector: (context, basket) => basket.deletionCount,
-                  builder: (context, count, child) {
-                    if (count == 0) return const SizedBox(width: 48);
-                    return GestureDetector(
-                      onTap: () => _showDeletionPreview(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(AIcons.bin, size: 18, color: Colors.white),
-                            const SizedBox(width: 6),
-                            Text(
-                              l10n.organizeMarkedForDeletion(count),
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
                 Selector<OrganizeBasket, bool>(
                   selector: (context, basket) => basket.canUndo,
                   builder: (context, canUndo, child) {

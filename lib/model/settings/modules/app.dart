@@ -18,6 +18,10 @@ mixin AppSettings on SettingsAccess {
 
   set hasAcceptedTerms(bool newValue) => set(SettingKeys.hasAcceptedTermsKey, newValue);
 
+  bool get hasSeenOrganizeHints => getBool(SettingKeys.hasSeenOrganizeHintsKey) ?? SettingsDefaults.hasSeenOrganizeHints;
+
+  set hasSeenOrganizeHints(bool newValue) => set(SettingKeys.hasSeenOrganizeHintsKey, newValue);
+
   bool get canUseAnalysisService => getBool(SettingKeys.canUseAnalysisServiceKey) ?? SettingsDefaults.canUseAnalysisService;
 
   set canUseAnalysisService(bool newValue) => set(SettingKeys.canUseAnalysisServiceKey, newValue);
