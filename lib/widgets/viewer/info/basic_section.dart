@@ -9,6 +9,7 @@ import 'package:aves/model/entry/extensions/favourites.dart';
 import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/favourites.dart';
+import 'package:aves/model/filters/aspect_ratio.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/date.dart';
@@ -62,6 +63,15 @@ class BasicSection extends StatefulWidget {
 }
 
 class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClientMixin {
+  static final _commonRatioFilters = [
+    AspectRatioFilter.ratio1x1,
+    AspectRatioFilter.ratio4x3,
+    AspectRatioFilter.ratio3x4,
+    AspectRatioFilter.ratio16x9,
+    AspectRatioFilter.ratio9x16,
+    AspectRatioFilter.ratio27x10,
+  ];
+
   final FocusNode _chipFocusNode = FocusNode();
 
   CollectionLens? get collection => widget.collection;
@@ -136,6 +146,7 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
       if (entry.isImage && entry.is360) TypeFilter.panorama,
       if (entry.isPureVideo && entry.is360) TypeFilter.sphericalVideo,
       if (entry.isPureVideo && !entry.is360) MimeFilter.video,
+      if (entry.isSized) ..._commonRatioFilters.where((f) => f.test(entry)),
       if (dateTime != null) ...[DateFilter(DateLevel.ymd, dateTime.date), WeekDayFilter(dateTime.weekday)],
       if (album != null) StoredAlbumFilter(album, collection?.source.getStoredAlbumDisplayName(context, album)),
       ...dynamicAlbums.all.where((v) => v.test(entry)).toSet(),

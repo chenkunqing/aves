@@ -196,6 +196,7 @@ class AIcons {
   static const aspectRatioSquare = Symbols.crop_square;
   static const aspectRatio_16_9 = Symbols.crop_16_9;
   static const aspectRatio_4_3 = Symbols.crop_landscape;
+  static const aspectRatioPortrait = Symbols.crop_portrait;
 
   // albums
   static const album = Symbols.photo_album;

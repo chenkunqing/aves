@@ -1,5 +1,6 @@
 import 'package:aves/model/filters/aspect_ratio.dart';
 import 'package:aves/model/filters/query.dart';
+import 'package:aves/ref/unicode.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/providers/media_query_data_provider.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
@@ -13,63 +14,117 @@ class CustomAspectRatioDialog extends StatefulWidget {
   @override
   State<CustomAspectRatioDialog> createState() => _CustomAspectRatioDialogState();
 
-  static String promptLabel(BuildContext context) => context.locale.startsWith('zh') ? '\u81ea\u5b9a\u4e49\u6bd4\u4f8b' : 'Custom ratio';
+  static String promptLabel(BuildContext context) => context.locale.startsWith('zh') ? '自定义比例' : 'Custom ratio';
 }
 
 class _CustomAspectRatioDialogState extends State<CustomAspectRatioDialog> {
-  final TextEditingController _ratioController = TextEditingController();
-  final TextEditingController _toleranceController = TextEditingController(text: '0.01');
+  final TextEditingController _widthController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
 
   AspectRatioFilter? _filter;
-  String? _ratioErrorText, _toleranceErrorText;
+
+  static final _presets = [
+    AspectRatioFilter.ratio3x2,
+    AspectRatioFilter.ratio2x3,
+    AspectRatioFilter.ratio4x5,
+    AspectRatioFilter.ratio5x4,
+    AspectRatioFilter.ratio21x9,
+    AspectRatioFilter.ratio9x21,
+    AspectRatioFilter.ratio27x10,
+    AspectRatioFilter.ratio2x1,
+    AspectRatioFilter.ratio1x2,
+  ];
 
   @override
   void dispose() {
-    _ratioController.dispose();
-    _toleranceController.dispose();
+    _widthController.dispose();
+    _heightController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final texts = _DialogTexts.of(context);
-    _recomputeValidation(texts);
+    final isChinese = context.locale.startsWith('zh');
+    _recomputeFilter();
     return MediaQueryDataProvider(
       child: Builder(
         builder: (context) {
           return AvesDialog(
             title: CustomAspectRatioDialog.promptLabel(context),
             scrollableContent: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: TextField(
-                  controller: _ratioController,
-                  decoration: InputDecoration(
-                    labelText: texts.ratioLabel,
-                    helperText: _ratioErrorText == null ? texts.ratioHelp : null,
-                    errorText: _ratioErrorText,
-                  ),
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  onChanged: (_) => setState(() => _recomputeValidation(texts)),
-                  onSubmitted: (_) => FocusScope.of(context).nextFocus(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _presets.map((filter) {
+                    return ActionChip(
+                      label: Text(filter.ratioText ?? filter.universalLabel),
+                      onPressed: () => Navigator.maybeOf(context)?.pop(filter),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        isChinese ? '或手动输入' : 'or enter manually',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: TextField(
-                  controller: _toleranceController,
-                  decoration: InputDecoration(
-                    labelText: texts.toleranceLabel,
-                    helperText: _buildToleranceHelperText(texts),
-                    errorText: _toleranceErrorText,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.done,
-                  onChanged: (_) => setState(() => _recomputeValidation(texts)),
-                  onSubmitted: (_) => _submit(context),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _widthController,
+                        decoration: InputDecoration(
+                          labelText: isChinese ? '宽' : 'W',
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        textAlign: TextAlign.center,
+                        textInputAction: TextInputAction.next,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        ':',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _heightController,
+                        decoration: InputDecoration(
+                          labelText: isChinese ? '高' : 'H',
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        textAlign: TextAlign.center,
+                        textInputAction: TextInputAction.done,
+                        onChanged: (_) => setState(() {}),
+                        onSubmitted: (_) => _submitCustom(context),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),
@@ -77,7 +132,7 @@ class _CustomAspectRatioDialogState extends State<CustomAspectRatioDialog> {
             actions: [
               const CancelButton(),
               TextButton(
-                onPressed: _filter != null ? () => _submit(context) : null,
+                onPressed: _filter != null ? () => _submitCustom(context) : null,
                 child: Text(context.l10n.applyButtonLabel),
               ),
             ],
@@ -87,58 +142,29 @@ class _CustomAspectRatioDialogState extends State<CustomAspectRatioDialog> {
     );
   }
 
-  void _recomputeValidation(_DialogTexts texts) {
-    final parsedRatio = AspectRatioFilter.tryParseRatio(_ratioController.text);
-    final tolerance = double.tryParse(_toleranceController.text.trim());
-
-    _ratioErrorText = parsedRatio == null ? texts.ratioError : null;
-    _toleranceErrorText = tolerance == null || tolerance < 0 ? texts.toleranceError : null;
-
-    _filter = parsedRatio != null && tolerance != null && tolerance >= 0
-        ? AspectRatioFilter(
-            parsedRatio.$1,
-            QueryFilter.opEqual,
-            tolerance: tolerance,
-            ratioText: parsedRatio.$2,
-          )
-        : null;
+  void _recomputeFilter() {
+    final w = double.tryParse(_widthController.text.trim());
+    final h = double.tryParse(_heightController.text.trim());
+    if (w != null && h != null && w > 0 && h > 0) {
+      _filter = AspectRatioFilter(
+        w / h,
+        QueryFilter.opEqual,
+        tolerance: AspectRatioFilter.customTolerance,
+        ratioText: '${_formatInput(w)}${UniChars.ratio}${_formatInput(h)}',
+      );
+    } else {
+      _filter = null;
+    }
   }
 
-  String _buildToleranceHelperText(_DialogTexts texts) {
-    final filter = _filter;
-    if (filter == null) return texts.toleranceHelp;
-
-    final minRatio = AspectRatioFilter.formatNumber(filter.threshold - filter.tolerance);
-    final maxRatio = AspectRatioFilter.formatNumber(filter.threshold + filter.tolerance);
-    return texts.preview(minRatio, maxRatio);
+  String _formatInput(double v) {
+    return v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
   }
 
-  void _submit(BuildContext context) {
+  void _submitCustom(BuildContext context) {
     final filter = _filter;
     if (filter != null) {
       Navigator.maybeOf(context)?.pop(filter);
     }
   }
-}
-
-class _DialogTexts {
-  final bool isChinese;
-
-  const _DialogTexts._(this.isChinese);
-
-  factory _DialogTexts.of(BuildContext context) => _DialogTexts._(context.locale.startsWith('zh'));
-
-  String get ratioLabel => isChinese ? '\u76ee\u6807\u6bd4\u4f8b' : 'Target ratio';
-
-  String get toleranceLabel => isChinese ? '\u5bb9\u5dee' : 'Tolerance';
-
-  String get ratioHelp => isChinese ? '\u652f\u6301 3:4\u30014/3 \u6216 0.75' : 'Supports 3:4, 4/3 or 0.75';
-
-  String get toleranceHelp => isChinese ? '\u4f8b\u5982 0.01' : 'For example 0.01';
-
-  String get ratioError => isChinese ? '\u8bf7\u8f93\u5165\u5408\u6cd5\u6bd4\u4f8b' : 'Enter a valid ratio';
-
-  String get toleranceError => isChinese ? '\u8bf7\u8f93\u5165\u5927\u4e8e\u6216\u7b49\u4e8e 0 \u7684\u5bb9\u5dee' : 'Enter a tolerance greater than or equal to 0';
-
-  String preview(String minRatio, String maxRatio) => isChinese ? '\u5339\u914d\u8303\u56f4\uff1a$minRatio - $maxRatio' : 'Matches ratios from $minRatio to $maxRatio';
 }
