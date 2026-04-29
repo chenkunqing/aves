@@ -35,6 +35,8 @@ abstract class StorageService {
   // returns number of deleted directories
   Future<int> deleteEmptyRegularDirectories(Set<String> dirPaths);
 
+  Future<int> deleteDirectories(Set<String> dirPaths);
+
   Future<bool> deleteTempDirectory();
 
   Future<bool> deleteExternalCache();
@@ -212,6 +214,19 @@ class PlatformStorageService implements StorageService {
     try {
       final result = await _platform.invokeMethod('deleteEmptyDirectories', <String, Object?>{
         'dirPaths': dirPaths.where((v) => covers.effectiveAlbumType(v) == AlbumType.regular).toList(),
+      });
+      if (result != null) return result as int;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return 0;
+  }
+
+  @override
+  Future<int> deleteDirectories(Set<String> dirPaths) async {
+    try {
+      final result = await _platform.invokeMethod('deleteDirectories', <String, Object?>{
+        'dirPaths': dirPaths.toList(),
       });
       if (result != null) return result as int;
     } on PlatformException catch (e, stack) {

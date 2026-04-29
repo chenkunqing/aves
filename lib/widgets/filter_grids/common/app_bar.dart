@@ -95,6 +95,7 @@ class _FilterGridAppBarState<T extends CollectionFilter, CSAD extends ChipSetAct
     ChipSetAction.search,
   ];
   static const selectionQuickActions = [
+    ChipSetAction.delete,
     ChipSetAction.setCover,
     ChipSetAction.pin,
     ChipSetAction.unpin,

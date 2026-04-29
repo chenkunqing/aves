@@ -334,7 +334,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         entries: todoEntries,
         onSuccess: () {
           source.forgetNewAlbums(todoAlbums);
-          source.cleanEmptyAlbums(emptyAlbums);
+          source.removeAlbums(emptyAlbums);
           browse(context);
         },
       );
@@ -354,11 +354,15 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
 
     settings.pinnedFilters = settings.pinnedFilters..removeAll(filters);
     source.forgetNewAlbums(todoAlbums);
-    source.cleanEmptyAlbums(emptyAlbums);
+
+    if (emptyAlbums.isNotEmpty) {
+      await storageService.deleteDirectories(emptyAlbums);
+      source.removeAlbums(emptyAlbums);
+    }
 
     if (!await checkStoragePermissionForAlbums(context, filledAlbums)) return;
 
-    await _deleteEntriesForever(context, todoEntries);
+    await _deleteEntriesForever(context, todoEntries, todoAlbums);
 
     final vaultAlbumFilters = filters.where((v) => vaults.isVault(v.album)).toSet();
     if (vaultAlbumFilters.isNotEmpty) {
@@ -368,11 +372,10 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     }
   }
 
-  Future<void> _deleteEntriesForever(BuildContext context, Set<AvesEntry> todoEntries) async {
+  Future<void> _deleteEntriesForever(BuildContext context, Set<AvesEntry> todoEntries, [Set<String> albumDirs = const {}]) async {
     if (todoEntries.isEmpty) return;
 
     final source = context.read<CollectionSource>();
-    final filledAlbums = todoEntries.map((e) => e.directory).nonNulls.toSet();
 
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
@@ -400,7 +403,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         }
 
         // cleanup
-        await storageService.deleteEmptyRegularDirectories(filledAlbums);
+        await storageService.deleteDirectories(albumDirs);
+        source.removeAlbums(albumDirs);
       },
     );
   }

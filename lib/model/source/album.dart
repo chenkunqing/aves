@@ -97,6 +97,15 @@ mixin AlbumMixin on SourceBase {
 
   bool _isRemovable(String album) => false;
 
+  void removeAlbums(Set<String> albums) {
+    final toRemove = _directories.intersection(albums);
+    if (toRemove.isNotEmpty) {
+      _directories.removeAll(toRemove);
+      _onAlbumChanged();
+      invalidateAlbumFilterSummary(directories: toRemove);
+    }
+  }
+
   // filter summary
 
   // by filter key

@@ -36,6 +36,7 @@ class StorageHandler(private val context: Context) : MethodCallHandler {
             "getRestrictedDirectories" -> ioScope.launch { safe(call, result, ::getRestrictedDirectories) }
             "revokeDirectoryAccess" -> safe(call, result, ::revokeDirectoryAccess)
             "deleteEmptyDirectories" -> ioScope.launch { safe(call, result, ::deleteEmptyDirectories) }
+            "deleteDirectories" -> ioScope.launch { safe(call, result, ::deleteDirectories) }
             "deleteTempDirectory" -> ioScope.launch { safe(call, result, ::deleteTempDirectory) }
             "deleteExternalCache" -> ioScope.launch { safe(call, result, ::deleteExternalCache) }
             "canRequestMediaFileBulkAccess" -> safe(call, result, ::canRequestMediaFileBulkAccess)
@@ -206,6 +207,27 @@ class StorageHandler(private val context: Context) : MethodCallHandler {
             try {
                 val dir = File(it)
                 if (dir.isDirectory && dir.listFiles()?.isEmpty() == true && dir.delete()) {
+                    deleted++
+                }
+            } catch (_: SecurityException) {
+                // ignore
+            }
+        }
+        result.success(deleted)
+    }
+
+    private fun deleteDirectories(call: MethodCall, result: MethodChannel.Result) {
+        val dirPaths = call.argument<List<String>>("dirPaths")
+        if (dirPaths == null) {
+            result.error("deleteDirectories-args", "missing arguments", null)
+            return
+        }
+
+        var deleted = 0
+        dirPaths.forEach {
+            try {
+                val dir = File(it)
+                if (dir.isDirectory && dir.deleteRecursively()) {
                     deleted++
                 }
             } catch (_: SecurityException) {

@@ -1,5 +1,6 @@
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/selection.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -10,6 +11,7 @@ import 'package:aves/widgets/filter_grids/common/filter_chip_grid_decorator.dart
 import 'package:aves/widgets/filter_grids/common/list_details.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 typedef FilterTileTapCallback<T extends CollectionFilter> = void Function(FilterGridItem<T> gridItem, void Function(Route route) navigate);
 
@@ -45,18 +47,24 @@ class _InteractiveFilterTileState<T extends CollectionFilter> extends State<Inte
 
   @override
   Widget build(BuildContext context) {
-    return MetaData(
-      metaData: ScalerMetadata(gridItem),
-      child: FilterTile(
-        gridItem: gridItem,
-        chipExtent: widget.chipExtent,
-        thumbnailExtent: widget.thumbnailExtent,
-        tileLayout: widget.tileLayout,
-        banner: widget.banner,
-        selectable: true,
-        highlightable: true,
-        onTap: (_) => widget.onTap(gridItem, _navigate),
-        heroType: effectiveHeroType,
+    return GestureDetector(
+      onLongPress: () {
+        final selection = context.read<Selection<FilterGridItem<T>>?>();
+        selection?.addToSelection([gridItem]);
+      },
+      child: MetaData(
+        metaData: ScalerMetadata(gridItem),
+        child: FilterTile(
+          gridItem: gridItem,
+          chipExtent: widget.chipExtent,
+          thumbnailExtent: widget.thumbnailExtent,
+          tileLayout: widget.tileLayout,
+          banner: widget.banner,
+          selectable: true,
+          highlightable: true,
+          onTap: (_) => widget.onTap(gridItem, _navigate),
+          heroType: effectiveHeroType,
+        ),
       ),
     );
   }
