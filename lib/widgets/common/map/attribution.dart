@@ -20,9 +20,6 @@ class Attribution extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     if (style == EntryMapStyles.osmLiberty) return _buildOsmAttributionMarkdown(context, l10n.mapAttributionOsmLiberty);
-    if (style == EntryMapStyles.openTopoMap) return _buildOsmAttributionMarkdown(context, l10n.mapAttributionOpenTopoMap);
-    if (style == EntryMapStyles.osmHot) return _buildOsmAttributionMarkdown(context, l10n.mapAttributionOsmHot);
-    if (style == EntryMapStyles.stamenWatercolor) return _buildOsmAttributionMarkdown(context, l10n.mapAttributionStamen);
     return const SizedBox();
   }
 

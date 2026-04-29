@@ -20,21 +20,9 @@ class _OsmLibertyLayerState extends State<OsmLibertyLayer> {
 
   static const _openMapTileProviderSource = 'openmaptiles';
 
-  // `Americana` provides tiles, but it uses layer syntax that is not supported by the vector tile renderer.
-  // Full style is at 'https://americanamap.org/style.json' but it is heavy (1.0 MB, mostly for the layers).
-  static const _americanaTileProviderUri = 'https://tile.ourmap.us/data/v3.json';
+  static const _openFreeMapTileProviderUri = 'https://tiles.openfreemap.org/planet';
 
-  // `OSM Liberty` is well supported by the vector tile renderer, but it requires an API key for the tiles.
-  static const _osmLibertyStyleUri = 'https://maputnik.github.io/osm-liberty/style.json';
-
-  // as of 2024/09/25,
-  // Americana provider JSON:     39.4 kB
-  // OSM Liberty style JSON:      48.3 kB
-  // OSM Liberty sprites JSON 1x: 16.6 kB
-  // OSM Liberty sprites  PNG 1x: 30.4 kB
-  // OSM Liberty sprites JSON 2x: 16.6 kB
-  // OSM Liberty sprites  PNG 2x: 82.5 kB
-  // -> total overhead:          233.8 kB
+  static const _osmLibertyStyleUri = 'https://tiles.openfreemap.org/styles/liberty';
 
   @override
   void initState() {
@@ -43,7 +31,7 @@ class _OsmLibertyLayerState extends State<OsmLibertyLayer> {
     _tileProviderFuture = ExtraStyleReader.readProviderByName(
       {
         _openMapTileProviderSource: {
-          'url': _americanaTileProviderUri,
+          'url': _openFreeMapTileProviderUri,
           'type': 'vector',
         },
       },

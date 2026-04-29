@@ -105,30 +105,8 @@ class EntryMapStyles {
     isRaster: false,
   );
 
-  // Raster (Leaflet)
-
-  static const openTopoMap = EntryMapStyle(
-    key: 'openTopoMap',
-    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-  );
-
-  static const osmHot = EntryMapStyle(
-    key: 'osmHot',
-    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-  );
-
-  static const stamenWatercolor = EntryMapStyle(
-    key: 'stamenWatercolor',
-    url: 'https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/{z}/{x}/{y}.jpg',
-  );
-
   // default styles that do not need mobile services
   static List<EntryMapStyle> baseStyles = [
-    // Vector (OpenMapTiles)
     osmLiberty,
-    // Raster (Leaflet)
-    openTopoMap,
-    osmHot,
-    stamenWatercolor,
   ];
 }

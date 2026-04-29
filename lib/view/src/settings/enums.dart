@@ -69,9 +69,6 @@ extension ExtraEntryMapStyleView on EntryMapStyle {
     if (this == EntryMapStyles.googleHybrid) return l10n.mapStyleGoogleHybrid;
     if (this == EntryMapStyles.googleTerrain) return l10n.mapStyleGoogleTerrain;
     if (this == EntryMapStyles.osmLiberty) return l10n.mapStyleOsmLiberty;
-    if (this == EntryMapStyles.openTopoMap) return l10n.mapStyleOpenTopoMap;
-    if (this == EntryMapStyles.osmHot) return l10n.mapStyleOsmHot;
-    if (this == EntryMapStyles.stamenWatercolor) return l10n.mapStyleStamenWatercolor;
     final _name = name;
     if (_name != null) return _name;
     throw Exception('Name is undefined for map style=$this');
