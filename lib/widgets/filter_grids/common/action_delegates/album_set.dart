@@ -99,7 +99,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       case .group:
         return isMain && isSelecting;
       case .delete:
-        return isMain && isSelecting && !settings.isReadOnly && (selectedFilters.isEmpty || selectedFilters.every((v) => v is StoredAlbumFilter));
+        return isMain && isSelecting && !settings.isReadOnly;
       case .remove:
         return isMain && isSelecting && !settings.isReadOnly && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is DynamicAlbumFilter);
       case .rename:
@@ -128,7 +128,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
   }) {
     switch (action) {
       case .delete:
-        return selectedFilters.isNotEmpty && selectedFilters.every((v) => v is StoredAlbumFilter);
+        return selectedFilters.isNotEmpty;
       case .rename:
         if (selectedFilters.length != 1) return false;
         final filter = selectedFilters.first;
@@ -159,7 +159,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         _createStoredAlbum(context, locked: true);
       // single/multiple filters
       case .delete:
-        _deleteStoredAlbums(context);
+        _deleteAlbums(context);
       case .remove:
         _removeDynamicAlbum(context);
       case .group:
@@ -297,11 +297,14 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     }
   }
 
-  Future<void> _deleteStoredAlbums(BuildContext context) async {
-    final filters = _getSelectedStoredAlbumFilters(context);
-    final byBinUsage = groupBy<StoredAlbumFilter, bool>(filters, (filter) {
-      final details = vaults.getVault(filter.album);
-      return details?.useBin ?? settings.enableBin;
+  Future<void> _deleteAlbums(BuildContext context) async {
+    final filters = getSelectedFilters(context);
+    final byBinUsage = groupBy<AlbumBaseFilter, bool>(filters, (filter) {
+      if (filter is StoredAlbumFilter) {
+        final details = vaults.getVault(filter.album);
+        return details?.useBin ?? settings.enableBin;
+      }
+      return settings.enableBin;
     });
     await Future.forEach(
       byBinUsage.entries,
@@ -316,14 +319,14 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
 
   Future<void> _doDelete({
     required BuildContext context,
-    required Set<StoredAlbumFilter> filters,
+    required Set<AlbumBaseFilter> filters,
     required bool enableBin,
   }) async {
     if (!await unlockFilters(context, filters)) return;
 
     final source = context.read<CollectionSource>();
     final todoEntries = source.visibleEntries.where((entry) => filters.any((f) => f.test(entry))).toSet();
-    final todoAlbums = filters.map((v) => v.album).toSet();
+    final todoAlbums = filters.whereType<StoredAlbumFilter>().map((v) => v.album).toSet();
     final filledAlbums = todoEntries.map((e) => e.directory).nonNulls.toSet();
     final emptyAlbums = todoAlbums.whereNot(filledAlbums.contains).toSet();
 
@@ -332,9 +335,10 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         context,
         moveType: MoveType.toBin,
         entries: todoEntries,
-        onSuccess: () {
+        onSuccess: () async {
           source.forgetNewAlbums(todoAlbums);
-          source.removeAlbums(emptyAlbums);
+          await storageService.deleteDirectories(todoAlbums);
+          source.removeAlbums(todoAlbums);
           browse(context);
         },
       );
@@ -364,7 +368,8 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
 
     await _deleteEntriesForever(context, todoEntries, todoAlbums);
 
-    final vaultAlbumFilters = filters.where((v) => vaults.isVault(v.album)).toSet();
+    final storedFilters = filters.whereType<StoredAlbumFilter>().toSet();
+    final vaultAlbumFilters = storedFilters.where((v) => vaults.isVault(v.album)).toSet();
     if (vaultAlbumFilters.isNotEmpty) {
       final allEntries = source.allEntries;
       final emptyVaultAlbums = vaultAlbumFilters.whereNot((v) => allEntries.any(v.test)).map((v) => v.album).toSet();
