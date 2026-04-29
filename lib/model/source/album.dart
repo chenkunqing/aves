@@ -95,13 +95,7 @@ mixin AlbumMixin on SourceBase {
     }
   }
 
-  bool _isRemovable(String album) {
-    if (visibleEntries.any((entry) => entry.directory == album)) return false;
-    if (_newAlbums.contains(album)) return false;
-    if (vaults.isVault(album)) return false;
-    if (settings.pinnedFilters.whereType<StoredAlbumFilter>().map((v) => v.album).contains(album)) return false;
-    return true;
-  }
+  bool _isRemovable(String album) => false;
 
   // filter summary
 
