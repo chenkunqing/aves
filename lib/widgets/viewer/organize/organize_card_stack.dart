@@ -182,19 +182,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
 
     switch (_currentDirection!) {
       case _SwipeDirection.up:
-        return Positioned.fill(
-          child: IgnorePointer(
-            child: Opacity(
-              opacity: clampedProgress * 0.6,
-              child: Container(
-                color: Colors.red,
-                child: const Center(
-                  child: Icon(AIcons.bin, size: 80, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        );
+        return const SizedBox();
       case _SwipeDirection.down:
         return Positioned.fill(
           child: IgnorePointer(
