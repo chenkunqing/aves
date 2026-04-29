@@ -66,6 +66,7 @@ class MediaStoreSource extends CollectionSource {
     await favourites.init();
     await entryColors.init();
     await entryFaces.init();
+    await loadPersonData();
     albumGrouping.init();
     albumGrouping.setGroups(settings.albumGroups);
     albumGrouping.registerSource(this);

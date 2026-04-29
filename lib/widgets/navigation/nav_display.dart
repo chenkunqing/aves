@@ -11,6 +11,7 @@ import 'package:aves/widgets/explorer/explorer_page.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/countries_page.dart';
 import 'package:aves/widgets/filter_grids/places_page.dart';
+import 'package:aves/widgets/filter_grids/people_page.dart';
 import 'package:aves/widgets/filter_grids/tags_page.dart';
 import 'package:aves/widgets/home/home_page.dart';
 import 'package:aves/widgets/settings/settings_page.dart';
@@ -44,6 +45,8 @@ class NavigationDisplay {
         return l10n.drawerPlacePage;
       case TagListPage.routeName:
         return l10n.drawerTagPage;
+      case PeopleListPage.routeName:
+        return l10n.drawerPeoplePage;
       case AboutPage.routeName:
         return l10n.aboutPageTitle;
       case AppDebugPage.routeName:
@@ -71,6 +74,8 @@ class NavigationDisplay {
         return AIcons.place;
       case TagListPage.routeName:
         return AIcons.tag;
+      case PeopleListPage.routeName:
+        return AIcons.people;
       case AboutPage.routeName:
         return AIcons.info;
       case AppDebugPage.routeName:

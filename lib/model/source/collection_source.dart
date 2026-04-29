@@ -13,6 +13,7 @@ import 'package:aves/model/filters/container/tag_group.dart';
 import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
+import 'package:aves/model/filters/person.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/grouping/convert.dart';
@@ -26,6 +27,7 @@ import 'package:aves/model/source/location/location.dart';
 import 'package:aves/model/source/location/place.dart';
 import 'package:aves/model/source/location/state.dart';
 import 'package:aves/model/source/face.dart';
+import 'package:aves/model/source/person.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/model/source/trash.dart';
 import 'package:aves/model/vaults/vaults.dart';
@@ -69,7 +71,7 @@ mixin SourceBase {
   void invalidateEntries();
 }
 
-abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, FaceMixin, TrashMixin {
+abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, FaceMixin, PersonMixin, TrashMixin {
   static const fullScope = <CollectionFilter>{};
 
   CollectionSource() {
@@ -170,6 +172,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     invalidatePlaceFilterSummary(entries: entries, notify: notify);
     invalidateStateFilterSummary(entries: entries, notify: notify);
     invalidateTagFilterSummary(entries: entries, notify: notify);
+    invalidatePersonFilterSummary(entries: entries, notify: notify);
   }
 
   @override
@@ -186,6 +189,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     updateDirectories();
     updateLocations();
     updateTags();
+    updatePersons();
   }
 
   void _disposeEntries(bool Function(int id, AvesEntry entry) test) {
@@ -549,6 +553,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         await locateEntries(_analysisController, todoEntries);
         updateDerivedFilters(todoEntries);
         await detectFaces(_analysisController, todoEntries);
+        await extractMissingEmbeddings(_analysisController);
+        await clusterFaces(_analysisController);
       }
     }
     defaultAnalysisController.dispose();
@@ -581,6 +587,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         return placeEntryCount(filter);
       case TagBaseFilter _:
         return tagEntryCount(filter);
+      case PersonFilter _:
+        return personEntryCount(filter);
     }
     return 0;
   }
@@ -597,6 +605,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         return placeSize(filter);
       case TagBaseFilter _:
         return tagSize(filter);
+      case PersonFilter _:
+        return personSize(filter);
     }
     return 0;
   }
@@ -613,6 +623,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         return placeRecentEntry(filter);
       case TagBaseFilter _:
         return tagRecentEntry(filter);
+      case PersonFilter _:
+        return personRecentEntry(filter);
     }
     return null;
   }

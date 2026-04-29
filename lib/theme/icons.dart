@@ -49,6 +49,8 @@ class AIcons {
   static const organize = Symbols.swipe;
   static const palette = Symbols.palette;
   static const path = Symbols.account_tree;
+  static const person = Symbols.person;
+  static const people = Symbols.group;
   static const privacy = Symbols.shield_person;
   static const rating = Symbols.star;
   static final ratingRejected = MdiIcons.starMinusOutline;

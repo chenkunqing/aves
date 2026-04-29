@@ -9,6 +9,7 @@ extension ExtraSourceStateView on SourceState {
       .locatingCountries => l10n.sourceStateLocatingCountries,
       .locatingPlaces => l10n.sourceStateLocatingPlaces,
       .detectingFaces => '正在检测人脸',
+      .clusteringFaces => '正在识别人物',
       .ready => null,
     };
   }

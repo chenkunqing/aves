@@ -51,6 +51,14 @@ mixin FilterGridsSettings on SettingsAccess {
 
   set tagSortReverse(bool newValue) => set(SettingKeys.tagSortReverseKey, newValue);
 
+  ChipSortFactor get peopleSortFactor => getEnumOrDefault(SettingKeys.peopleSortFactorKey, SettingsDefaults.chipListSortFactor, ChipSortFactor.values);
+
+  set peopleSortFactor(ChipSortFactor newValue) => set(SettingKeys.peopleSortFactorKey, newValue.toString());
+
+  bool get peopleSortReverse => getBool(SettingKeys.peopleSortReverseKey) ?? false;
+
+  set peopleSortReverse(bool newValue) => set(SettingKeys.peopleSortReverseKey, newValue);
+
   Set<CollectionFilter> get pinnedFilters => (getStringList(SettingKeys.pinnedFiltersKey) ?? []).map(CollectionFilter.fromJson).nonNulls.toSet();
 
   set pinnedFilters(Set<CollectionFilter> newValue) => set(SettingKeys.pinnedFiltersKey, newValue.map((filter) => filter.toJson()).toList());

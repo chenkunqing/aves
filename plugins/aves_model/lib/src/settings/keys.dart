@@ -89,6 +89,8 @@ class SettingKeys {
   static const stateSortReverseKey = 'state_sort_reverse';
   static const placeSortReverseKey = 'place_sort_reverse';
   static const tagSortReverseKey = 'tag_sort_reverse';
+  static const peopleSortFactorKey = 'people_sort_factor';
+  static const peopleSortReverseKey = 'people_sort_reverse';
   static const albumGroupsKey = 'album_groups';
   static const tagGroupsKey = 'tag_groups';
   static const pinnedFiltersKey = 'pinned_filters';

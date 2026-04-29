@@ -20,6 +20,8 @@ class LocalMediaDbUpgrader {
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
   static const entryFacesTable = SqfliteLocalMediaDbSchema.entryFacesTable;
+  static const faceEmbeddingsTable = SqfliteLocalMediaDbSchema.faceEmbeddingsTable;
+  static const personsTable = SqfliteLocalMediaDbSchema.personsTable;
 
   // warning: "ALTER TABLE ... RENAME COLUMN ..." is not supported
   // on SQLite <3.25.0, bundled on older Android devices
@@ -61,6 +63,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom16(db);
         case 17:
           await _upgradeFrom17(db);
+        case 18:
+          await _upgradeFrom18(db);
       }
       oldVersion++;
     }
@@ -602,5 +606,29 @@ class LocalMediaDbUpgrader {
 
     // clear stale face data to re-scan with improved detection
     await db.delete(entryFacesTable);
+  }
+
+  static Future<void> _upgradeFrom18(Database db) async {
+    debugPrint('upgrading DB from v18');
+
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS $faceEmbeddingsTable('
+      'faceId INTEGER PRIMARY KEY AUTOINCREMENT'
+      ', entryId INTEGER NOT NULL'
+      ', boundingBox TEXT NOT NULL'
+      ', embedding BLOB NOT NULL'
+      ', personId INTEGER'
+      ')',
+    );
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
+
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS $personsTable('
+      'personId INTEGER PRIMARY KEY AUTOINCREMENT'
+      ', name TEXT'
+      ', coverEntryId INTEGER'
+      ')',
+    );
   }
 }

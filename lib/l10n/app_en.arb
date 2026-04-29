@@ -764,6 +764,7 @@
   "drawerCountryPage": "Countries",
   "drawerPlacePage": "Places",
   "drawerTagPage": "Tags",
+  "drawerPeoplePage": "People",
 
   "sortByDate": "By date",
   "sortByName": "By name",
@@ -818,6 +819,10 @@
 
   "tagPageTitle": "Tags",
   "tagEmpty": "No tags",
+
+  "peoplePageTitle": "People",
+  "peopleEmpty": "No people found",
+  "personRenameDialogTitle": "Rename person",
   "tagPickPageTitle": "Pick Tag",
 
   "binPageTitle": "Recycle Bin",

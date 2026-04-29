@@ -410,6 +410,7 @@ class Settings
           case SettingKeys.stateSortReverseKey:
           case SettingKeys.placeSortReverseKey:
           case SettingKeys.tagSortReverseKey:
+          case SettingKeys.peopleSortReverseKey:
           case SettingKeys.showOverlayOnOpeningKey:
           case SettingKeys.showOverlayMinimapKey:
           case SettingKeys.showOverlayZoomLevelKey:
@@ -458,6 +459,7 @@ class Settings
           case SettingKeys.stateSortFactorKey:
           case SettingKeys.placeSortFactorKey:
           case SettingKeys.tagSortFactorKey:
+          case SettingKeys.peopleSortFactorKey:
           case SettingKeys.albumGroupsKey:
           case SettingKeys.tagGroupsKey:
           case SettingKeys.imageBackgroundKey:

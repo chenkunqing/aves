@@ -1,4 +1,4 @@
-enum SourceState { loading, cataloguing, locatingCountries, locatingPlaces, detectingFaces, ready }
+enum SourceState { loading, cataloguing, locatingCountries, locatingPlaces, detectingFaces, clusteringFaces, ready }
 
 enum ChipSortFactor { date, name, count, size, path }
 

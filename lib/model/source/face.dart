@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/entry_faces.dart';
+import 'package:aves/model/face_embedding.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/face_detection_service.dart';
+import 'package:aves/services/face_recognition_service.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/foundation.dart';
 
@@ -38,6 +42,30 @@ mixin FaceMixin on SourceBase {
           height: entry.height,
         );
         await entryFaces.save(entry.id, result.faceCount, result.boundingBoxes);
+
+        if (result.faceCount > 0 && result.boundingBoxes != null) {
+          try {
+            final embeddings = await faceRecognitionService.extractEmbeddings(
+              uri: entry.uri,
+              width: entry.width,
+              height: entry.height,
+              boundingBoxes: result.boundingBoxes!,
+            );
+            final boxesJson = jsonDecode(result.boundingBoxes!) as List;
+            for (int i = 0; i < embeddings.length && i < boxesJson.length; i++) {
+              await localMediaDb.saveFaceEmbeddings(entry.id, [
+                FaceEmbeddingRow(
+                  entryId: entry.id,
+                  boundingBox: jsonEncode(boxesJson[i]),
+                  embedding: embeddings[i],
+                ),
+              ]);
+            }
+          } catch (e) {
+            debugPrint('face embedding extraction failed for entry id=${entry.id}: $e');
+          }
+        }
+
         commitCount++;
         if (commitCount >= commitCountThreshold) {
           commitCount = 0;
@@ -51,6 +79,53 @@ mixin FaceMixin on SourceBase {
         stopCheckCount = 0;
         if (controller.isStopping) return;
       }
+      setProgress(done: ++progressDone, total: progressTotal);
+    }
+  }
+
+  Future<void> extractMissingEmbeddings(AnalysisController controller) async {
+    if (controller.isStopping) return;
+
+    final missing = await localMediaDb.loadEntryFacesWithoutEmbeddings();
+    if (missing.isEmpty) return;
+
+    state = SourceState.detectingFaces;
+    var progressDone = 0;
+    final progressTotal = missing.length;
+    setProgress(done: progressDone, total: progressTotal);
+
+    for (final entry in missing.entries) {
+      if (controller.isStopping) return;
+
+      final entryId = entry.key;
+      final boundingBoxes = entry.value;
+      final avesEntry = getEntryById(entryId);
+      if (avesEntry == null) {
+        setProgress(done: ++progressDone, total: progressTotal);
+        continue;
+      }
+
+      try {
+        final embeddings = await faceRecognitionService.extractEmbeddings(
+          uri: avesEntry.uri,
+          width: avesEntry.width,
+          height: avesEntry.height,
+          boundingBoxes: boundingBoxes,
+        );
+        final boxesJson = jsonDecode(boundingBoxes) as List;
+        for (int i = 0; i < embeddings.length && i < boxesJson.length; i++) {
+          await localMediaDb.saveFaceEmbeddings(entryId, [
+            FaceEmbeddingRow(
+              entryId: entryId,
+              boundingBox: jsonEncode(boxesJson[i]),
+              embedding: embeddings[i],
+            ),
+          ]);
+        }
+      } catch (e) {
+        debugPrint('face embedding extraction failed for entry id=$entryId: $e');
+      }
+
       setProgress(done: ++progressDone, total: progressTotal);
     }
   }

@@ -9,6 +9,8 @@
 
 -keep class com.google.mlkit.** { *; }
 
+-keep class org.tensorflow.lite.** { *; }
+
 # referenced from: com.google.crypto.tink
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn javax.annotation.**

@@ -65,6 +65,10 @@ android {
         multiDexEnabled = true
     }
 
+    aaptOptions {
+        noCompress += "tflite"
+    }
+
     signingConfigs {
         val storeFilePath = keystoreProperties["storeFile"] as String?
         if (storeFilePath != null) {
@@ -216,6 +220,8 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.google.material)
     implementation(libs.mlkit.face.detection)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
     // SLF4J implementation for `mp4parser`
     implementation(libs.slf4j)
 
