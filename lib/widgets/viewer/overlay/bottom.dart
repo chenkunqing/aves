@@ -215,8 +215,7 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
                 ),
               );
 
-        final showMultiPageOverlay = mainEntry.isMultiPage && multiPageController != null;
-        final collapsedPageScroller = mainEntry.isMotionPhoto;
+        final showMultiPageOverlay = mainEntry.isMultiPage && multiPageController != null && !mainEntry.isMotionPhoto;
 
         final availableWidth = widget.availableSize.width;
         return SizedBox(
@@ -225,7 +224,7 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (showMultiPageOverlay && !collapsedPageScroller)
+              if (showMultiPageOverlay)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: FadeTransition(
@@ -246,27 +245,7 @@ class _BottomOverlayContentState extends State<_BottomOverlayContent> {
                     entries: widget.entries,
                   ),
                 ),
-              (showMultiPageOverlay && collapsedPageScroller)
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      textDirection: ViewerBottomOverlay.actionsDirection,
-                      children: [
-                        SafeArea(
-                          top: false,
-                          bottom: false,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: MultiPageOverlay(
-                              controller: multiPageController,
-                              availableWidth: availableWidth,
-                              scrollable: false,
-                            ),
-                          ),
-                        ),
-                        Expanded(child: viewerButtonRow),
-                      ],
-                    )
-                  : viewerButtonRow,
+              viewerButtonRow,
             ],
           ),
         );

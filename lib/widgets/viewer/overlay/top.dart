@@ -8,6 +8,7 @@ import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/borders.dart';
 import 'package:aves/widgets/viewer/multipage/conductor.dart';
 import 'package:aves/widgets/viewer/overlay/details/details.dart';
+import 'package:aves/widgets/viewer/overlay/multipage.dart';
 import 'package:aves/widgets/viewer/overlay/histogram.dart';
 import 'package:aves/widgets/viewer/overlay/minimap.dart';
 import 'package:aves/widgets/viewer/page_entry_builder.dart';
@@ -79,6 +80,19 @@ class ViewerTopOverlay extends StatelessWidget {
         ];
 
         final endCornerChildren = [
+          if (mainEntry.isMotionPhoto && multiPageController != null)
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              padding: const EdgeInsets.all(2),
+              child: MultiPageOverlay(
+                controller: multiPageController,
+                availableWidth: availableSize.width,
+                scrollable: false,
+              ),
+            ),
           if (settings.overlayHistogramStyle != OverlayHistogramStyle.none)
             Selector<ViewStateConductor, ViewStateController>(
               selector: (context, vsc) => vsc.getOrCreateController(pageEntry!),
