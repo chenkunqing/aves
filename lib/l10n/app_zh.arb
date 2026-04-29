@@ -363,6 +363,8 @@
     "settingsActionExportDialogTitle": "导出",
     "settingsActionImport": "导入",
     "settingsActionImportDialogTitle": "导入",
+    "settingsActionReset": "恢复默认设置",
+    "settingsActionResetWarningDialogMessage": "所有设置将恢复为默认值。",
     "appExportCovers": "封面",
     "appExportFavourites": "收藏夹",
     "appExportSettings": "设置",

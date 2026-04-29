@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:aves/app_flavor.dart';
+import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -10,6 +12,7 @@ import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
+import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/common/app_bar/app_bar_title.dart';
 import 'package:aves/widgets/common/basic/font_size_icon_theme.dart';
 import 'package:aves/widgets/common/basic/insets.dart';
@@ -69,6 +72,11 @@ class _SettingsMobilePageState extends State<SettingsMobilePage> with FeedbackMi
                 PopupMenuItem(
                   value: SettingsAction.import,
                   child: MenuRow(text: context.l10n.settingsActionImport, icon: Icon(AIcons.fileImport)),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: SettingsAction.reset,
+                  child: MenuRow(text: context.l10n.settingsActionReset, icon: const Icon(AIcons.reset)),
                 ),
               ];
             },
@@ -176,6 +184,20 @@ class _SettingsMobilePageState extends State<SettingsMobilePage> with FeedbackMi
             showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
           }
         }
+      case .reset:
+        final confirmed = await showConfirmationDialog(
+          context: context,
+          message: context.l10n.settingsActionResetWarningDialogMessage,
+        );
+        if (!confirmed) return;
+
+        await settings.reset(includeInternalKeys: false);
+        settings.resetAppliedLocale();
+        albumGrouping.setGroups({});
+        tagGrouping.setGroups({});
+        await settings.setContextualDefaults(context.read<AppFlavor>());
+        settings.notifyListeners();
+        showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
     }
   }
 

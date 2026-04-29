@@ -852,6 +852,8 @@
   "settingsActionExportDialogTitle": "Export",
   "settingsActionImport": "Import",
   "settingsActionImportDialogTitle": "Import",
+  "settingsActionReset": "Reset to defaults",
+  "settingsActionResetWarningDialogMessage": "All settings will be restored to their default values.",
 
   "appExportCovers": "Covers",
   "appExportDynamicAlbums": "Dynamic albums",
