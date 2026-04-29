@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:aves/app_mode.dart';
@@ -15,6 +16,7 @@ import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/entry_faces.dart';
 import 'package:aves/model/filters/date.dart';
 import 'package:aves/model/filters/face_count.dart';
+import 'package:aves/services/face_detection_service.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/filters/rating.dart';
@@ -168,14 +170,16 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
           child: Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: effectiveFilters
-                .map(
-                  (filter) => AvesFilterChip(
-                    filter: filter,
-                    onTap: widget.onFilterSelection,
-                  ),
-                )
-                .toList(),
+            children: [
+              ...effectiveFilters.map(
+                (filter) => AvesFilterChip(
+                  filter: filter,
+                  onTap: widget.onFilterSelection,
+                ),
+              ),
+              if (entry.isImage && kDebugMode)
+                _FaceDebugButton(entry: entry),
+            ],
           ),
         );
       },
@@ -499,4 +503,84 @@ class _PrintSizePreset {
   double get longSide => max(widthInches, heightInches);
 
   double get shortSide => min(widthInches, heightInches);
+}
+
+class _FaceDebugButton extends StatelessWidget {
+  final AvesEntry entry;
+
+  const _FaceDebugButton({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _runDebug(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.bug_report, size: 16, color: Theme.of(context).colorScheme.onSurface),
+            const SizedBox(width: 4),
+            Text('Face: ${entryFaces.getFaceCount(entry.id) ?? "?"}',
+                style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _runDebug(BuildContext context) async {
+    final navigator = Navigator.of(context);
+
+    unawaited(showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    ));
+
+    String info;
+    try {
+      final oldCount = entryFaces.getFaceCount(entry.id);
+      final result = await faceDetectionService.detectFaces(
+        uri: entry.uri,
+        mimeType: entry.mimeType,
+        rotationDegrees: entry.rotationDegrees,
+        width: entry.width,
+        height: entry.height,
+      );
+      await entryFaces.save(entry.id, result.faceCount, result.boundingBoxes);
+      info = '原始URI: ${entry.uri}\n'
+          '尺寸: ${entry.width}x${entry.height}\n'
+          '旧faceCount: ${oldCount ?? "未扫描"} → 新faceCount: ${result.faceCount}\n'
+          '---\n'
+          '${result.debugInfo ?? "无调试信息"}\n'
+          '---\n'
+          '已更新数据库';
+    } catch (e) {
+      info = '检测失败: $e';
+    }
+
+    navigator.pop();
+    if (!context.mounted) return;
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('人脸检测调试'),
+        content: SingleChildScrollView(
+          child: SelectableText(info, style: const TextStyle(fontSize: 12)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('关闭'),
+          ),
+        ],
+      ),
+    );
+  }
 }

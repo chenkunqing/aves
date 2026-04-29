@@ -59,6 +59,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom15(db);
         case 16:
           await _upgradeFrom16(db);
+        case 17:
+          await _upgradeFrom17(db);
       }
       oldVersion++;
     }
@@ -575,7 +577,7 @@ class LocalMediaDbUpgrader {
     debugPrint('upgrading DB from v15');
 
     await db.execute(
-      'CREATE TABLE $entryColorsTable('
+      'CREATE TABLE IF NOT EXISTS $entryColorsTable('
       'entryId INTEGER'
       ', colorValue INTEGER'
       ', PRIMARY KEY (entryId, colorValue)'
@@ -587,11 +589,18 @@ class LocalMediaDbUpgrader {
     debugPrint('upgrading DB from v16');
 
     await db.execute(
-      'CREATE TABLE $entryFacesTable('
+      'CREATE TABLE IF NOT EXISTS $entryFacesTable('
       'entryId INTEGER PRIMARY KEY'
       ', faceCount INTEGER'
       ', boundingBoxes TEXT'
       ')',
     );
+  }
+
+  static Future<void> _upgradeFrom17(Database db) async {
+    debugPrint('upgrading DB from v17');
+
+    // clear stale face data to re-scan with improved detection
+    await db.delete(entryFacesTable);
   }
 }

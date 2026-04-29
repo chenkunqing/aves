@@ -3,11 +3,14 @@ package deckers.thibault.aves.channel.calls
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safe
@@ -19,7 +22,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.max
@@ -53,29 +55,58 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
 
             val image = InputImage.fromBitmap(bitmap, 0)
             val options = FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .setMinFaceSize(0.15f)
                 .build()
             val detector = FaceDetection.getClient(options)
 
-            val faces = kotlinx.coroutines.runBlocking { detector.process(image).await() }
+            val faces: List<Face> = Tasks.await(detector.process(image))
 
             val bitmapWidth = bitmap.width.toFloat()
             val bitmapHeight = bitmap.height.toFloat()
 
+            val debugLines = mutableListOf<String>()
+            debugLines.add("bitmap=${bitmap.width}x${bitmap.height}, raw=${faces.size} faces")
+
+            val validFaces = mutableListOf<Face>()
+            for ((i, face) in faces.withIndex()) {
+                val b = face.boundingBox
+                val relW = String.format("%.2f", (b.right - b.left) / bitmapWidth)
+                val relH = String.format("%.2f", (b.bottom - b.top) / bitmapHeight)
+                val hasLeftEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.LEFT_EYE) != null
+                val hasRightEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.RIGHT_EYE) != null
+                val hasNose = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.NOSE_BASE) != null
+                val leftEyeOpen = face.leftEyeOpenProbability
+                val rightEyeOpen = face.rightEyeOpenProbability
+                val smile = face.smilingProbability
+
+                val hasLandmarks = hasLeftEye && hasRightEye && hasNose
+                val hasClassification = leftEyeOpen != null && rightEyeOpen != null
+                val valid = hasLandmarks && hasClassification
+
+                debugLines.add("face[$i] size=${relW}x${relH} LE=$hasLeftEye RE=$hasRightEye nose=$hasNose LEopen=${leftEyeOpen?.let { String.format("%.2f", it) }} REopen=${rightEyeOpen?.let { String.format("%.2f", it) }} smile=${smile?.let { String.format("%.2f", it) }} valid=$valid")
+
+                if (valid) validFaces.add(face)
+            }
+            debugLines.add("validFaces=${validFaces.size}")
+
             val boundingBoxes = JSONArray()
-            for (face in faces) {
+            for (face in validFaces) {
                 val bounds = face.boundingBox
                 boundingBoxes.put(JSONObject().apply {
-                    put("left", bounds.left / bitmapWidth)
-                    put("top", bounds.top / bitmapHeight)
-                    put("right", bounds.right / bitmapWidth)
-                    put("bottom", bounds.bottom / bitmapHeight)
+                    put("left", (bounds.left / bitmapWidth).toDouble())
+                    put("top", (bounds.top / bitmapHeight).toDouble())
+                    put("right", (bounds.right / bitmapWidth).toDouble())
+                    put("bottom", (bounds.bottom / bitmapHeight).toDouble())
                 })
             }
 
             result.success(hashMapOf(
-                "faceCount" to faces.size,
+                "faceCount" to validFaces.size,
                 "boundingBoxes" to boundingBoxes.toString(),
+                "debugInfo" to debugLines.joinToString("\n"),
             ))
 
             bitmap.recycle()

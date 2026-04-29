@@ -25,6 +25,7 @@ class FaceDetectionService {
       return FaceDetectionResult(
         faceCount: result['faceCount'] as int? ?? 0,
         boundingBoxes: result['boundingBoxes'] as String?,
+        debugInfo: result['debugInfo'] as String?,
       );
     }
     return const FaceDetectionResult(faceCount: 0);
@@ -34,9 +35,11 @@ class FaceDetectionService {
 class FaceDetectionResult {
   final int faceCount;
   final String? boundingBoxes;
+  final String? debugInfo;
 
   const FaceDetectionResult({
     required this.faceCount,
     this.boundingBoxes,
+    this.debugInfo,
   });
 }
