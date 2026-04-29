@@ -100,7 +100,7 @@ class _OrganizePageState extends State<OrganizePage> {
                   )
                 : Stack(
                     children: [
-                      Container(color: Colors.black),
+                      Container(color: Theme.of(context).colorScheme.surface),
                       Center(
                         child: OrganizeCardStack(
                           key: _cardStackKey,

@@ -5,6 +5,7 @@ import 'package:aves/model/organize_basket.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/icons.dart';
+import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/thumbnail/image.dart';
 import 'package:aves/widgets/filter_grids/common/filter_nav_page.dart';
@@ -61,6 +62,11 @@ class OrganizeOverlay extends StatelessWidget {
   }
 
   Widget _buildTopBar(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final blurred = settings.enableBlurEffect;
+    final overlayBg = Themes.overlayBackgroundColor(brightness: theme.brightness, blurred: blurred);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -68,7 +74,7 @@ class OrganizeOverlay extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.close),
-              color: Colors.white,
+              color: colorScheme.onSurface,
               onPressed: () => Navigator.maybePop(context),
             ),
             const Spacer(),
@@ -82,19 +88,19 @@ class OrganizeOverlay extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.black54,
+                        color: overlayBg,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         '$displayIndex / $totalCount',
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
                       ),
                     );
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.info_outline, size: 20),
-                  color: Colors.white70,
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
                   padding: const EdgeInsets.only(left: 4),
                   constraints: const BoxConstraints(),
                   onPressed: onShowHints,
@@ -114,7 +120,7 @@ class OrganizeOverlay extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        const Icon(AIcons.bin, size: 24, color: Colors.white),
+                        Icon(AIcons.bin, size: 24, color: colorScheme.onSurface),
                         Positioned(
                           top: 4,
                           right: 2,
@@ -145,6 +151,8 @@ class OrganizeOverlay extends StatelessWidget {
   }
 
   Widget _buildBottomSection(BuildContext context, dynamic l10n) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -162,10 +170,10 @@ class OrganizeOverlay extends StatelessWidget {
                     return FloatingActionButton.small(
                       heroTag: 'organize_undo',
                       onPressed: canUndo ? onUndo : null,
-                      backgroundColor: canUndo ? Colors.white : Colors.white24,
+                      backgroundColor: canUndo ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest.withValues(alpha: 0.24),
                       child: Icon(
                         Icons.undo,
-                        color: canUndo ? Colors.black87 : Colors.white38,
+                        color: canUndo ? colorScheme.onPrimaryContainer : colorScheme.onSurface.withValues(alpha: 0.38),
                       ),
                     );
                   },
@@ -220,6 +228,8 @@ class _OrganizeAlbumStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final source = context.read<CollectionSource>();
+    final colorScheme = Theme.of(context).colorScheme;
+    final onSurfaceMuted = colorScheme.onSurface.withValues(alpha: 0.7);
 
     return ValueListenableBuilder<int>(
       valueListenable: albumOrderNotifier,
@@ -228,7 +238,7 @@ class _OrganizeAlbumStrip extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.7),
+            color: colorScheme.surfaceContainer.withValues(alpha: 0.92),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           ),
           child: Column(
@@ -248,13 +258,13 @@ class _OrganizeAlbumStrip extends StatelessWidget {
                           Icon(
                             isMove ? Icons.content_cut : Icons.copy,
                             size: 14,
-                            color: isMove ? Colors.orange : Colors.white70,
+                            color: isMove ? Colors.orange : onSurfaceMuted,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             isMove ? l10n.organizeMoveToAlbum : l10n.organizeCopyToAlbum,
                             style: TextStyle(
-                              color: isMove ? Colors.orange : Colors.white70,
+                              color: isMove ? Colors.orange : onSurfaceMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -262,7 +272,7 @@ class _OrganizeAlbumStrip extends StatelessWidget {
                           Icon(
                             Icons.swap_vert,
                             size: 14,
-                            color: isMove ? Colors.orange : Colors.white70,
+                            color: isMove ? Colors.orange : onSurfaceMuted,
                           ),
                         ],
                       ),
@@ -322,6 +332,7 @@ class _AlbumChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final truncated = displayName.length > _maxChars ? '${displayName.substring(0, _maxChars)}...' : displayName;
     return GestureDetector(
       onTap: onTap,
@@ -330,11 +341,11 @@ class _AlbumChip extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 22, color: Colors.white70),
+            Icon(icon, size: 22, color: colorScheme.onSurface.withValues(alpha: 0.7)),
             const SizedBox(height: 2),
             Text(
               truncated,
-              style: const TextStyle(color: Colors.white, fontSize: 10),
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 10),
               maxLines: 1,
               overflow: TextOverflow.clip,
               textAlign: TextAlign.center,
@@ -352,9 +363,13 @@ void _showDeletionPreview(BuildContext context) {
   if (entries.isEmpty) return;
 
   final dpr = MediaQuery.devicePixelRatioOf(context);
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  final blurred = settings.enableBlurEffect;
+  final overlayBg = Themes.overlayBackgroundColor(brightness: theme.brightness, blurred: blurred);
+
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.grey[900],
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
@@ -370,7 +385,7 @@ void _showDeletionPreview(BuildContext context) {
               width: 32,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white38,
+                color: colorScheme.onSurface.withValues(alpha: 0.38),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -381,7 +396,7 @@ void _showDeletionPreview(BuildContext context) {
                 builder: (context, count, child) {
                   return Text(
                     context.l10n.organizeMarkedForDeletion(count),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
                   );
                 },
               ),
@@ -425,11 +440,11 @@ void _showDeletionPreview(BuildContext context) {
                               right: 4,
                               child: Container(
                                 padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: Colors.black54,
+                                decoration: BoxDecoration(
+                                  color: overlayBg,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(Icons.close, size: 14, color: Colors.white),
+                                child: Icon(Icons.close, size: 14, color: colorScheme.onSurface),
                               ),
                             ),
                           ],
@@ -491,17 +506,21 @@ class _UndoMessageBubbleState extends State<_UndoMessageBubble> with SingleTicke
   @override
   Widget build(BuildContext context) {
     if (_message == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final overlayBg = Themes.overlayBackgroundColor(brightness: theme.brightness, blurred: settings.enableBlurEffect);
+
     return FadeTransition(
       opacity: _opacity,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.black54,
+          color: overlayBg,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           _message!,
-          style: const TextStyle(color: Colors.white, fontSize: 13),
+          style: TextStyle(color: colorScheme.onSurface, fontSize: 13),
         ),
       ),
     );

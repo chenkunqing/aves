@@ -1,5 +1,7 @@
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/images.dart';
+import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/themes.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showOrganizeZoomPreview(BuildContext context, AvesEntry entry) {
@@ -57,6 +59,10 @@ class _OrganizeZoomPreviewState extends State<_OrganizeZoomPreview> {
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final overlayBg = Themes.overlayBackgroundColor(brightness: theme.brightness, blurred: settings.enableBlurEffect);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -72,11 +78,11 @@ class _OrganizeZoomPreviewState extends State<_OrganizeZoomPreview> {
             top: padding.top + 8,
             right: 8,
             child: Material(
-              color: Colors.black38,
+              color: overlayBg,
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
+                icon: Icon(Icons.close, color: colorScheme.onSurface),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -138,7 +144,7 @@ class _ZoomableImageState extends State<_ZoomableImage> {
       fit: StackFit.expand,
       children: [
         Image(image: widget.entry.bestCachedThumbnail, fit: BoxFit.contain),
-        const Center(child: CircularProgressIndicator(color: Colors.white54)),
+        Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54))),
       ],
     );
   }

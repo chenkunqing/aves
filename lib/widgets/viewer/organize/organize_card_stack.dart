@@ -3,8 +3,10 @@ import 'dart:math' as math;
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/favourites.dart';
 import 'package:aves/model/organize_basket.dart';
+import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
+import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/thumbnail/image.dart';
 import 'package:aves/widgets/viewer/organize/organize_zoom_preview.dart';
@@ -159,11 +161,11 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
                 right: 8,
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  decoration: BoxDecoration(
+                    color: Themes.overlayBackgroundColor(brightness: Theme.of(context).brightness, blurred: settings.enableBlurEffect),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(AIcons.favourite, size: 18, color: Colors.white),
+                  child: Icon(AIcons.favourite, size: 18, color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
           ],
