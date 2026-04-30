@@ -35,7 +35,6 @@ extension ExtraAvesThemeBrightnessView on AvesThemeBrightness {
       AvesThemeBrightness.system => l10n.settingsSystemDefault,
       AvesThemeBrightness.light => l10n.themeBrightnessLight,
       AvesThemeBrightness.dark => l10n.themeBrightnessDark,
-      AvesThemeBrightness.black => l10n.themeBrightnessBlack,
     };
   }
 }

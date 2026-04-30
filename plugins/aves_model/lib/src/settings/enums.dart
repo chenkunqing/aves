@@ -2,7 +2,7 @@ enum AccessibilityAnimations { system, disabled, enabled }
 
 enum AccessibilityTimeout { system, s1, s3, s5, s10, s30 }
 
-enum AvesThemeBrightness { system, light, dark, black }
+enum AvesThemeBrightness { system, light, dark }
 
 enum AvesThemeColorMode { monochrome, polychrome }
 

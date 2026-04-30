@@ -63,27 +63,7 @@ class AvesApp extends StatefulWidget {
   final AppFlavor flavor;
   final Map<String, Object?>? debugIntentData;
 
-  // temporary exclude locales not ready yet for prime time
-  // `ckb`: add `flutter_ckb_localization` and necessary app localization delegates when ready
-  static final _unsupportedLocales = {
-    'az', // Azerbaijani
-    'bn', // Bengali
-    'ckb', // Kurdish (Central)
-    'he', // Hebrew
-    'hi', // Hindi
-    'hr', // Croatian
-    'kmr', // Kurdish (Northern)
-    'ml', // Malayalam
-    'my', // Burmese
-    'ne', // Nepali
-    'or', // Odia
-    'sat', // Santali
-    'sl', // Slovenian
-    'sr', // Serbian
-    'th', // Thai
-    'ur', // Urdu
-  }.map(Locale.new).toSet();
-  static final List<Locale> supportedLocales = AppLocalizations.supportedLocales.where((v) => !_unsupportedLocales.contains(v)).toList();
+  static const List<Locale> supportedLocales = AppLocalizations.supportedLocales;
   static final ValueNotifier<bool> canGestureToOtherApps = ValueNotifier(false);
   static final ValueNotifier<bool> isInPictureInPictureMode = ValueNotifier(false);
   static final ValueNotifier<EdgeInsets> cutoutInsetsNotifier = ValueNotifier(EdgeInsets.zero);
@@ -283,7 +263,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                         darkAccent = darkScheme?.primary ?? darkAccent;
                       }
                       final lightTheme = Themes.lightTheme(lightAccent, initialized);
-                      final darkTheme = themeBrightness == AvesThemeBrightness.black ? Themes.blackTheme(darkAccent, initialized) : Themes.darkTheme(darkAccent, initialized);
+                      final darkTheme = Themes.darkTheme(darkAccent, initialized);
                       return Shortcuts(
                         shortcuts: {
                           // handle Android TV remote `select` button (KEYCODE_DPAD_CENTER)

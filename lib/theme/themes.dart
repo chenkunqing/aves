@@ -25,7 +25,7 @@ class Themes {
     }
   }
 
-  static bool _isDarkTheme(ColorScheme colors) => colors.brightness == Brightness.dark && colors.surface != Colors.black;
+  static bool _isDarkTheme(ColorScheme colors) => colors.brightness == Brightness.dark;
 
   static Color firstLayerColor(BuildContext context) => _schemeFirstLayer(Theme.of(context).colorScheme);
 
@@ -282,12 +282,4 @@ class Themes {
     return _baseDarkTheme(colors, deviceInitialized);
   }
 
-  // black
-
-  static ThemeData blackTheme(Color accentColor, bool deviceInitialized) {
-    final colors = _darkColorScheme(accentColor).copyWith(
-      surface: Colors.black,
-    );
-    return _baseDarkTheme(colors, deviceInitialized);
-  }
 }

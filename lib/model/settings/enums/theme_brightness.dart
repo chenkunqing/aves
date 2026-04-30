@@ -9,7 +9,6 @@ extension ExtraAvesThemeBrightness on AvesThemeBrightness {
       case .light:
         return ThemeMode.light;
       case .dark:
-      case .black:
         return ThemeMode.dark;
     }
   }
