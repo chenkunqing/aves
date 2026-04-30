@@ -81,7 +81,9 @@ class _RasterImageViewState extends State<RasterImageView> {
 
     final oldViewState = oldWidget.viewStateNotifier.value;
     final viewState = widget.viewStateNotifier.value;
-    if (oldWidget.entry != widget.entry || oldViewState.viewportSize != viewState.viewportSize) {
+    final newDisplaySize = entry.displaySize;
+    if (oldWidget.entry != widget.entry || oldViewState.viewportSize != viewState.viewportSize || _displaySize != newDisplaySize) {
+      _displaySize = newDisplaySize;
       _isTilingInitialized = false;
       _fullImageLoaded.value = false;
       _unregisterFullImage();
