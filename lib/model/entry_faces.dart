@@ -20,6 +20,10 @@ class EntryFaces {
 
   int? getFaceCount(int entryId) => _data[entryId];
 
+  bool isTwoPersonPhoto(int entryId) => (_data[entryId] ?? 0) == 2;
+
+  bool isMultiPersonPhoto(int entryId) => (_data[entryId] ?? 0) >= 3;
+
   bool isGroupPhoto(int entryId) => (_data[entryId] ?? 0) >= 2;
 
   Future<void> save(int entryId, int faceCount, String? boundingBoxes) async {

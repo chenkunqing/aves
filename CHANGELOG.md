@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 - Viewer: no longer hide overlay on playing video
+- Analysis: remove local face recognition and the People page while keeping group photo detection based on face count
 
 ### Changed
 
@@ -21,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - build: package compressed native libraries for `izzy` flavor
 - build: switch the Android video backend from `mpv` to `ExoPlayer` for lighter APKs
 - build: remove leftover `mpv` / `media_kit` dependencies from the active app workspace
+- Search/Albums: split group photo shortcuts into two-person and multi-person categories
 
 ### Fixed
 

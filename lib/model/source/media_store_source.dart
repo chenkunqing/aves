@@ -9,6 +9,7 @@ import 'package:aves/model/entry_faces.dart';
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/grouping/common.dart';
+import 'package:aves/model/person.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -66,7 +67,7 @@ class MediaStoreSource extends CollectionSource {
     await favourites.init();
     await entryColors.init();
     await entryFaces.init();
-    await loadPersonData();
+    await personStore.clear();
     albumGrouping.init();
     albumGrouping.setGroups(settings.albumGroups);
     albumGrouping.registerSource(this);

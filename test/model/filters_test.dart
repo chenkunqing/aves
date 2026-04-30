@@ -8,6 +8,7 @@ import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/date.dart';
+import 'package:aves/model/filters/face_count.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/mime.dart';
@@ -50,6 +51,12 @@ void main() {
 
     final date = DateFilter(DateLevel.ym, DateTime(1969, 7));
     expect(date, jsonRoundTrip(date));
+
+    final twoPerson = FaceCountFilter.twoPerson();
+    expect(twoPerson, jsonRoundTrip(twoPerson));
+
+    final multiPerson = FaceCountFilter.multiPerson();
+    expect(multiPerson, jsonRoundTrip(multiPerson));
 
     final onThisDay = DateFilter.onThisDay;
     expect(onThisDay, jsonRoundTrip(onThisDay));

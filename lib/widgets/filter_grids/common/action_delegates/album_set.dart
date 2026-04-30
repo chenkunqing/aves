@@ -89,6 +89,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     final selectedSingleItem = selectedFilters.length == 1;
     final isMain = appMode == AppMode.main;
     bool isVault(CollectionFilter filter) => filter is StoredAlbumFilter && filter.isVault;
+    bool isBuiltInDynamicAlbum(CollectionFilter filter) => filter is DynamicAlbumFilter && filter.isBuiltIn;
 
     switch (action) {
       case .createGroup:
@@ -101,9 +102,9 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       case .delete:
         return isMain && isSelecting && !settings.isReadOnly;
       case .remove:
-        return isMain && isSelecting && !settings.isReadOnly && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is DynamicAlbumFilter);
+        return isMain && isSelecting && !settings.isReadOnly && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is DynamicAlbumFilter && !v.isBuiltIn);
       case .rename:
-        return isMain && isSelecting && !settings.isReadOnly;
+        return isMain && isSelecting && !settings.isReadOnly && !selectedFilters.any(isBuiltInDynamicAlbum);
       case .configureVault:
         return isMain && selectedSingleItem && isVault(selectedFilters.first);
       case .lockVault:
@@ -133,6 +134,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         if (selectedFilters.length != 1) return false;
         final filter = selectedFilters.first;
         if (filter is StoredAlbumFilter) return filter.canRename;
+        if (filter is DynamicAlbumFilter) return !filter.isBuiltIn;
         return true;
       case .lockVault:
         return selectedFilters.whereType<StoredAlbumFilter>().map((v) => v.album).any((v) => vaults.isVault(v) && !vaults.isLocked(v));

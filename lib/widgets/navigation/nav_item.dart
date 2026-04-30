@@ -15,7 +15,6 @@ import 'package:aves/widgets/explorer/explorer_page.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/countries_page.dart';
 import 'package:aves/widgets/filter_grids/places_page.dart';
-import 'package:aves/widgets/filter_grids/people_page.dart';
 import 'package:aves/widgets/filter_grids/tags_page.dart';
 import 'package:aves/widgets/home/home_page.dart';
 import 'package:aves/widgets/navigation/drawer/tile.dart';
@@ -119,8 +118,6 @@ class AvesNavItem extends Equatable {
         return (_) => const PlaceListPage();
       case TagListPage.routeName:
         return (_) => const TagListPage(initialGroup: null);
-      case PeopleListPage.routeName:
-        return (_) => const PeopleListPage();
       case AboutPage.routeName:
         return (_) => const AboutPage();
       case AppDebugPage.routeName:

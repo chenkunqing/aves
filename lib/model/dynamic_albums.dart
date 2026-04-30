@@ -32,14 +32,27 @@ class DynamicAlbums with ChangeNotifier {
     _subscriptions.add(albumGrouping.eventBus.on<GroupUriChangedEvent>().listen((e) => _onGroupUriChanged(e.oldGroupUri, e.newGroupUri)));
   }
 
-  int get count => _rows.length;
+  Set<DynamicAlbumFilter> get _builtInRows => {
+    DynamicAlbumFilter.twoPersonBuiltIn,
+    DynamicAlbumFilter.multiPersonBuiltIn,
+  };
 
-  Set<DynamicAlbumFilter> get all => Set.unmodifiable(_rows);
+  int get count => all.length;
+
+  Set<DynamicAlbumFilter> get all => Set.unmodifiable({
+    ..._builtInRows,
+    ..._rows,
+  });
+
+  Set<DynamicAlbumFilter> _customOnly(Iterable<DynamicAlbumFilter> filters) {
+    return filters.where((filter) => !filter.isBuiltIn).toSet();
+  }
 
   Future<void> _doAdd(Set<DynamicAlbumFilter>? filters) async {
-    if (filters == null || filters.isEmpty) return;
-    await localMediaDb.addDynamicAlbums(filters.map((v) => DynamicAlbumRow(name: v.name, filter: v.filter)).toSet());
-    _rows.addAll(filters);
+    final customFilters = filters != null ? _customOnly(filters) : null;
+    if (customFilters == null || customFilters.isEmpty) return;
+    await localMediaDb.addDynamicAlbums(customFilters.map((v) => DynamicAlbumRow(name: v.name, filter: v.filter)).toSet());
+    _rows.addAll(customFilters);
   }
 
   Future<void> _doRemove(Set<String>? names) async {
@@ -56,14 +69,17 @@ class DynamicAlbums with ChangeNotifier {
   }
 
   Future<void> remove(Set<DynamicAlbumFilter> filters) async {
+    final customFilters = _customOnly(filters);
+    if (customFilters.isEmpty) return;
     await _lock.synchronized(() async {
-      await _doRemove(filters.map((filter) => filter.name).toSet());
+      await _doRemove(customFilters.map((filter) => filter.name).toSet());
       notifyListeners();
-      eventBus.fire(DynamicAlbumChangedEvent(Map.fromEntries(filters.map((v) => MapEntry(v, null)))));
+      eventBus.fire(DynamicAlbumChangedEvent(Map.fromEntries(customFilters.map((v) => MapEntry(v, null)))));
     });
   }
 
   Future<void> rename(DynamicAlbumFilter oldFilter, String newName) async {
+    if (oldFilter.isBuiltIn) return;
     await _lock.synchronized(() async {
       final newFilter = DynamicAlbumFilter(newName, oldFilter.filter);
       await _doRemove({oldFilter.name});
@@ -84,9 +100,9 @@ class DynamicAlbums with ChangeNotifier {
     });
   }
 
-  Future<void> clear() => remove(all);
+  Future<void> clear() => remove(_rows);
 
-  DynamicAlbumFilter? get(String name) => _rows.firstWhereOrNull((row) => row.name == name);
+  DynamicAlbumFilter? get(String name) => all.firstWhereOrNull((row) => row.name == name);
 
   bool contains(String? name) => name != null && get(name) != null;
 
@@ -114,7 +130,7 @@ class DynamicAlbums with ChangeNotifier {
   // import/export
 
   List<String>? export() {
-    final jsonList = all.map((row) => row.toJson()).toList();
+    final jsonList = _rows.map((row) => row.toJson()).toList();
     return jsonList.isNotEmpty ? jsonList : null;
   }
 

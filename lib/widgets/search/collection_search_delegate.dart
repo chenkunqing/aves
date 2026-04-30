@@ -6,6 +6,7 @@ import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/date.dart';
+import 'package:aves/model/filters/face_count.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/mime.dart';
@@ -355,6 +356,8 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
         MissingFilter.fineAddress,
         TagFilter(''),
         MissingFilter.title,
+        FaceCountFilter.twoPerson(),
+        FaceCountFilter.multiPerson(),
       ].where(containQuery).toList(),
     );
   }

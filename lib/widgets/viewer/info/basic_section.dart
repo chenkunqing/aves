@@ -150,9 +150,10 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
       if (entry.isSized) ..._commonRatioFilters.where((f) => f.test(entry)),
       if (dateTime != null) DateFilter(DateLevel.ymd, dateTime.date),
       if (album != null) StoredAlbumFilter(album, collection?.source.getStoredAlbumDisplayName(context, album)),
-      ...dynamicAlbums.all.where((v) => v.test(entry)).toSet(),
+      ...dynamicAlbums.all.where((v) => !v.isBuiltIn && v.test(entry)).toSet(),
       ...tags.map(TagFilter.new),
-      if (entryFaces.isGroupPhoto(entry.id)) FaceCountFilter(2),
+      if (entryFaces.isTwoPersonPhoto(entry.id)) FaceCountFilter.twoPerson(),
+      if (entryFaces.isMultiPersonPhoto(entry.id)) FaceCountFilter.multiPerson(),
     };
     return AnimatedBuilder(
       animation: favourites,

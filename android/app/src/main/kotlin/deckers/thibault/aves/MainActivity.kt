@@ -32,7 +32,6 @@ import deckers.thibault.aves.channel.calls.DebugHandler
 import deckers.thibault.aves.channel.calls.DeviceHandler
 import deckers.thibault.aves.channel.calls.EmbeddedDataHandler
 import deckers.thibault.aves.channel.calls.FaceDetectionHandler
-import deckers.thibault.aves.channel.calls.FaceRecognitionHandler
 import deckers.thibault.aves.channel.calls.GeocodingHandler
 import deckers.thibault.aves.channel.calls.GlobalSearchHandler
 import deckers.thibault.aves.channel.calls.HomeWidgetHandler
@@ -152,7 +151,6 @@ open class MainActivity : FlutterFragmentActivity() {
         MethodChannel(messenger, DeviceHandler.CHANNEL).setMethodCallHandler(DeviceHandler(this))
         MethodChannel(messenger, EmbeddedDataHandler.CHANNEL).setMethodCallHandler(EmbeddedDataHandler(this))
         MethodChannel(messenger, FaceDetectionHandler.CHANNEL).setMethodCallHandler(FaceDetectionHandler(this))
-        MethodChannel(messenger, FaceRecognitionHandler.CHANNEL).setMethodCallHandler(FaceRecognitionHandler(this))
         MethodChannel(messenger, GeocodingHandler.CHANNEL).setMethodCallHandler(GeocodingHandler(this))
         MethodChannel(messenger, GlobalSearchHandler.CHANNEL).setMethodCallHandler(GlobalSearchHandler(this))
         MethodChannel(messenger, HomeWidgetHandler.CHANNEL).setMethodCallHandler(HomeWidgetHandler(this))

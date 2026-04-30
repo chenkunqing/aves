@@ -145,6 +145,7 @@ class PersonStore {
     _persons.clear();
     _entryPersons.clear();
     _personEntries.clear();
+    _coverBoundingBoxes.clear();
     await localMediaDb.clearPersons();
     await localMediaDb.clearFaceEmbeddings();
   }

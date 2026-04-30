@@ -553,8 +553,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         await locateEntries(_analysisController, todoEntries);
         updateDerivedFilters(todoEntries);
         await detectFaces(_analysisController, todoEntries);
-        await extractMissingEmbeddings(_analysisController);
-        await clusterFaces(_analysisController);
       }
     }
     defaultAnalysisController.dispose();
