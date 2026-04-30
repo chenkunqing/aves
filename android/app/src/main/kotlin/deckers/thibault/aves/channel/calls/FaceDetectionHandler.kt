@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.abs
+import kotlin.math.hypot
 import kotlin.math.max
 
 class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
@@ -64,7 +65,7 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                 .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-                .setMinFaceSize(0.10f)
+                .setMinFaceSize(MIN_FACE_SIZE)
                 .build()
             val faceDetector = FaceDetection.getClient(options)
             detector = faceDetector
@@ -79,23 +80,40 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
             val validFaces = mutableListOf<Face>()
             for ((i, face) in faces.withIndex()) {
                 val bounds = face.boundingBox
-                val relW = String.format("%.2f", (bounds.right - bounds.left) / bitmapWidth)
-                val relH = String.format("%.2f", (bounds.bottom - bounds.top) / bitmapHeight)
+                val relativeWidth = (bounds.right - bounds.left) / bitmapWidth
+                val relativeHeight = (bounds.bottom - bounds.top) / bitmapHeight
+                val relativeArea = relativeWidth * relativeHeight
                 val yaw = face.headEulerAngleY
                 val roll = face.headEulerAngleZ
-                val hasLeftEye = face.getLandmark(FaceLandmark.LEFT_EYE) != null
-                val hasRightEye = face.getLandmark(FaceLandmark.RIGHT_EYE) != null
-                val hasNose = face.getLandmark(FaceLandmark.NOSE_BASE) != null
-                val hasLeftMouth = face.getLandmark(FaceLandmark.LEFT_MOUTH) != null
-                val hasRightMouth = face.getLandmark(FaceLandmark.RIGHT_MOUTH) != null
+                val leftEye = face.getLandmark(FaceLandmark.LEFT_EYE)
+                val rightEye = face.getLandmark(FaceLandmark.RIGHT_EYE)
+                val nose = face.getLandmark(FaceLandmark.NOSE_BASE)
+                val hasLeftEye = leftEye != null
+                val hasRightEye = rightEye != null
+                val hasNose = nose != null
+                val hasLeftMouth = face.getLandmark(FaceLandmark.MOUTH_LEFT) != null
+                val hasRightMouth = face.getLandmark(FaceLandmark.MOUTH_RIGHT) != null
 
                 val hasCoreLandmarks = hasLeftEye && hasRightEye && hasNose
-                val isPoseAcceptable = abs(yaw) <= 40 && abs(roll) <= 35
-                val valid = hasCoreLandmarks && isPoseAcceptable
+                val isPoseAcceptable = abs(yaw) <= MAX_ABS_YAW && abs(roll) <= MAX_ABS_ROLL
+                val isLargeEnough = max(relativeWidth, relativeHeight) >= MIN_RELATIVE_FACE_EXTENT && relativeArea >= MIN_RELATIVE_FACE_AREA
+                val relativeEyeDistance = if (leftEye != null && rightEye != null) {
+                    hypot(
+                        (leftEye.position.x - rightEye.position.x).toDouble(),
+                        (leftEye.position.y - rightEye.position.y).toDouble(),
+                    ).toFloat() / max(bitmapWidth, bitmapHeight)
+                } else {
+                    0f
+                }
+                val hasEnoughEyeSeparation = relativeEyeDistance >= MIN_RELATIVE_EYE_DISTANCE
+                val valid = hasCoreLandmarks && isPoseAcceptable && isLargeEnough && hasEnoughEyeSeparation
 
                 debugLines.add(
-                    "face[$i] size=${relW}x${relH} yaw=${String.format("%.1f", yaw)} roll=${String.format("%.1f", roll)} " +
-                        "LE=$hasLeftEye RE=$hasRightEye nose=$hasNose LM=$hasLeftMouth RM=$hasRightMouth valid=$valid"
+                    "face[$i] size=${String.format("%.2f", relativeWidth)}x${String.format("%.2f", relativeHeight)} " +
+                        "area=${String.format("%.3f", relativeArea)} eyeDist=${String.format("%.3f", relativeEyeDistance)} " +
+                        "yaw=${String.format("%.1f", yaw)} roll=${String.format("%.1f", roll)} " +
+                        "LE=$hasLeftEye RE=$hasRightEye nose=$hasNose LM=$hasLeftMouth RM=$hasRightMouth " +
+                        "largeEnough=$isLargeEnough eyeSep=$hasEnoughEyeSeparation valid=$valid"
                 )
 
                 if (valid) {
@@ -119,8 +137,8 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
                             put("leftEye", face.getLandmark(FaceLandmark.LEFT_EYE).toJson(bitmapWidth, bitmapHeight))
                             put("rightEye", face.getLandmark(FaceLandmark.RIGHT_EYE).toJson(bitmapWidth, bitmapHeight))
                             put("nose", face.getLandmark(FaceLandmark.NOSE_BASE).toJson(bitmapWidth, bitmapHeight))
-                            put("leftMouth", face.getLandmark(FaceLandmark.LEFT_MOUTH).toJson(bitmapWidth, bitmapHeight))
-                            put("rightMouth", face.getLandmark(FaceLandmark.RIGHT_MOUTH).toJson(bitmapWidth, bitmapHeight))
+                            put("leftMouth", face.getLandmark(FaceLandmark.MOUTH_LEFT).toJson(bitmapWidth, bitmapHeight))
+                            put("rightMouth", face.getLandmark(FaceLandmark.MOUTH_RIGHT).toJson(bitmapWidth, bitmapHeight))
                         })
                     }
                 )
@@ -186,5 +204,11 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
         private val LOG_TAG = LogUtils.createTag<FaceDetectionHandler>()
         const val CHANNEL = "deckers.thibault/aves/face_detection"
         private const val MAX_BITMAP_DIMENSION = 720
+        private const val MIN_FACE_SIZE = 0.12f
+        private const val MIN_RELATIVE_FACE_EXTENT = 0.12f
+        private const val MIN_RELATIVE_FACE_AREA = 0.015f
+        private const val MIN_RELATIVE_EYE_DISTANCE = 0.04f
+        private const val MAX_ABS_YAW = 30f
+        private const val MAX_ABS_ROLL = 25f
     }
 }

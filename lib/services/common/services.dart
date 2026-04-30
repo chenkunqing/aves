@@ -8,6 +8,7 @@ import 'package:aves/services/device_service.dart';
 import 'package:aves/services/geocoding_service.dart';
 import 'package:aves/services/media/embedded_data_service.dart';
 import 'package:aves/services/media/media_edit_service.dart';
+import 'package:aves/services/media/exo_video_metadata_fetcher.dart';
 import 'package:aves/services/media/media_fetch_service.dart';
 import 'package:aves/services/media/media_session_service.dart';
 import 'package:aves/services/media/media_store_service.dart';
@@ -22,7 +23,7 @@ import 'package:aves_report_platform/aves_report_platform.dart';
 import 'package:aves_services/aves_services.dart';
 import 'package:aves_services_platform/aves_services_platform.dart';
 import 'package:aves_video/aves_video.dart';
-import 'package:aves_video_mpv/aves_video_mpv.dart';
+import 'package:aves_video_exo/aves_video_exo.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 
@@ -58,8 +59,8 @@ void initPlatformServices() {
   getIt.registerLazySingleton<p.Context>(p.Context.new);
   getIt.registerLazySingleton<AvesAvailability>(LiveAvesAvailability.new);
   getIt.registerLazySingleton<LocalMediaDb>(SqfliteLocalMediaDb.new);
-  getIt.registerLazySingleton<AvesVideoControllerFactory>(MpvVideoControllerFactory.new);
-  getIt.registerLazySingleton<AvesVideoMetadataFetcher>(MpvVideoMetadataFetcher.new);
+  getIt.registerLazySingleton<AvesVideoControllerFactory>(ExoVideoControllerFactory.new);
+  getIt.registerLazySingleton<AvesVideoMetadataFetcher>(ExoVideoMetadataFetcher.new);
 
   getIt.registerLazySingleton<AppService>(PlatformAppService.new);
   getIt.registerLazySingleton<AppProfileService>(PlatformAppProfileService.new);

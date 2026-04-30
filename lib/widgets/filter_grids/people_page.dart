@@ -51,7 +51,7 @@ class PeopleListPage extends StatelessWidget {
   }
 
   static List<FilterGridItem<PersonFilter>> _getGridItems(CollectionSource source) {
-    final filters = source.sortedPersonIds.map((id) => PersonFilter(id)).toSet();
+    final filters = source.sortedPersonIds.map((id) => PersonFilter(id)).where((filter) => source.personEntryCount(filter) > 1).toSet();
     return FilterNavigationPage.sort(settings.peopleSortFactor, settings.peopleSortReverse, source, filters);
   }
 

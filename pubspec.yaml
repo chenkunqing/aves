@@ -30,7 +30,6 @@ workspace:
   - plugins/aves_utils
   - plugins/aves_video
   - plugins/aves_video_exo
-  - plugins/aves_video_mpv
 
 # use `scripts/apply_flavor_{flavor}.sh` to set the right dependencies for the flavor
 dependencies:
@@ -56,10 +55,8 @@ dependencies:
     path: plugins/aves_services_none
   aves_video:
     path: plugins/aves_video
-  #  aves_video_exo:
-  #    path: plugins/aves_video_exo
-  aves_video_mpv:
-    path: plugins/aves_video_mpv
+  aves_video_exo:
+    path: plugins/aves_video_exo
   aves_ui:
     path: plugins/aves_ui
   aves_utils:
@@ -139,13 +136,6 @@ dependencies:
   vector_tile_renderer:
   volume_controller:
   xml:
-
-dependency_overrides:
-  media_kit_video:
-    git:
-      url: https://github.com/deckerst/media-kit.git
-      path: media_kit_video
-      ref: video_controller_disposal
 
 dev_dependencies:
   flutter_test:
