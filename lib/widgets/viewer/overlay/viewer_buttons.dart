@@ -278,7 +278,7 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
                   child: FontSizeIconTheme(
                     child: PopupMenuButton<EntryAction>(
                       key: const Key('entry-menu-button'),
-                      icon: mainEntry.trashed ? null : const Icon(AIcons.info),
+                      icon: mainEntry.trashed ? null : const Icon(AIcons.more),
                       itemBuilder: (context) {
                         final exportInternalActions = exportActions.whereNot(EntryActions.exportExternal.contains).toList();
                         final exportExternalActions = exportActions.where(EntryActions.exportExternal.contains).toList();
