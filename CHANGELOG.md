@@ -19,10 +19,15 @@ All notable changes to this project will be documented in this file.
 
 - Viewer: no longer hide overlay on playing video
 - build: package compressed native libraries for `izzy` flavor
+- build: switch the Android video backend from `mpv` to `ExoPlayer` for lighter APKs
 
 ### Fixed
 
 - Analysis: preserve all face embeddings for multi-face images and version embeddings by recognition model for safer rescans
+
+### Changed
+
+- Analysis: align faces by landmarks before embedding extraction, tune clustering thresholds by model, and prefer `buffalo_sc` recognition when available
 
 ### Removed
 

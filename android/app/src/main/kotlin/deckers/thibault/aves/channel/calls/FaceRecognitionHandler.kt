@@ -2,7 +2,10 @@ package deckers.thibault.aves.channel.calls
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Rect
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.RectF
 import android.net.Uri
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
@@ -18,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import java.nio.ByteBuffer
@@ -29,6 +33,7 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var interpreter: Interpreter? = null
     private var embeddingSize: Int = 0
+    private var activeModel: ModelConfig? = null
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
@@ -38,16 +43,26 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
         }
     }
 
+    private fun getActiveModel(): ModelConfig {
+        activeModel?.let { return it }
+
+        val availableAssets = context.assets.list(MODEL_ASSET_DIR)?.toSet().orEmpty()
+        val selected = MODEL_CANDIDATES.firstOrNull { availableAssets.contains(it.assetFileName) } ?: MODEL_CANDIDATES.last()
+        activeModel = selected
+        return selected
+    }
+
     private fun getInterpreter(): Interpreter {
         if (interpreter == null) {
-            val model = FileUtil.loadMappedFile(context, MODEL_ASSET_PATH)
+            val modelConfig = getActiveModel()
+            val model = FileUtil.loadMappedFile(context, modelConfig.assetPath)
             val options = Interpreter.Options().apply {
                 numThreads = 4
             }
             val interp = Interpreter(model, options)
             val outputShape = interp.getOutputTensor(0).shape()
             embeddingSize = if (outputShape.size >= 2) outputShape[1] else outputShape[0]
-            android.util.Log.d(LOG_TAG, "Model output shape: ${outputShape.contentToString()}, embeddingSize=$embeddingSize")
+            android.util.Log.d(LOG_TAG, "Model=${modelConfig.version} outputShape=${outputShape.contentToString()}, embeddingSize=$embeddingSize")
             interpreter = interp
         }
         return interpreter!!
@@ -64,70 +79,149 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
             return
         }
 
+        var bitmap: Bitmap? = null
+
         try {
-            val bitmap = loadBitmap(uri, width, height)
+            bitmap = loadBitmap(uri, width, height)
             if (bitmap == null) {
-                result.success(hashMapOf(
-                    "modelInfo" to createModelInfo(),
-                    "embeddings" to listOf<ByteArray>(),
-                ))
+                result.success(
+                    hashMapOf(
+                        "modelInfo" to createModelInfo(),
+                        "embeddings" to listOf<ByteArray>(),
+                    )
+                )
                 return
             }
+            val sourceBitmap = bitmap ?: return
 
+            val modelConfig = getActiveModel()
             val boxes = JSONArray(boundingBoxesJson)
-            val bitmapWidth = bitmap.width.toFloat()
-            val bitmapHeight = bitmap.height.toFloat()
+            val bitmapWidth = sourceBitmap.width.toFloat()
+            val bitmapHeight = sourceBitmap.height.toFloat()
             val embeddings = mutableListOf<ByteArray>()
 
             val interp = getInterpreter()
 
             for (i in 0 until boxes.length()) {
                 val box = boxes.getJSONObject(i)
-                val left = (box.getDouble("left") * bitmapWidth).toInt().coerceIn(0, bitmap.width - 1)
-                val top = (box.getDouble("top") * bitmapHeight).toInt().coerceIn(0, bitmap.height - 1)
-                val right = (box.getDouble("right") * bitmapWidth).toInt().coerceIn(left + 1, bitmap.width)
-                val bottom = (box.getDouble("bottom") * bitmapHeight).toInt().coerceIn(top + 1, bitmap.height)
+                val faceBitmap = createAlignedFaceBitmap(sourceBitmap, bitmapWidth, bitmapHeight, box, modelConfig.inputSize)
+                    ?: createFallbackFaceBitmap(sourceBitmap, bitmapWidth, bitmapHeight, box, modelConfig.inputSize)
+                    ?: continue
 
-                val faceWidth = right - left
-                val faceHeight = bottom - top
-                if (faceWidth < 10 || faceHeight < 10) continue
+                try {
+                    val inputBuffer = bitmapToInputBuffer(faceBitmap, modelConfig.inputSize)
 
-                val faceBitmap = Bitmap.createBitmap(bitmap, left, top, faceWidth, faceHeight)
-                val resized = Bitmap.createScaledBitmap(faceBitmap, INPUT_SIZE, INPUT_SIZE, true)
-                if (faceBitmap != resized) faceBitmap.recycle()
+                    val outputArray = Array(1) { FloatArray(embeddingSize) }
+                    interp.run(inputBuffer, outputArray)
 
-                val inputBuffer = bitmapToInputBuffer(resized)
-                resized.recycle()
-
-                val outputArray = Array(1) { FloatArray(embeddingSize) }
-                interp.run(inputBuffer, outputArray)
-
-                val embedding = l2Normalize(outputArray[0])
-                embeddings.add(floatArrayToByteArray(embedding))
+                    val embedding = l2Normalize(outputArray[0])
+                    embeddings.add(floatArrayToByteArray(embedding))
+                } finally {
+                    faceBitmap.takeUnless { it.isRecycled }?.recycle()
+                }
             }
 
-            bitmap.recycle()
-
-            result.success(hashMapOf(
-                "modelInfo" to createModelInfo(),
-                "embeddings" to embeddings,
-            ))
+            result.success(
+                hashMapOf(
+                    "modelInfo" to createModelInfo(),
+                    "embeddings" to embeddings,
+                )
+            )
         } catch (e: Exception) {
             result.error("extractEmbeddings-exception", e.message, e.stackTraceToString())
+        } finally {
+            bitmap?.takeUnless { it.isRecycled }?.recycle()
         }
     }
 
-    private fun createModelInfo() = hashMapOf(
-        "modelVersion" to MODEL_VERSION,
-        "assetPath" to MODEL_ASSET_PATH,
-        "inputSize" to INPUT_SIZE,
-    )
+    private fun createAlignedFaceBitmap(
+        bitmap: Bitmap,
+        bitmapWidth: Float,
+        bitmapHeight: Float,
+        box: JSONObject,
+        inputSize: Int,
+    ): Bitmap? {
+        val landmarks = box.optJSONObject("landmarks") ?: return null
+        val leftEye = landmarks.optJSONObject("leftEye") ?: return null
+        val rightEye = landmarks.optJSONObject("rightEye") ?: return null
+        val nose = landmarks.optJSONObject("nose") ?: return null
 
-    private fun bitmapToInputBuffer(bitmap: Bitmap): ByteBuffer {
-        val buffer = ByteBuffer.allocateDirect(1 * INPUT_SIZE * INPUT_SIZE * 3 * 4)
+        val src = floatArrayOf(
+            (leftEye.getDouble("x") * bitmapWidth).toFloat(),
+            (leftEye.getDouble("y") * bitmapHeight).toFloat(),
+            (rightEye.getDouble("x") * bitmapWidth).toFloat(),
+            (rightEye.getDouble("y") * bitmapHeight).toFloat(),
+            (nose.getDouble("x") * bitmapWidth).toFloat(),
+            (nose.getDouble("y") * bitmapHeight).toFloat(),
+        )
+        val scale = inputSize / REFERENCE_INPUT_SIZE.toFloat()
+        val dst = floatArrayOf(
+            REFERENCE_LEFT_EYE_X * scale,
+            REFERENCE_LEFT_EYE_Y * scale,
+            REFERENCE_RIGHT_EYE_X * scale,
+            REFERENCE_RIGHT_EYE_Y * scale,
+            REFERENCE_NOSE_X * scale,
+            REFERENCE_NOSE_Y * scale,
+        )
+
+        val matrix = Matrix()
+        if (!matrix.setPolyToPoly(src, 0, dst, 0, 3)) {
+            return null
+        }
+
+        val output = Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888)
+        Canvas(output).drawBitmap(bitmap, matrix, ALIGNMENT_PAINT)
+        return output
+    }
+
+    private fun createFallbackFaceBitmap(
+        bitmap: Bitmap,
+        bitmapWidth: Float,
+        bitmapHeight: Float,
+        box: JSONObject,
+        inputSize: Int,
+    ): Bitmap? {
+        val rect = RectF(
+            (box.getDouble("left") * bitmapWidth).toFloat(),
+            (box.getDouble("top") * bitmapHeight).toFloat(),
+            (box.getDouble("right") * bitmapWidth).toFloat(),
+            (box.getDouble("bottom") * bitmapHeight).toFloat(),
+        )
+        val expanded = expandBounds(rect, bitmapWidth, bitmapHeight)
+        if (expanded.width() < 10f || expanded.height() < 10f) return null
+
+        val faceBitmap = Bitmap.createBitmap(
+            bitmap,
+            expanded.left.toInt().coerceAtLeast(0),
+            expanded.top.toInt().coerceAtLeast(0),
+            expanded.width().toInt().coerceAtLeast(1),
+            expanded.height().toInt().coerceAtLeast(1),
+        )
+        val resized = Bitmap.createScaledBitmap(faceBitmap, inputSize, inputSize, true)
+        if (faceBitmap != resized) {
+            faceBitmap.recycle()
+        }
+        return resized
+    }
+
+    private fun expandBounds(rect: RectF, bitmapWidth: Float, bitmapHeight: Float): RectF {
+        val paddingX = rect.width() * FALLBACK_BOX_PADDING_RATIO
+        val paddingY = rect.height() * FALLBACK_BOX_PADDING_RATIO
+        return RectF(
+            (rect.left - paddingX).coerceAtLeast(0f),
+            (rect.top - paddingY).coerceAtLeast(0f),
+            (rect.right + paddingX).coerceAtMost(bitmapWidth),
+            (rect.bottom + paddingY).coerceAtMost(bitmapHeight),
+        )
+    }
+
+    private fun createModelInfo() = getActiveModel().toMap()
+
+    private fun bitmapToInputBuffer(bitmap: Bitmap, inputSize: Int): ByteBuffer {
+        val buffer = ByteBuffer.allocateDirect(1 * inputSize * inputSize * 3 * 4)
         buffer.order(ByteOrder.nativeOrder())
-        val pixels = IntArray(INPUT_SIZE * INPUT_SIZE)
-        bitmap.getPixels(pixels, 0, INPUT_SIZE, 0, 0, INPUT_SIZE, INPUT_SIZE)
+        val pixels = IntArray(inputSize * inputSize)
+        bitmap.getPixels(pixels, 0, inputSize, 0, 0, inputSize, inputSize)
         for (pixel in pixels) {
             buffer.putFloat(((pixel shr 16 and 0xFF) - 127.5f) / 127.5f)
             buffer.putFloat(((pixel shr 8 and 0xFF) - 127.5f) / 127.5f)
@@ -187,12 +281,57 @@ class FaceRecognitionHandler(private val context: Context) : MethodCallHandler {
         }
     }
 
+    private data class ModelConfig(
+        val version: String,
+        val assetPath: String,
+        val assetFileName: String,
+        val inputSize: Int,
+        val matchThreshold: Double,
+        val mergeThreshold: Double,
+    ) {
+        fun toMap() = hashMapOf(
+            "modelVersion" to version,
+            "assetPath" to assetPath,
+            "inputSize" to inputSize,
+            "matchThreshold" to matchThreshold,
+            "mergeThreshold" to mergeThreshold,
+        )
+    }
+
     companion object {
         private val LOG_TAG = LogUtils.createTag<FaceRecognitionHandler>()
-        const val CHANNEL = "deckers.thibault/aves/face_recognition"
-        private const val MODEL_ASSET_PATH = "models/mobilefacenet.tflite"
-        private const val MODEL_VERSION = "mobilefacenet-112x112-192-v1"
-        private const val INPUT_SIZE = 112
+        private const val MODEL_ASSET_DIR = "models"
         private const val MAX_BITMAP_DIMENSION = 720
+        private const val REFERENCE_INPUT_SIZE = 112
+        private const val REFERENCE_LEFT_EYE_X = 38.2946f
+        private const val REFERENCE_LEFT_EYE_Y = 51.6963f
+        private const val REFERENCE_RIGHT_EYE_X = 73.5318f
+        private const val REFERENCE_RIGHT_EYE_Y = 51.5014f
+        private const val REFERENCE_NOSE_X = 56.0252f
+        private const val REFERENCE_NOSE_Y = 71.7366f
+        private const val FALLBACK_BOX_PADDING_RATIO = 0.18f
+
+        private val ALIGNMENT_PAINT = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+
+        private val MODEL_CANDIDATES = listOf(
+            ModelConfig(
+                version = "buffalo_sc-112x112-v1-aligned",
+                assetPath = "models/buffalo_sc_recognition.tflite",
+                assetFileName = "buffalo_sc_recognition.tflite",
+                inputSize = 112,
+                matchThreshold = 0.62,
+                mergeThreshold = 0.70,
+            ),
+            ModelConfig(
+                version = "mobilefacenet-112x112-192-v2-aligned",
+                assetPath = "models/mobilefacenet.tflite",
+                assetFileName = "mobilefacenet.tflite",
+                inputSize = 112,
+                matchThreshold = 0.55,
+                mergeThreshold = 0.63,
+            ),
+        )
+
+        const val CHANNEL = "deckers.thibault/aves/face_recognition"
     }
 }

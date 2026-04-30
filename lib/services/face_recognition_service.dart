@@ -8,11 +8,15 @@ class FaceRecognitionModel {
   final String version;
   final String assetPath;
   final int inputSize;
+  final double matchThreshold;
+  final double mergeThreshold;
 
   const FaceRecognitionModel({
     required this.version,
     required this.assetPath,
     required this.inputSize,
+    required this.matchThreshold,
+    required this.mergeThreshold,
   });
 
   factory FaceRecognitionModel.fromMap(Map<dynamic, dynamic> map) {
@@ -20,6 +24,8 @@ class FaceRecognitionModel {
       version: map['modelVersion'] as String? ?? FaceRecognitionService.defaultModel.version,
       assetPath: map['assetPath'] as String? ?? FaceRecognitionService.defaultModel.assetPath,
       inputSize: map['inputSize'] as int? ?? FaceRecognitionService.defaultModel.inputSize,
+      matchThreshold: (map['matchThreshold'] as num?)?.toDouble() ?? FaceRecognitionService.defaultModel.matchThreshold,
+      mergeThreshold: (map['mergeThreshold'] as num?)?.toDouble() ?? FaceRecognitionService.defaultModel.mergeThreshold,
     );
   }
 }
@@ -37,9 +43,11 @@ class FaceRecognitionResult {
 class FaceRecognitionService {
   static const _channel = AvesMethodChannel('deckers.thibault/aves/face_recognition');
   static const defaultModel = FaceRecognitionModel(
-    version: 'mobilefacenet-112x112-192-v1',
+    version: 'mobilefacenet-112x112-192-v2-aligned',
     assetPath: 'models/mobilefacenet.tflite',
     inputSize: 112,
+    matchThreshold: 0.55,
+    mergeThreshold: 0.63,
   );
 
   FaceRecognitionModel? _model;

@@ -2,8 +2,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 class FaceClustering {
-  static const double similarityThreshold = 0.40;
-
   static List<double> bytesToEmbedding(Uint8List bytes) {
     final dim = bytes.lengthInBytes ~/ 4;
     final float32 = Float32List.view(bytes.buffer, bytes.offsetInBytes, dim);
@@ -25,9 +23,10 @@ class FaceClustering {
   static int? findMatchingPerson(
     List<double> faceEmbedding,
     Map<int, List<double>> personCentroids,
+    double similarityThreshold,
   ) {
     int? bestPersonId;
-    double bestSimilarity = similarityThreshold;
+    var bestSimilarity = similarityThreshold;
     for (final entry in personCentroids.entries) {
       final similarity = cosineSimilarity(faceEmbedding, entry.value);
       if (similarity > bestSimilarity) {
@@ -36,6 +35,29 @@ class FaceClustering {
       }
     }
     return bestPersonId;
+  }
+
+  static List<double> updateCentroid(List<double> centroid, int sampleCount, List<double> embedding) {
+    if (centroid.isEmpty) return List.of(embedding);
+    final dim = centroid.length;
+    final updated = List<double>.filled(dim, 0);
+    final weight = sampleCount.toDouble();
+    for (var i = 0; i < dim; i++) {
+      updated[i] = (centroid[i] * weight + embedding[i]) / (weight + 1);
+    }
+    return normalize(updated);
+  }
+
+  static List<double> combineCentroids(List<double> centroidA, int sampleCountA, List<double> centroidB, int sampleCountB) {
+    if (centroidA.isEmpty) return List.of(centroidB);
+    if (centroidB.isEmpty) return List.of(centroidA);
+    final dim = centroidA.length;
+    final updated = List<double>.filled(dim, 0);
+    final total = (sampleCountA + sampleCountB).toDouble();
+    for (var i = 0; i < dim; i++) {
+      updated[i] = (centroidA[i] * sampleCountA + centroidB[i] * sampleCountB) / total;
+    }
+    return normalize(updated);
   }
 
   static List<double> computeCentroid(List<List<double>> embeddings) {
@@ -51,16 +73,16 @@ class FaceClustering {
     for (int i = 0; i < dim; i++) {
       centroid[i] /= n;
     }
-    double norm = 0;
-    for (int i = 0; i < dim; i++) {
-      norm += centroid[i] * centroid[i];
+    return normalize(centroid);
+  }
+
+  static List<double> normalize(List<double> embedding) {
+    var norm = 0.0;
+    for (final value in embedding) {
+      norm += value * value;
     }
     norm = sqrt(norm);
-    if (norm > 0) {
-      for (int i = 0; i < dim; i++) {
-        centroid[i] /= norm;
-      }
-    }
-    return centroid;
+    if (norm == 0) return embedding;
+    return embedding.map((value) => value / norm).toList(growable: false);
   }
 }

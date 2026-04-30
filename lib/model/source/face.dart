@@ -99,7 +99,6 @@ mixin FaceMixin on SourceBase {
       if (controller.isStopping) return;
 
       final entryId = entry.key;
-      final boundingBoxes = entry.value;
       final avesEntry = getEntryById(entryId);
       if (avesEntry == null) {
         setProgress(done: ++progressDone, total: progressTotal);
@@ -107,6 +106,23 @@ mixin FaceMixin on SourceBase {
       }
 
       try {
+        var boundingBoxes = entry.value;
+        if (_needsFaceRedetection(boundingBoxes)) {
+          final detectionResult = await faceDetectionService.detectFaces(
+            uri: avesEntry.uri,
+            mimeType: avesEntry.mimeType,
+            rotationDegrees: avesEntry.rotationDegrees,
+            width: avesEntry.width,
+            height: avesEntry.height,
+          );
+          if (detectionResult.faceCount <= 0 || detectionResult.boundingBoxes == null) {
+            setProgress(done: ++progressDone, total: progressTotal);
+            continue;
+          }
+          boundingBoxes = detectionResult.boundingBoxes!;
+          await entryFaces.save(entryId, detectionResult.faceCount, boundingBoxes);
+        }
+
         final recognitionResult = await faceRecognitionService.extractEmbeddings(
           uri: avesEntry.uri,
           width: avesEntry.width,
@@ -127,6 +143,21 @@ mixin FaceMixin on SourceBase {
       }
 
       setProgress(done: ++progressDone, total: progressTotal);
+    }
+  }
+
+  bool _needsFaceRedetection(String boundingBoxes) {
+    try {
+      final boxesJson = jsonDecode(boundingBoxes) as List;
+      if (boxesJson.isEmpty) return true;
+      return boxesJson.any((box) {
+        if (box is! Map) return true;
+        final landmarks = box['landmarks'];
+        if (landmarks is! Map) return true;
+        return landmarks['leftEye'] == null || landmarks['rightEye'] == null || landmarks['nose'] == null;
+      });
+    } catch (_) {
+      return true;
     }
   }
 

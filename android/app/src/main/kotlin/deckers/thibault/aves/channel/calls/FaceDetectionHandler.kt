@@ -3,7 +3,6 @@ package deckers.thibault.aves.channel.calls
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DecodeFormat
@@ -12,7 +11,9 @@ import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.google.mlkit.vision.face.FaceLandmark
 import deckers.thibault.aves.channel.calls.Coresult.Companion.safe
 import deckers.thibault.aves.utils.LogUtils
 import io.flutter.plugin.common.MethodCall
@@ -24,6 +25,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.math.abs
 import kotlin.math.max
 
 class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
@@ -46,73 +48,96 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
             return
         }
 
+        var bitmap: Bitmap? = null
+        var detector: FaceDetector? = null
+
         try {
-            val bitmap = loadThumbnail(uri, width, height)
+            bitmap = loadThumbnail(uri, width, height)
             if (bitmap == null) {
                 result.success(hashMapOf("faceCount" to 0))
                 return
             }
+            val workingBitmap = bitmap ?: return
 
-            val image = InputImage.fromBitmap(bitmap, 0)
+            val image = InputImage.fromBitmap(workingBitmap, 0)
             val options = FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                .setMinFaceSize(0.15f)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                .setMinFaceSize(0.10f)
                 .build()
-            val detector = FaceDetection.getClient(options)
+            val faceDetector = FaceDetection.getClient(options)
+            detector = faceDetector
 
-            val faces: List<Face> = Tasks.await(detector.process(image))
-
-            val bitmapWidth = bitmap.width.toFloat()
-            val bitmapHeight = bitmap.height.toFloat()
+            val faces: List<Face> = Tasks.await(faceDetector.process(image))
+            val bitmapWidth = workingBitmap.width.toFloat()
+            val bitmapHeight = workingBitmap.height.toFloat()
 
             val debugLines = mutableListOf<String>()
-            debugLines.add("bitmap=${bitmap.width}x${bitmap.height}, raw=${faces.size} faces")
+            debugLines.add("bitmap=${workingBitmap.width}x${workingBitmap.height}, raw=${faces.size} faces")
 
             val validFaces = mutableListOf<Face>()
             for ((i, face) in faces.withIndex()) {
-                val b = face.boundingBox
-                val relW = String.format("%.2f", (b.right - b.left) / bitmapWidth)
-                val relH = String.format("%.2f", (b.bottom - b.top) / bitmapHeight)
-                val hasLeftEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.LEFT_EYE) != null
-                val hasRightEye = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.RIGHT_EYE) != null
-                val hasNose = face.getLandmark(com.google.mlkit.vision.face.FaceLandmark.NOSE_BASE) != null
-                val leftEyeOpen = face.leftEyeOpenProbability
-                val rightEyeOpen = face.rightEyeOpenProbability
-                val smile = face.smilingProbability
+                val bounds = face.boundingBox
+                val relW = String.format("%.2f", (bounds.right - bounds.left) / bitmapWidth)
+                val relH = String.format("%.2f", (bounds.bottom - bounds.top) / bitmapHeight)
+                val yaw = face.headEulerAngleY
+                val roll = face.headEulerAngleZ
+                val hasLeftEye = face.getLandmark(FaceLandmark.LEFT_EYE) != null
+                val hasRightEye = face.getLandmark(FaceLandmark.RIGHT_EYE) != null
+                val hasNose = face.getLandmark(FaceLandmark.NOSE_BASE) != null
+                val hasLeftMouth = face.getLandmark(FaceLandmark.LEFT_MOUTH) != null
+                val hasRightMouth = face.getLandmark(FaceLandmark.RIGHT_MOUTH) != null
 
-                val hasLandmarks = hasLeftEye && hasRightEye && hasNose
-                val hasClassification = leftEyeOpen != null && rightEyeOpen != null
-                val valid = hasLandmarks && hasClassification
+                val hasCoreLandmarks = hasLeftEye && hasRightEye && hasNose
+                val isPoseAcceptable = abs(yaw) <= 40 && abs(roll) <= 35
+                val valid = hasCoreLandmarks && isPoseAcceptable
 
-                debugLines.add("face[$i] size=${relW}x${relH} LE=$hasLeftEye RE=$hasRightEye nose=$hasNose LEopen=${leftEyeOpen?.let { String.format("%.2f", it) }} REopen=${rightEyeOpen?.let { String.format("%.2f", it) }} smile=${smile?.let { String.format("%.2f", it) }} valid=$valid")
+                debugLines.add(
+                    "face[$i] size=${relW}x${relH} yaw=${String.format("%.1f", yaw)} roll=${String.format("%.1f", roll)} " +
+                        "LE=$hasLeftEye RE=$hasRightEye nose=$hasNose LM=$hasLeftMouth RM=$hasRightMouth valid=$valid"
+                )
 
-                if (valid) validFaces.add(face)
+                if (valid) {
+                    validFaces.add(face)
+                }
             }
             debugLines.add("validFaces=${validFaces.size}")
 
             val boundingBoxes = JSONArray()
             for (face in validFaces) {
                 val bounds = face.boundingBox
-                boundingBoxes.put(JSONObject().apply {
-                    put("left", (bounds.left / bitmapWidth).toDouble())
-                    put("top", (bounds.top / bitmapHeight).toDouble())
-                    put("right", (bounds.right / bitmapWidth).toDouble())
-                    put("bottom", (bounds.bottom / bitmapHeight).toDouble())
-                })
+                boundingBoxes.put(
+                    JSONObject().apply {
+                        put("left", (bounds.left / bitmapWidth).toDouble())
+                        put("top", (bounds.top / bitmapHeight).toDouble())
+                        put("right", (bounds.right / bitmapWidth).toDouble())
+                        put("bottom", (bounds.bottom / bitmapHeight).toDouble())
+                        put("yaw", face.headEulerAngleY.toDouble())
+                        put("roll", face.headEulerAngleZ.toDouble())
+                        put("landmarks", JSONObject().apply {
+                            put("leftEye", face.getLandmark(FaceLandmark.LEFT_EYE).toJson(bitmapWidth, bitmapHeight))
+                            put("rightEye", face.getLandmark(FaceLandmark.RIGHT_EYE).toJson(bitmapWidth, bitmapHeight))
+                            put("nose", face.getLandmark(FaceLandmark.NOSE_BASE).toJson(bitmapWidth, bitmapHeight))
+                            put("leftMouth", face.getLandmark(FaceLandmark.LEFT_MOUTH).toJson(bitmapWidth, bitmapHeight))
+                            put("rightMouth", face.getLandmark(FaceLandmark.RIGHT_MOUTH).toJson(bitmapWidth, bitmapHeight))
+                        })
+                    }
+                )
             }
 
-            result.success(hashMapOf(
-                "faceCount" to validFaces.size,
-                "boundingBoxes" to boundingBoxes.toString(),
-                "debugInfo" to debugLines.joinToString("\n"),
-            ))
-
-            bitmap.recycle()
-            detector.close()
+            result.success(
+                hashMapOf(
+                    "faceCount" to validFaces.size,
+                    "boundingBoxes" to boundingBoxes.toString(),
+                    "debugInfo" to debugLines.joinToString("\n"),
+                )
+            )
         } catch (e: Exception) {
             result.error("detectFaces-exception", e.message, e.stackTraceToString())
+        } finally {
+            bitmap?.takeUnless { it.isRecycled }?.recycle()
+            detector?.close()
         }
     }
 
@@ -136,10 +161,12 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
             Glide.with(context)
                 .asBitmap()
                 .load(uri)
-                .apply(RequestOptions()
-                    .format(DecodeFormat.PREFER_RGB_565)
-                    .override(targetWidth, targetHeight)
-                    .disallowHardwareConfig())
+                .apply(
+                    RequestOptions()
+                        .format(DecodeFormat.PREFER_RGB_565)
+                        .override(targetWidth, targetHeight)
+                        .disallowHardwareConfig()
+                )
                 .submit()
                 .get()
         } catch (e: Exception) {
@@ -147,9 +174,17 @@ class FaceDetectionHandler(private val context: Context) : MethodCallHandler {
         }
     }
 
+    private fun com.google.mlkit.vision.face.FaceLandmark?.toJson(bitmapWidth: Float, bitmapHeight: Float): JSONObject? {
+        val point = this?.position ?: return null
+        return JSONObject().apply {
+            put("x", (point.x / bitmapWidth).toDouble())
+            put("y", (point.y / bitmapHeight).toDouble())
+        }
+    }
+
     companion object {
         private val LOG_TAG = LogUtils.createTag<FaceDetectionHandler>()
         const val CHANNEL = "deckers.thibault/aves/face_detection"
-        private const val MAX_BITMAP_DIMENSION = 480
+        private const val MAX_BITMAP_DIMENSION = 720
     }
 }

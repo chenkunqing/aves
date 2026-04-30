@@ -8,6 +8,7 @@ import 'package:aves/model/person.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/face_recognition_service.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -26,7 +27,8 @@ mixin PersonMixin on SourceBase {
     // always re-cluster from scratch to use the latest threshold
     await _resetClustering();
 
-    final allFaces = await localMediaDb.loadUnassignedFaceEmbeddings();
+    final model = await faceRecognitionService.getModel();
+    final allFaces = (await localMediaDb.loadUnassignedFaceEmbeddings()).where((face) => face.modelVersion == model.version).toList();
     if (allFaces.isEmpty) return;
 
     state = SourceState.clusteringFaces;
@@ -35,6 +37,7 @@ mixin PersonMixin on SourceBase {
     setProgress(done: progressDone, total: progressTotal);
 
     final personCentroids = <int, List<double>>{};
+    final personSampleCounts = <int, int>{};
     final personBestFace = <int, (int entryId, String boundingBox, double area)>{};
 
     for (final face in allFaces) {
@@ -42,19 +45,24 @@ mixin PersonMixin on SourceBase {
 
       try {
         final embedding = FaceClustering.bytesToEmbedding(face.embedding);
-        var matchedPersonId = FaceClustering.findMatchingPerson(embedding, personCentroids);
+        var matchedPersonId = FaceClustering.findMatchingPerson(embedding, personCentroids, model.matchThreshold);
 
         if (matchedPersonId == null) {
           final personCount = personStore.personCount;
-          matchedPersonId = await personStore.addPerson(PersonRow(
-            name: '人物 ${personCount + 1}',
-            coverEntryId: face.entryId,
-          ));
+          matchedPersonId = await personStore.addPerson(
+            PersonRow(
+              name: '人物 ${personCount + 1}',
+              coverEntryId: face.entryId,
+            ),
+          );
           personCentroids[matchedPersonId] = embedding;
+          personSampleCounts[matchedPersonId] = 1;
         } else {
-          final existingEmbeddings = personCentroids[matchedPersonId];
-          if (existingEmbeddings != null) {
-            personCentroids[matchedPersonId] = FaceClustering.computeCentroid([existingEmbeddings, embedding]);
+          final existingCentroid = personCentroids[matchedPersonId];
+          if (existingCentroid != null) {
+            final sampleCount = personSampleCounts[matchedPersonId] ?? 1;
+            personCentroids[matchedPersonId] = FaceClustering.updateCentroid(existingCentroid, sampleCount, embedding);
+            personSampleCounts[matchedPersonId] = sampleCount + 1;
           }
         }
 
@@ -75,7 +83,6 @@ mixin PersonMixin on SourceBase {
       setProgress(done: ++progressDone, total: progressTotal);
     }
 
-    // update cover to the entry with the largest face for each person
     for (final entry in personBestFace.entries) {
       final person = personStore.getById(entry.key);
       if (person != null) {
@@ -85,9 +92,7 @@ mixin PersonMixin on SourceBase {
       }
     }
 
-    // merge pass: merge persons whose centroids are too similar
-    await _mergeClosePersons(personCentroids);
-
+    await _mergeClosePersons(personCentroids, personSampleCounts, model.mergeThreshold);
     updatePersons();
   }
 
@@ -108,26 +113,40 @@ mixin PersonMixin on SourceBase {
     personStore.resetCache();
   }
 
-  Future<void> _mergeClosePersons(Map<int, List<double>> personCentroids) async {
-    const mergeThreshold = 0.45;
+  Future<void> _mergeClosePersons(
+    Map<int, List<double>> personCentroids,
+    Map<int, int> personSampleCounts,
+    double mergeThreshold,
+  ) async {
     final personIds = personCentroids.keys.toList();
-    for (int i = 0; i < personIds.length; i++) {
-      for (int j = i + 1; j < personIds.length; j++) {
+    for (var i = 0; i < personIds.length; i++) {
+      for (var j = i + 1; j < personIds.length; j++) {
         final idA = personIds[i];
         final idB = personIds[j];
         if (!personCentroids.containsKey(idA) || !personCentroids.containsKey(idB)) continue;
+
         final similarity = FaceClustering.cosineSimilarity(personCentroids[idA]!, personCentroids[idB]!);
         if (similarity > mergeThreshold) {
-          // merge B into A: reassign all faces from B to A
           final facesOfB = await localMediaDb.loadFaceEmbeddingsByPersonId(idB);
           for (final face in facesOfB) {
             if (face.faceId != null) {
               await localMediaDb.updateFaceEmbeddingPersonId(face.faceId!, idA);
             }
           }
+
           await personStore.removePerson(idB);
           personStore.mergePersonInCache(idB, idA);
-          personCentroids[idA] = FaceClustering.computeCentroid([personCentroids[idA]!, personCentroids[idB]!]);
+
+          final sampleCountA = personSampleCounts[idA] ?? 1;
+          final sampleCountB = personSampleCounts[idB] ?? 1;
+          personCentroids[idA] = FaceClustering.combineCentroids(
+            personCentroids[idA]!,
+            sampleCountA,
+            personCentroids[idB]!,
+            sampleCountB,
+          );
+          personSampleCounts[idA] = sampleCountA + sampleCountB;
+          personSampleCounts.remove(idB);
           personCentroids.remove(idB);
           personIds.removeAt(j);
           j--;
@@ -144,8 +163,6 @@ mixin PersonMixin on SourceBase {
       eventBus.fire(PersonsChangedEvent());
     }
   }
-
-  // filter summary
 
   final Map<int, int> _personFilterEntryCountMap = {};
   final Map<int, int> _personFilterSizeMap = {};

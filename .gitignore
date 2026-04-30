@@ -60,3 +60,9 @@ CHANGELOG.md
 
 # Temp analysis files
 architecture.html
+
+# Local face model conversion artifacts
+/.py312pkgs/
+/.tmp-pip/
+/.venv-buffalo-sc/
+/buffalo_sc.zip
