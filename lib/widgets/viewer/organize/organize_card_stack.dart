@@ -381,17 +381,27 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
   }
 
   void _onSwipeUp() {
+    final basket = context.read<OrganizeBasket>();
     final entry = entries[currentIndex];
-    context.read<OrganizeBasket>().addToDeletion(entry, currentIndex);
-    _pendingIndex = currentIndex + 1;
+    basket.addToDeletion(entry, currentIndex);
+    var targetIndex = currentIndex + 1;
+    while (targetIndex < entries.length && basket.shouldSkip(entries[targetIndex])) {
+      targetIndex++;
+    }
+    _pendingIndex = targetIndex;
   }
 
   void _onSwipeDown() {
+    final basket = context.read<OrganizeBasket>();
     final entry = entries[currentIndex];
-    context.read<OrganizeBasket>().toggleFavourite(entry);
+    basket.toggleFavourite(entry);
     setState(() => _showFavouriteAnimation = true);
     _favouriteController.forward(from: 0);
-    _pendingIndex = currentIndex + 1;
+    var targetIndex = currentIndex + 1;
+    while (targetIndex < entries.length && basket.shouldSkip(entries[targetIndex])) {
+      targetIndex++;
+    }
+    _pendingIndex = targetIndex;
   }
 
   void _onSwipeLeft() {

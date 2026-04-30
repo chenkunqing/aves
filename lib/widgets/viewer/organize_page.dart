@@ -195,7 +195,11 @@ class _OrganizePageState extends State<OrganizePage> {
     _undoMessageNotifier.value = isCopy
         ? l10n.collectionCopySuccessFeedback(1)
         : l10n.collectionMoveSuccessFeedback(1);
-    _cardStackKey.currentState?.goToIndex(currentIndex + 1);
+    var targetIndex = currentIndex + 1;
+    while (targetIndex < _entries.length && _basket.shouldSkip(_entries[targetIndex])) {
+      targetIndex++;
+    }
+    _cardStackKey.currentState?.goToIndex(targetIndex);
   }
 
   Future<void> _onExitRequested() async {
