@@ -34,7 +34,6 @@ object XMP {
     // standard namespaces
     // cf com.adobe.internal.xmp.XMPConst
     private const val DC_NS_URI = "http://purl.org/dc/elements/1.1/"
-    private const val MICROSOFTPHOTO_NS_URI = "http://ns.microsoft.com/photo/1.0/"
     private const val PHOTOSHOP_NS_URI = "http://ns.adobe.com/photoshop/1.0/"
     private const val XMP_NS_URI = "http://ns.adobe.com/xap/1.0/"
 
@@ -46,10 +45,8 @@ object XMP {
     val DC_SUBJECT_PROP_NAME = XMPPropName(DC_NS_URI, "subject")
     val DC_DESCRIPTION_PROP_NAME = XMPPropName(DC_NS_URI, "description")
     val DC_TITLE_PROP_NAME = XMPPropName(DC_NS_URI, "title")
-    val MS_RATING_PROP_NAME = XMPPropName(MICROSOFTPHOTO_NS_URI, "Rating")
     val PS_DATE_CREATED_PROP_NAME = XMPPropName(PHOTOSHOP_NS_URI, "DateCreated")
     val XMP_CREATE_DATE_PROP_NAME = XMPPropName(XMP_NS_URI, "CreateDate")
-    val XMP_RATING_PROP_NAME = XMPPropName(XMP_NS_URI, "Rating")
 
     private const val GENERIC_LANG = ""
     private const val SPECIFIC_LANG = "en-US"

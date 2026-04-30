@@ -251,8 +251,6 @@ class AvesEntry with AvesEntryBase {
 
   bool get isHdr => _catalogMetadata?.isHdr ?? false;
 
-  int get rating => _catalogMetadata?.rating ?? 0;
-
   @override
   int get rotationDegrees => _catalogMetadata?.rotationDegrees ?? sourceRotationDegrees;
 

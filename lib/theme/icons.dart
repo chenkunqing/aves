@@ -52,9 +52,6 @@ class AIcons {
   static const person = Symbols.person;
   static const people = Symbols.group;
   static const privacy = Symbols.shield_person;
-  static const rating = Symbols.star;
-  static final ratingRejected = MdiIcons.starMinusOutline;
-  static final ratingUnrated = MdiIcons.starOffOutline;
   static const raw = Symbols.raw_on;
   static const sensorControlEnabled = Symbols.explore;
   static const sensorControlDisabled = Symbols.explore_off;

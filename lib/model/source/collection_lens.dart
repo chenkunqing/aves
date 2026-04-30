@@ -11,7 +11,6 @@ import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/query.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -166,8 +165,6 @@ class CollectionLens with ChangeNotifier {
       case .name:
       case .path:
         return showAlbumHeaders();
-      case .rating:
-        return !filters.any((f) => f is RatingFilter);
       case .size:
       case .duration:
         return false;
@@ -269,8 +266,6 @@ class CollectionLens with ChangeNotifier {
         _filteredSortedEntries.sort(AvesEntrySort.compareByDate);
       case .name:
         _filteredSortedEntries.sort(AvesEntrySort.compareByName);
-      case .rating:
-        _filteredSortedEntries.sort(AvesEntrySort.compareByRating);
       case .size:
         _filteredSortedEntries.sort(AvesEntrySort.compareBySize);
       case .duration:
@@ -307,8 +302,6 @@ class CollectionLens with ChangeNotifier {
           final byAlbum = groupBy<AvesEntry, EntryAlbumSectionKey>(_filteredSortedEntries, (entry) => EntryAlbumSectionKey(entry.directory));
           final int Function(EntryAlbumSectionKey, EntryAlbumSectionKey) compare = sortReverse ? (a, b) => source.compareAlbumsByName(b.directory, a.directory) : (a, b) => source.compareAlbumsByName(a.directory, b.directory);
           sections = SplayTreeMap<EntryAlbumSectionKey, List<AvesEntry>>.of(byAlbum, compare);
-        case .rating:
-          sections = groupBy<AvesEntry, EntryRatingSectionKey>(_filteredSortedEntries, (entry) => EntryRatingSectionKey(entry.rating));
         case .size:
         case .duration:
           sections = Map.fromEntries([

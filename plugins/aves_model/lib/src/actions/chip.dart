@@ -4,8 +4,6 @@ enum ChipAction {
   goToPlacePage,
   goToTagPage,
   goToExplorerPage,
-  ratingOrGreater,
-  ratingOrLower,
   decompose,
   reverse,
   hide,

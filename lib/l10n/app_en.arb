@@ -167,7 +167,6 @@
   "entryInfoActionEditDate": "Edit date & time",
   "entryInfoActionEditLocation": "Edit location",
   "entryInfoActionEditTitleDescription": "Edit title & description",
-  "entryInfoActionEditRating": "Edit rating",
   "entryInfoActionEditTags": "Edit tags",
   "entryInfoActionRemoveMetadata": "Remove metadata",
   "entryInfoActionExportMetadata": "Export metadata",
@@ -190,13 +189,11 @@
   "filterNoAddressLabel": "No address",
   "filterLocatedLabel": "Located",
   "filterNoLocationLabel": "Unlocated",
-  "filterNoRatingLabel": "Unrated",
   "filterTaggedLabel": "Tagged",
   "filterNoTagLabel": "Untagged",
   "filterNoTitleLabel": "Untitled",
   "filterOnThisDayLabel": "On this day",
   "filterRecentlyAddedLabel": "Recently added",
-  "filterRatingRejectedLabel": "Rejected",
   "filterTypeAnimatedLabel": "Animated",
   "filterTypeMotionPhotoLabel": "Motion Photo",
   "filterTypePanoramaLabel": "Panorama",
@@ -537,8 +534,6 @@
 
   "locationPickerUseThisLocationButton": "Use this location",
 
-  "editEntryRatingDialogTitle": "Rating",
-
   "removeEntryMetadataDialogTitle": "Metadata Removal",
   "removeEntryMetadataDialogAll": "All",
   "removeEntryMetadataDialogMore": "More",
@@ -770,7 +765,6 @@
   "sortByItemCount": "By item count",
   "sortBySize": "By size",
   "sortByAlbumFileName": "By album & item title",
-  "sortByRating": "By rating",
   "sortByDuration": "By duration",
   "sortByPath": "By path",
 
@@ -840,7 +834,6 @@
   "searchStatesSectionTitle": "States",
   "searchPlacesSectionTitle": "Places",
   "searchTagsSectionTitle": "Tags",
-  "searchRatingSectionTitle": "Ratings",
   "searchAspectRatioSectionTitle": "Aspect Ratio",
   "searchMetadataSectionTitle": "Metadata",
 
@@ -903,7 +896,6 @@
   "settingsThumbnailShowTagIcon": "Show tag icon",
   "settingsThumbnailShowLocationIcon": "Show location icon",
   "settingsThumbnailShowMotionPhotoIcon": "Show motion photo icon",
-  "settingsThumbnailShowRating": "Show rating",
   "settingsThumbnailShowRawIcon": "Show raw icon",
   "settingsThumbnailShowVideoDuration": "Show video duration",
 
@@ -939,7 +931,6 @@
   "settingsViewerShowZoomLevel": "Show zoom level",
   "settingsViewerShowInformation": "Show information",
   "settingsViewerShowInformationSubtitle": "Show title, date, location, etc.",
-  "settingsViewerShowRatingTags": "Show rating & tags",
   "settingsViewerShowShootingDetails": "Show shooting details",
   "settingsViewerShowDescription": "Show description",
   "settingsViewerShowOverlayThumbnails": "Show thumbnails",

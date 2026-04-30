@@ -7,7 +7,6 @@ import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/explorer/explorer_page.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/countries_page.dart';
-import 'package:aves/widgets/filter_grids/people_page.dart';
 import 'package:aves/widgets/filter_grids/tags_page.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:aves_model/aves_model.dart';
@@ -44,7 +43,6 @@ class SettingsDefaults {
     AlbumListPage.routeName,
     CountryListPage.routeName,
     TagListPage.routeName,
-    PeopleListPage.routeName,
     ExplorerPage.routeName,
   ];
   static final bottomNavigationActions = [
@@ -69,7 +67,6 @@ class SettingsDefaults {
   static const thumbnailLocationIcon = ThumbnailOverlayLocationIcon.none;
   static const thumbnailTagIcon = ThumbnailOverlayTagIcon.none;
   static const showThumbnailMotionPhoto = true;
-  static const showThumbnailRating = true;
   static const showThumbnailRaw = true;
   static const showThumbnailVideoDuration = true;
 
@@ -90,7 +87,6 @@ class SettingsDefaults {
   static const overlayHistogramStyle = OverlayHistogramStyle.none;
   static const showOverlayInfo = true;
   static const showOverlayDescription = false;
-  static const showOverlayRatingTags = false;
   static const showOverlayShootingDetails = false;
   static const showOverlayThumbnailPreview = true;
   static const viewerGestureSideTapNext = false;

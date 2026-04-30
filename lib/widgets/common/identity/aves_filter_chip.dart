@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/filters/filters.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/colors.dart';
@@ -115,10 +114,6 @@ class AvesFilterChip extends StatefulWidget {
           switch (action) {
             case .reverse:
               text = filter.reversed ? context.l10n.chipActionFilterIn : context.l10n.chipActionFilterOut;
-            case .ratingOrGreater:
-              text = RatingFilter.formatRatingRange(context, (filter as RatingFilter).rating, RatingFilter.opOrGreater);
-            case .ratingOrLower:
-              text = RatingFilter.formatRatingRange(context, (filter as RatingFilter).rating, RatingFilter.opOrLower);
             default:
               text = action.getText(context);
           }

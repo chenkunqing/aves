@@ -10,7 +10,6 @@ import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/move_button.dart';
-import 'package:aves/widgets/common/action_controls/quick_choosers/rate_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/share_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/tag_button.dart';
 import 'package:aves/widgets/common/action_controls/togglers/favourite.dart';
@@ -562,13 +561,6 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
         return _buildFromListenable(videoController?.canSelectStreamNotifier);
       case .videoSetSpeed:
         return _buildFromListenable(videoController?.canSetSpeedNotifier);
-      case .editRating:
-        return RateButton(
-          blurred: blurred,
-          onChooserValue: (rating) => actionDelegate.quickRate(context, rating),
-          focusNode: focusNode,
-          onPressed: onPressed,
-        );
       case .editTags:
         return TagButton(
           blurred: blurred,

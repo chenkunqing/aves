@@ -13,8 +13,8 @@ import 'package:aves/widgets/viewer/overlay/details/description.dart';
 import 'package:aves/widgets/viewer/overlay/details/expander.dart';
 import 'package:aves/widgets/viewer/overlay/details/location.dart';
 import 'package:aves/widgets/viewer/overlay/details/position_title.dart';
-import 'package:aves/widgets/viewer/overlay/details/rating_tags.dart';
 import 'package:aves/widgets/viewer/overlay/details/shooting.dart';
+import 'package:aves/widgets/viewer/overlay/details/tags.dart';
 import 'package:aves/widgets/viewer/page_entry_builder.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/foundation.dart';
@@ -174,7 +174,6 @@ class ViewerDetailOverlayContent extends StatelessWidget {
 
   List<Widget> _buildRows(BuildContext context) {
     final infoMaxWidth = availableWidth - padding.horizontal;
-    final showRatingTags = settings.showOverlayRatingTags;
     final showShootingDetails = settings.showOverlayShootingDetails;
     final showDescription = settings.showOverlayDescription;
 
@@ -219,9 +218,7 @@ class ViewerDetailOverlayContent extends StatelessWidget {
     if (!collapsedLocation) {
       rows.add(_buildLocationFullRow(context));
     }
-    if (showRatingTags) {
-      rows.add(_buildRatingTagsFullRow(context));
-    }
+    rows.add(_buildTagsFullRow(context));
     if (showDescription) {
       rows.add(_buildDescriptionFullRow(context, infoMaxWidth));
     }
@@ -236,12 +233,12 @@ class ViewerDetailOverlayContent extends StatelessWidget {
     ),
   );
 
-  Widget _buildRatingTagsFullRow(BuildContext context) => _buildFullRowSwitcher(
+  Widget _buildTagsFullRow(BuildContext context) => _buildFullRowSwitcher(
     context: context,
-    visible: pageEntry.rating != 0 || pageEntry.tags.isNotEmpty,
+    visible: pageEntry.tags.isNotEmpty,
     builder: (context) => OverlayRowExpander(
       expandedNotifier: expandedNotifier,
-      child: OverlayRatingTagsRow(entry: pageEntry),
+      child: OverlayTagsRow(entry: pageEntry),
     ),
   );
 

@@ -140,8 +140,6 @@ extension ExtraAvesEntryProps on AvesEntry {
 
   bool get canEditTitleDescription => canEdit && isXmpEditionSupported;
 
-  bool get canEditRating => canEdit && isXmpEditionSupported;
-
   bool get canEditTags => canEdit && isXmpEditionSupported;
 
   bool get canRotate => canEdit && (isExifEditionSupported || mimeType == MimeTypes.mp4);

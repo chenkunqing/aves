@@ -10,7 +10,6 @@ class CatalogMetadata {
   final String? mimeType, xmpSubjects, xmpTitle;
   double? latitude, longitude;
   Address? address;
-  int rating;
 
   // less lenient than Flutter's `precisionErrorTolerance` (1e-10)
   static const double _precisionErrorTolerance = 1e-9;
@@ -39,7 +38,6 @@ class CatalogMetadata {
     this.xmpTitle,
     double? latitude,
     double? longitude,
-    this.rating = 0,
   }) {
     // Geocoder throws an `IllegalArgumentException` when a coordinate has a funky value like `1.7056881853375E7`
     // We also exclude zero coordinates, taking into account precision errors (e.g. {5.952380952380953e-11,-2.7777777777777777e-10}),
@@ -81,7 +79,6 @@ class CatalogMetadata {
       xmpTitle: xmpTitle,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
-      rating: rating,
     );
   }
 
@@ -104,7 +101,6 @@ class CatalogMetadata {
       xmpTitle: map['xmpTitle'] ?? '',
       latitude: map['latitude'],
       longitude: map['longitude'],
-      rating: map['rating'] ?? 0,
     );
   }
 
@@ -125,12 +121,11 @@ class CatalogMetadata {
     'xmpTitle': xmpTitle,
     'latitude': latitude,
     'longitude': longitude,
-    'rating': rating,
   };
 
   @override
   String toString() =>
       '$runtimeType#${shortHash(this)}{id=$id, mimeType=$mimeType, dateMillis=$dateMillis'
       ', isAnimated=$isAnimated, isFlipped=$isFlipped, isGeotiff=$isGeotiff, is360=$is360, isMultiPage=$isMultiPage, isMotionPhoto=$isMotionPhoto, isHdr=$isHdr'
-      ', rotationDegrees=$rotationDegrees, xmpSubjects=$xmpSubjects, xmpTitle=$xmpTitle, latitude=$latitude, longitude=$longitude, rating=$rating}';
+      ', rotationDegrees=$rotationDegrees, xmpSubjects=$xmpSubjects, xmpTitle=$xmpTitle, latitude=$latitude, longitude=$longitude}';
 }

@@ -129,7 +129,6 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
         return isMain && isSelecting && !isTrash && canWrite;
@@ -188,7 +187,6 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
         return hasSelection;
@@ -260,8 +258,6 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _editLocation(context);
       case .editTitleDescription:
         _editTitleDescription(context);
-      case .editRating:
-        _editRating(context);
       case .editTags:
         _editTags(context);
       case .removeMetadata:
@@ -730,18 +726,6 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     if (modifier == null) return;
 
     await _edit(context, entries, (entry) => entry.editTitleDescription(modifier));
-  }
-
-  Future<void> quickRate(BuildContext context, int rating) => _editRating(context, rating: rating);
-
-  Future<void> _editRating(BuildContext context, {int? rating}) async {
-    final entries = await _getEditableTargetItems(context, canEdit: (entry) => entry.canEditRating);
-    if (entries == null || entries.isEmpty) return;
-
-    rating ??= await selectRating(context, entries);
-    if (rating == null) return;
-
-    await _edit(context, entries, (entry) => entry.editRating(rating));
   }
 
   Future<void> quickTag(BuildContext context, CollectionFilter filter) async {

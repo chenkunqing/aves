@@ -12,9 +12,6 @@ extension ExtraChipActionView on ChipAction {
       ChipAction.goToPlacePage => l10n.chipActionGoToPlacePage,
       ChipAction.goToTagPage => l10n.chipActionGoToTagPage,
       ChipAction.goToExplorerPage => l10n.chipActionGoToExplorerPage,
-      ChipAction.ratingOrGreater || ChipAction.ratingOrLower =>
-        // different data depending on state
-        toString(),
       ChipAction.decompose => l10n.chipActionDecompose,
       ChipAction.reverse =>
         // different data depending on state
@@ -32,7 +29,6 @@ extension ExtraChipActionView on ChipAction {
     ChipAction.goToPlacePage => AIcons.place,
     ChipAction.goToTagPage => AIcons.tag,
     ChipAction.goToExplorerPage => AIcons.explorer,
-    ChipAction.ratingOrGreater || ChipAction.ratingOrLower => AIcons.rating,
     ChipAction.decompose => AIcons.split,
     ChipAction.reverse => AIcons.reverse,
     ChipAction.hide => AIcons.hide,

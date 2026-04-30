@@ -19,7 +19,6 @@ import 'package:aves/model/filters/face_count.dart';
 import 'package:aves/services/face_detection_service.dart';
 import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/mime.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/type.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
@@ -30,7 +29,6 @@ import 'package:aves/theme/format.dart';
 import 'package:aves/utils/file_utils.dart';
 import 'package:aves/utils/time_utils.dart';
 import 'package:aves/view/view.dart';
-import 'package:aves/widgets/common/action_controls/quick_choosers/rate_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/tag_button.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
@@ -153,7 +151,6 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
       if (dateTime != null) DateFilter(DateLevel.ymd, dateTime.date),
       if (album != null) StoredAlbumFilter(album, collection?.source.getStoredAlbumDisplayName(context, album)),
       ...dynamicAlbums.all.where((v) => v.test(entry)).toSet(),
-      if (entry.rating != 0) RatingFilter(entry.rating),
       ...tags.map(TagFilter.new),
       if (entryFaces.isGroupPhoto(entry.id)) FaceCountFilter(2),
     };
@@ -191,7 +188,6 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
     final entry = widget.entry;
     final children =
         [
-              EntryAction.editRating,
               EntryAction.editTags,
             ]
             .where(
@@ -231,12 +227,6 @@ class _BasicSectionState extends State<BasicSection> with AutomaticKeepAliveClie
         final onPressed = isEditing ? null : () => actionDelegate.onActionSelected(context, entry, collection, action);
         Widget button;
         switch (action) {
-          case .editRating:
-            button = RateButton(
-              blurred: false,
-              onChooserValue: (rating) => actionDelegate.quickRate(context, entry, rating),
-              onPressed: onPressed,
-            );
           case .editTags:
             button = TagButton(
               blurred: false,

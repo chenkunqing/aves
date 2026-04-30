@@ -5,7 +5,6 @@ import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/path.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/highlight.dart';
 import 'package:aves/model/settings/settings.dart';
@@ -41,10 +40,6 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
         return filter is TagFilter;
       case .goToExplorerPage:
         return (filter is StoredAlbumFilter && !vaults.isVault(filter.album)) || filter is PathFilter;
-      case .ratingOrGreater:
-        return filter is RatingFilter && 1 <= filter.rating && filter.rating < 5 && filter.op != RatingFilter.opOrGreater;
-      case .ratingOrLower:
-        return filter is RatingFilter && 1 < filter.rating && filter.rating <= 5 && filter.op != RatingFilter.opOrLower;
       case .decompose:
         return filter is DynamicAlbumFilter;
       case .reverse:
@@ -84,10 +79,6 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
             (route) => false,
           );
         }
-      case .ratingOrGreater:
-        SelectFilterNotification((filter as RatingFilter).copyWith(RatingFilter.opOrGreater)).dispatch(context);
-      case .ratingOrLower:
-        SelectFilterNotification((filter as RatingFilter).copyWith(RatingFilter.opOrLower)).dispatch(context);
       case .decompose:
         DecomposeFilterNotification(filter).dispatch(context);
       case .reverse:

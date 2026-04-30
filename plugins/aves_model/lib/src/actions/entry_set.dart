@@ -33,7 +33,6 @@ enum EntrySetAction {
   editDate,
   editLocation,
   editTitleDescription,
-  editRating,
   editTags,
   removeMetadata,
 }
@@ -119,7 +118,6 @@ class EntrySetActions {
     EntrySetAction.editDate,
     EntrySetAction.editLocation,
     EntrySetAction.editTitleDescription,
-    EntrySetAction.editRating,
     EntrySetAction.editTags,
     EntrySetAction.removeMetadata,
   ];
@@ -128,7 +126,6 @@ class EntrySetActions {
     EntrySetAction.editDate,
     EntrySetAction.editLocation,
     EntrySetAction.editTitleDescription,
-    EntrySetAction.editRating,
     EntrySetAction.editTags,
     EntrySetAction.removeMetadata,
   ];

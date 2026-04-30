@@ -21,7 +21,6 @@ import 'package:aves/model/filters/path.dart';
 import 'package:aves/model/filters/person.dart';
 import 'package:aves/model/filters/placeholder.dart';
 import 'package:aves/model/filters/query.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/recent.dart';
 import 'package:aves/model/filters/trash.dart';
 import 'package:aves/model/filters/type.dart';
@@ -52,7 +51,6 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
     LocationFilter.type,
     CoordinateFilter.type,
     FavouriteFilter.type,
-    RatingFilter.type,
     TagFilter.type,
     AspectRatioFilter.type,
     FaceCountFilter.type,
@@ -105,8 +103,6 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
         return PlaceholderFilter.fromMap(jsonMap);
       case QueryFilter.type:
         return QueryFilter.fromMap(jsonMap);
-      case RatingFilter.type:
-        return RatingFilter.fromMap(jsonMap);
       case RecentlyAddedFilter.type:
         return RecentlyAddedFilter.fromMap(jsonMap);
       case StoredAlbumFilter.type:

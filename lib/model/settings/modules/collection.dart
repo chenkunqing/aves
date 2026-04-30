@@ -46,10 +46,6 @@ mixin CollectionSettings on SettingsAccess {
 
   set showThumbnailMotionPhoto(bool newValue) => set(SettingKeys.showThumbnailMotionPhotoKey, newValue);
 
-  bool get showThumbnailRating => getBool(SettingKeys.showThumbnailRatingKey) ?? SettingsDefaults.showThumbnailRating;
-
-  set showThumbnailRating(bool newValue) => set(SettingKeys.showThumbnailRatingKey, newValue);
-
   bool get showThumbnailRaw => getBool(SettingKeys.showThumbnailRawKey) ?? SettingsDefaults.showThumbnailRaw;
 
   set showThumbnailRaw(bool newValue) => set(SettingKeys.showThumbnailRawKey, newValue);

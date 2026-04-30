@@ -30,10 +30,6 @@ mixin ViewerSettings on SettingsAccess {
 
   set showOverlayDescription(bool newValue) => set(SettingKeys.showOverlayDescriptionKey, newValue);
 
-  bool get showOverlayRatingTags => getBool(SettingKeys.showOverlayRatingTagsKey) ?? SettingsDefaults.showOverlayRatingTags;
-
-  set showOverlayRatingTags(bool newValue) => set(SettingKeys.showOverlayRatingTagsKey, newValue);
-
   bool get showOverlayShootingDetails => getBool(SettingKeys.showOverlayShootingDetailsKey) ?? SettingsDefaults.showOverlayShootingDetails;
 
   set showOverlayShootingDetails(bool newValue) => set(SettingKeys.showOverlayShootingDetailsKey, newValue);

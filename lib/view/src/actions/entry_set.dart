@@ -45,7 +45,6 @@ extension ExtraEntrySetActionView on EntrySetAction {
       EntrySetAction.editDate => l10n.entryInfoActionEditDate,
       EntrySetAction.editLocation => l10n.entryInfoActionEditLocation,
       EntrySetAction.editTitleDescription => l10n.entryInfoActionEditTitleDescription,
-      EntrySetAction.editRating => l10n.entryInfoActionEditRating,
       EntrySetAction.editTags => l10n.entryInfoActionEditTags,
       EntrySetAction.removeMetadata => l10n.entryInfoActionRemoveMetadata,
     };
@@ -93,7 +92,6 @@ extension ExtraEntrySetActionView on EntrySetAction {
       EntrySetAction.editDate => AIcons.date,
       EntrySetAction.editLocation => AIcons.location,
       EntrySetAction.editTitleDescription => AIcons.description,
-      EntrySetAction.editRating => AIcons.rating,
       EntrySetAction.editTags => AIcons.tag,
       EntrySetAction.removeMetadata => AIcons.clear,
     };

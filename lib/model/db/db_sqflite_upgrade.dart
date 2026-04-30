@@ -67,6 +67,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom18(db);
         case 19:
           await _upgradeFrom19(db);
+        case 20:
+          await _upgradeFrom20(db);
       }
       oldVersion++;
     }
@@ -645,5 +647,33 @@ class LocalMediaDbUpgrader {
       await db.execute('ALTER TABLE $faceEmbeddingsTable ADD COLUMN modelVersion TEXT NOT NULL DEFAULT \'\'');
     }
     await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
+  }
+
+  static Future<void> _upgradeFrom20(Database db) async {
+    debugPrint('upgrading DB from v20');
+
+    await db.transaction((txn) async {
+      const newMetadataTable = '${metadataTable}TEMP';
+      await db.execute(
+        'CREATE TABLE $newMetadataTable ('
+        'id INTEGER PRIMARY KEY'
+        ', mimeType TEXT'
+        ', dateMillis INTEGER'
+        ', flags INTEGER'
+        ', rotationDegrees INTEGER'
+        ', xmpSubjects TEXT'
+        ', xmpTitle TEXT'
+        ', latitude REAL'
+        ', longitude REAL'
+        ')',
+      );
+      await db.rawInsert(
+        'INSERT INTO $newMetadataTable (id,mimeType,dateMillis,flags,rotationDegrees,xmpSubjects,xmpTitle,latitude,longitude)'
+        ' SELECT id,mimeType,dateMillis,flags,rotationDegrees,xmpSubjects,xmpTitle,latitude,longitude'
+        ' FROM $metadataTable;',
+      );
+      await db.execute('DROP TABLE $metadataTable;');
+      await db.execute('ALTER TABLE $newMetadataTable RENAME TO $metadataTable;');
+    });
   }
 }

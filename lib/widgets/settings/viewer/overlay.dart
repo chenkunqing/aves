@@ -62,17 +62,6 @@ class ViewerOverlayPage extends StatelessWidget {
               selector: (context, s) => s.showOverlayInfo,
               builder: (context, showInfo, child) {
                 return SettingsSwitchListTile(
-                  selector: (context, s) => s.showOverlayRatingTags,
-                  onChanged: showInfo ? (v) => settings.showOverlayRatingTags = v : null,
-                  title: l10n.settingsViewerShowRatingTags,
-                  trailing: _trailingIcon(context, AIcons.tag),
-                );
-              },
-            ),
-            Selector<Settings, bool>(
-              selector: (context, s) => s.showOverlayInfo,
-              builder: (context, showInfo, child) {
-                return SettingsSwitchListTile(
                   selector: (context, s) => s.showOverlayDescription,
                   onChanged: showInfo ? (v) => settings.showOverlayDescription = v : null,
                   title: l10n.settingsViewerShowDescription,

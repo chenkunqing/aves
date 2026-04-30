@@ -73,7 +73,6 @@ class SettingKeys {
   static const thumbnailLocationIconKey = 'thumbnail_location_icon';
   static const thumbnailTagIconKey = 'thumbnail_tag_icon';
   static const showThumbnailMotionPhotoKey = 'show_thumbnail_motion_photo';
-  static const showThumbnailRatingKey = 'show_thumbnail_rating';
   static const showThumbnailRawKey = 'show_thumbnail_raw';
   static const showThumbnailVideoDurationKey = 'show_thumbnail_video_duration';
 
@@ -106,7 +105,6 @@ class SettingKeys {
   static const overlayHistogramStyleKey = 'show_overlay_histogram';
   static const showOverlayInfoKey = 'show_overlay_info';
   static const showOverlayDescriptionKey = 'show_overlay_description';
-  static const showOverlayRatingTagsKey = 'show_overlay_rating_tags';
   static const showOverlayShootingDetailsKey = 'show_overlay_shooting_details';
   static const showOverlayThumbnailPreviewKey = 'show_overlay_thumbnail_preview';
   static const viewerGestureSideTapNextKey = 'viewer_gesture_side_tap_next';

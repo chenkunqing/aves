@@ -108,7 +108,6 @@ import java.nio.charset.StandardCharsets
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.util.Locale
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import androidx.exifinterface.media.ExifInterfaceFork as ExifInterface
 
@@ -520,9 +519,6 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
     // set `KEY_XMP_SUBJECTS` from these fields (by precedence):
     // - XMP / dc:subject
     // - IPTC / keywords
-    // set `KEY_RATING` from these fields (by precedence):
-    // - XMP / xmp:Rating
-    // - XMP / MicrosoftPhoto:Rating
     private fun getCatalogMetadata(call: MethodCall, result: MethodChannel.Result) {
         val mimeType = call.argument<String>("mimeType")
         val uri = call.argument<String>("uri")?.toUri()
@@ -640,15 +636,6 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
                     xmpMeta.getSafeDateMillis(XMP.XMP_CREATE_DATE_PROP_NAME) { metadataMap[KEY_DATE_MILLIS] = it }
                     if (!metadataMap.containsKey(KEY_DATE_MILLIS)) {
                         xmpMeta.getSafeDateMillis(XMP.PS_DATE_CREATED_PROP_NAME) { metadataMap[KEY_DATE_MILLIS] = it }
-                    }
-                }
-
-                xmpMeta.getSafeInt(XMP.XMP_RATING_PROP_NAME) { metadataMap[KEY_RATING] = it }
-                if (!metadataMap.containsKey(KEY_RATING)) {
-                    xmpMeta.getSafeInt(XMP.MS_RATING_PROP_NAME) { percentRating ->
-                        // values of 1,25,50,75,99% correspond to 1,2,3,4,5 stars
-                        val standardRating = (percentRating / 25f).roundToInt() + 1
-                        metadataMap[KEY_RATING] = standardRating
                     }
                 }
 
@@ -1517,9 +1504,8 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
         private const val KEY_ROTATION_DEGREES = "rotationDegrees"
         private const val KEY_LATITUDE = "latitude"
         private const val KEY_LONGITUDE = "longitude"
-        private const val KEY_XMP_SUBJECTS = "xmpSubjects"
         private const val KEY_XMP_TITLE = "xmpTitle"
-        private const val KEY_RATING = "rating"
+        private const val KEY_XMP_SUBJECTS = "xmpSubjects"
 
         private const val MASK_IS_ANIMATED = 1 shl 0
         private const val MASK_IS_FLIPPED = 1 shl 1

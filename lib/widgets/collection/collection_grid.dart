@@ -726,7 +726,6 @@ class _CollectionScrollViewState extends State<_CollectionScrollView> with Widge
       case .name:
       case .path:
         addAlbums(collection, sectionLayouts, crumbs);
-      case .rating:
       case .size:
       case .duration:
         break;

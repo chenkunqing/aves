@@ -13,7 +13,6 @@ import 'package:aves/widgets/common/basic/tv_edge_focus.dart';
 import 'package:aves/widgets/viewer/action/entry_info_action_delegate.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves/widgets/viewer/info/basic_section.dart';
-import 'package:aves/widgets/viewer/info/color_section.dart';
 import 'package:aves/widgets/viewer/info/embedded/embedded_data_opener.dart';
 import 'package:aves/widgets/viewer/info/info_app_bar.dart';
 import 'package:aves/widgets/viewer/info/location_section.dart';
@@ -264,15 +263,6 @@ class _InfoPageContentState extends State<_InfoPageContent> {
               metadataNotifier: _metadataNotifier,
             ),
           ),
-          if (!settings.useTvLayout)
-            SliverPadding(
-              padding: horizontalPadding + const EdgeInsets.only(bottom: 8),
-              sliver: ColorSectionSliver(
-                entry: entry,
-                collection: collection,
-                onFilterSelection: _onFilterSelection,
-              ),
-            ),
           const BottomPaddingSliver(),
         ],
       ),

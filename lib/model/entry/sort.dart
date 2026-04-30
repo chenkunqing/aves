@@ -21,14 +21,6 @@ class AvesEntrySort {
   }
 
   // compare by:
-  // 1) rating descending
-  // 2) date descending
-  static int compareByRating(AvesEntry a, AvesEntry b) {
-    final c = b.rating.compareTo(a.rating);
-    return c != 0 ? c : compareByDate(a, b);
-  }
-
-  // compare by:
   // 1) size descending
   // 2) date descending
   static int compareBySize(AvesEntry a, AvesEntry b) {

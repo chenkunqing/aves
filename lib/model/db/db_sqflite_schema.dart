@@ -79,7 +79,6 @@ class SqfliteLocalMediaDbSchema {
           ', xmpTitle TEXT'
           ', latitude REAL'
           ', longitude REAL'
-          ', rating INTEGER'
           ')',
         );
       case addressTable:

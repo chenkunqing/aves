@@ -22,7 +22,6 @@ import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/edit_date_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/edit_description_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/edit_location_dialog.dart';
-import 'package:aves/widgets/dialogs/entry_editors/edit_rating_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/remove_metadata_dialog.dart';
 import 'package:aves/widgets/dialogs/entry_editors/tag_editor_page.dart';
 import 'package:aves_model/aves_model.dart';
@@ -70,18 +69,6 @@ mixin EntryEditorMixin {
         initialDescription: initialDescription,
       ),
       routeSettings: const RouteSettings(name: EditEntryTitleDescriptionDialog.routeName),
-    );
-  }
-
-  Future<int?> selectRating(BuildContext context, Set<AvesEntry> entries) async {
-    if (entries.isEmpty) return null;
-
-    return showDialog<int>(
-      context: context,
-      builder: (context) => EditEntryRatingDialog(
-        entry: entries.first,
-      ),
-      routeSettings: const RouteSettings(name: EditEntryRatingDialog.routeName),
     );
   }
 

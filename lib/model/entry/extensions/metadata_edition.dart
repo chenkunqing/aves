@@ -291,30 +291,6 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
     return dataTypes;
   }
 
-  // write:
-  // - XMP / xmp:Rating
-  // update:
-  // - XMP / MicrosoftPhoto:Rating
-  // ignore (Windows tags, not part of Exif 2.32 spec):
-  // - Exif / Rating
-  // - Exif / RatingPercent
-  Future<Set<EntryDataType>> editRating(int? rating) async {
-    final dataTypes = <EntryDataType>{};
-    final metadata = <MetadataType, dynamic>{};
-
-    if (isXmpEditionSupported) {
-      metadata[MetadataType.xmp] = await _editXmp((descriptions) {
-        return editRatingXmp(descriptions, rating);
-      });
-    }
-
-    final newFields = await metadataEditService.editMetadata(this, metadata);
-    if (newFields.isNotEmpty) {
-      dataTypes.add(EntryDataType.catalog);
-    }
-    return dataTypes;
-  }
-
   // remove:
   // - trailer video
   // - XMP / Container:Directory
@@ -381,29 +357,6 @@ extension ExtraAvesEntryMetadataEdition on AvesEntry {
       namespace: XmpNamespaces.dc,
       strat: XmpEditStrategy.always,
     );
-  }
-
-  @visibleForTesting
-  static bool editRatingXmp(List<XmlNode> descriptions, int? rating) {
-    bool modified = false;
-
-    modified |= XMP.setAttribute(
-      descriptions,
-      XmpElements.xmpRating,
-      (rating ?? 0) == 0 ? null : '$rating',
-      namespace: XmpNamespaces.xmp,
-      strat: XmpEditStrategy.always,
-    );
-
-    modified |= XMP.setAttribute(
-      descriptions,
-      XmpElements.msPhotoRating,
-      XMP.toMsPhotoRating(rating),
-      namespace: XmpNamespaces.microsoftPhoto,
-      strat: XmpEditStrategy.updateIfPresent,
-    );
-
-    return modified;
   }
 
   @visibleForTesting

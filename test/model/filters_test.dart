@@ -15,7 +15,6 @@ import 'package:aves/model/filters/missing.dart';
 import 'package:aves/model/filters/path.dart';
 import 'package:aves/model/filters/placeholder.dart';
 import 'package:aves/model/filters/query.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/recent.dart';
 import 'package:aves/model/filters/type.dart';
 import 'package:aves/model/filters/weekday.dart';
@@ -72,9 +71,6 @@ void main() {
 
     final query = QueryFilter('some query');
     expect(query, jsonRoundTrip(query));
-
-    final rating = RatingFilter(3);
-    expect(rating, jsonRoundTrip(rating));
 
     final recent = RecentlyAddedFilter.instance;
     expect(recent, jsonRoundTrip(recent));

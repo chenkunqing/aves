@@ -49,7 +49,6 @@ Future<void> configureAndLaunch() async {
     ..overlayHistogramStyle = OverlayHistogramStyle.none
     ..showOverlayInfo = true
     ..showOverlayDescription = false
-    ..showOverlayRatingTags = false
     ..showOverlayShootingDetails = false
     ..showOverlayThumbnailPreview = false
     ..viewerUseCutout = true

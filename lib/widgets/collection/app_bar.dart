@@ -27,7 +27,6 @@ import 'package:aves/widgets/collection/filter_bar.dart';
 import 'package:aves/widgets/collection/query_bar.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/move_button.dart';
-import 'package:aves/widgets/common/action_controls/quick_choosers/rate_button.dart';
 import 'package:aves/widgets/common/action_controls/quick_choosers/tag_button.dart';
 import 'package:aves/widgets/common/action_controls/togglers/favourite.dart';
 import 'package:aves/widgets/common/action_controls/togglers/title_search.dart';
@@ -89,7 +88,6 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
     EntrySortFactor.date,
     EntrySortFactor.size,
     EntrySortFactor.name,
-    EntrySortFactor.rating,
     EntrySortFactor.duration,
     EntrySortFactor.path,
   ];
@@ -580,13 +578,6 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
           onChooserValue: (album) => _actionDelegate.quickMove(context, album, copy: false),
           onPressed: onPressed,
         );
-      case .editRating:
-        return RateButton(
-          blurred: blurred,
-          onChooserValue: (rating) => _actionDelegate.quickRate(context, rating),
-          focusNode: focusNode,
-          onPressed: onPressed,
-        );
       case .editTags:
         return TagButton(
           blurred: blurred,
@@ -785,7 +776,6 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
         _actionDelegate.onActionSelected(context, action);

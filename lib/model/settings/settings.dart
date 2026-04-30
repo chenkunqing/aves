@@ -5,7 +5,9 @@ import 'package:aves/app_flavor.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/dynamic_albums.dart';
 import 'package:aves/model/filters/favourite.dart';
+import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/mime.dart';
+import 'package:aves/model/filters/person.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/settings/defaults.dart';
 import 'package:aves/model/settings/enums/accessibility_animations.dart';
@@ -30,8 +32,10 @@ import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/countries_page.dart';
 import 'package:aves/widgets/filter_grids/places_page.dart';
 import 'package:aves/widgets/filter_grids/tags_page.dart';
+import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:aves_map/aves_map.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:aves_video/aves_video.dart';
 import 'package:aves_utils/aves_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -57,8 +61,11 @@ class Settings
         PrivacySettings,
         ScreenSaverSettings,
         SlideshowSettings,
+        VideoSettings,
         ViewerSettings,
         WidgetSettings {
+  static const _legacyPeopleRouteName = '/people';
+
   final Set<StreamSubscription> _subscriptions = {};
   final EventChannel _platformSettingsChangeChannel = const OptionalEventChannel('deckers.thibault/aves/settings_change');
   final StreamController<SettingsChangedEvent> _updateStreamController = StreamController.broadcast();
@@ -185,6 +192,21 @@ class Settings
     resetShowTitleQuery();
   }
 
+  Set<CollectionFilter> _withoutPersonFilters(Iterable<CollectionFilter> filters) {
+    return filters.where((filter) => filter is! PersonFilter).toSet();
+  }
+
+  List<CollectionFilter?> _withoutPersonDrawerFilters(Iterable<CollectionFilter?> filters) {
+    return filters.where((filter) => filter is! PersonFilter).toList();
+  }
+
+  List<AvesNavItem> _withoutPeopleNavItems(Iterable<AvesNavItem> items) {
+    return items
+        .where((item) => item.route != _legacyPeopleRouteName)
+        .where((item) => !(item.filters?.any((filter) => filter is PersonFilter) ?? false))
+        .toList();
+  }
+
   Future<void> sanitize() async {
     if (timeToTakeAction == AccessibilityTimeout.system && !await AccessibilityService.hasRecommendedTimeouts()) {
       set(SettingKeys.timeToTakeActionKey, null);
@@ -193,6 +215,50 @@ class Settings
       set(SettingKeys.viewerUseCutoutKey, null);
     }
     collectionBurstPatterns = collectionBurstPatterns.where(BurstPatterns.options.contains).toList();
+
+    final sanitizedHomeCustomCollection = _withoutPersonFilters(homeCustomCollection);
+    if (sanitizedHomeCustomCollection.length != homeCustomCollection.length) {
+      setHome(
+        homePage,
+        customCollection: sanitizedHomeCustomCollection,
+        customExplorerPath: homeCustomExplorerPath,
+      );
+    }
+
+    final sanitizedDrawerTypeBookmarks = _withoutPersonDrawerFilters(drawerTypeBookmarks);
+    if (sanitizedDrawerTypeBookmarks.length != drawerTypeBookmarks.length) {
+      drawerTypeBookmarks = sanitizedDrawerTypeBookmarks;
+    }
+
+    final sanitizedDrawerPageBookmarks = drawerPageBookmarks.where((route) => route != _legacyPeopleRouteName).toList();
+    if (sanitizedDrawerPageBookmarks.length != drawerPageBookmarks.length) {
+      drawerPageBookmarks = sanitizedDrawerPageBookmarks;
+    }
+
+    final sanitizedPinnedFilters = _withoutPersonFilters(pinnedFilters);
+    if (sanitizedPinnedFilters.length != pinnedFilters.length) {
+      pinnedFilters = sanitizedPinnedFilters;
+    }
+
+    final sanitizedHiddenFilters = _withoutPersonFilters(hiddenFilters);
+    if (sanitizedHiddenFilters.length != hiddenFilters.length) {
+      hiddenFilters = sanitizedHiddenFilters;
+    }
+
+    final sanitizedDeactivatedHiddenFilters = _withoutPersonFilters(deactivatedHiddenFilters);
+    if (sanitizedDeactivatedHiddenFilters.length != deactivatedHiddenFilters.length) {
+      deactivatedHiddenFilters = sanitizedDeactivatedHiddenFilters;
+    }
+
+    final sanitizedScreenSaverFilters = _withoutPersonFilters(screenSaverCollectionFilters);
+    if (sanitizedScreenSaverFilters.length != screenSaverCollectionFilters.length) {
+      screenSaverCollectionFilters = sanitizedScreenSaverFilters;
+    }
+
+    final sanitizedBottomNavigationActions = _withoutPeopleNavItems(bottomNavigationActions);
+    if (sanitizedBottomNavigationActions.length != bottomNavigationActions.length) {
+      bottomNavigationActions = sanitizedBottomNavigationActions;
+    }
 
     for (final key in {
       SettingKeys.isErrorReportingAllowedKey,
@@ -459,7 +525,6 @@ class Settings
           case SettingKeys.showThumbnailFavouriteKey:
           case SettingKeys.showThumbnailHdrKey:
           case SettingKeys.showThumbnailMotionPhotoKey:
-          case SettingKeys.showThumbnailRatingKey:
           case SettingKeys.showThumbnailRawKey:
           case SettingKeys.showThumbnailVideoDurationKey:
           case SettingKeys.albumSortReverseKey:
@@ -473,7 +538,6 @@ class Settings
           case SettingKeys.showOverlayZoomLevelKey:
           case SettingKeys.showOverlayInfoKey:
           case SettingKeys.showOverlayDescriptionKey:
-          case SettingKeys.showOverlayRatingTagsKey:
           case SettingKeys.showOverlayShootingDetailsKey:
           case SettingKeys.showOverlayThumbnailPreviewKey:
           case SettingKeys.viewerGestureSideTapNextKey:

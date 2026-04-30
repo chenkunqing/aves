@@ -44,7 +44,6 @@ class GridTheme extends StatelessWidget {
           locationIcon: showLocation ? settings.thumbnailLocationIcon : ThumbnailOverlayLocationIcon.none,
           tagIcon: settings.thumbnailTagIcon,
           showMotionPhoto: settings.showThumbnailMotionPhoto,
-          showRating: settings.showThumbnailRating,
           showRaw: settings.showThumbnailRaw,
           showTrash: showTrash ?? true,
           showVideoDuration: settings.showThumbnailVideoDuration,
@@ -59,7 +58,7 @@ typedef GridThemeIconBuilder = List<Widget> Function(BuildContext context, AvesE
 
 class GridThemeData {
   final double iconSize, fontSize, highlightBorderWidth, interactiveDimension;
-  final bool showFavourite, showHdr, showMotionPhoto, showRating, showRaw, showTrash, showVideoDuration;
+  final bool showFavourite, showHdr, showMotionPhoto, showRaw, showTrash, showVideoDuration;
   final bool showLocated, showUnlocated, showTagged, showUntagged;
   late final GridThemeIconBuilder iconBuilder;
 
@@ -73,7 +72,6 @@ class GridThemeData {
     required ThumbnailOverlayLocationIcon locationIcon,
     required ThumbnailOverlayTagIcon tagIcon,
     required this.showMotionPhoto,
-    required this.showRating,
     required this.showRaw,
     required this.showTrash,
     required this.showVideoDuration,
@@ -91,7 +89,6 @@ class GridThemeData {
         if (!tagged && showUntagged) TagIcon.untagged(),
         if (located && showLocated) LocationIcon.located(),
         if (!located && showUnlocated) LocationIcon.unlocated(),
-        if (entry.rating != 0 && showRating) RatingIcon(entry: entry),
         if (entry.isHdr && showHdr) const HdrIcon(),
         if (entry.isPureVideo)
           VideoIcon(entry: entry)

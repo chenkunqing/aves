@@ -130,7 +130,6 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .editDate:
         case .editLocation:
         case .editTitleDescription:
-        case .editRating:
         case .editTags:
         case .removeMetadata:
         case .exportMetadata:
@@ -157,7 +156,6 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
       case .exportMetadata:
@@ -291,7 +289,6 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
       case .exportMetadata:
@@ -385,11 +382,6 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         if (!success) showNoMatchingAppDialog(context);
       });
     }
-  }
-
-  void quickRate(BuildContext context, int rating) {
-    final targetEntry = _getTargetEntry(context, EntryAction.editRating);
-    _metadataActionDelegate.quickRate(context, targetEntry, rating);
   }
 
   void quickTag(BuildContext context, CollectionFilter filter) {

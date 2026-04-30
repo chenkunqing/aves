@@ -42,7 +42,6 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
       case .editDate:
       case .editLocation:
       case .editTitleDescription:
-      case .editRating:
       case .editTags:
       case .removeMetadata:
         return canWrite;
@@ -78,8 +77,6 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         return targetEntry.canEditLocation;
       case .editTitleDescription:
         return targetEntry.canEditTitleDescription;
-      case .editRating:
-        return targetEntry.canEditRating;
       case .editTags:
         return targetEntry.canEditTags;
       case .removeMetadata:
@@ -110,8 +107,6 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
         await _editLocation(context, targetEntry, collection);
       case .editTitleDescription:
         await _editTitleDescription(context, targetEntry);
-      case .editRating:
-        await _editRating(context, targetEntry);
       case .editTags:
         await _editTags(context, targetEntry);
       case .removeMetadata:
@@ -156,19 +151,6 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
     if (modifier == null) return;
 
     await edit(context, targetEntry, () => targetEntry.editTitleDescription(modifier));
-  }
-
-  Future<void> _editRating(BuildContext context, AvesEntry targetEntry) async {
-    final rating = await selectRating(context, {targetEntry});
-    if (rating == null) return;
-
-    await quickRate(context, targetEntry, rating);
-  }
-
-  Future<void> quickRate(BuildContext context, AvesEntry targetEntry, int rating) async {
-    if (targetEntry.rating == rating) return;
-
-    await edit(context, targetEntry, () => targetEntry.editRating(rating));
   }
 
   Future<void> _editTags(BuildContext context, AvesEntry targetEntry) async {

@@ -9,7 +9,6 @@ import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/filters.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -69,7 +68,6 @@ class StatsPage extends StatefulWidget {
 class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMixin {
   final Map<String, int> _entryCountPerCountry = {}, _entryCountPerState = {}, _entryCountPerPlace = {};
   final Map<String, int> _entryCountPerTag = {}, _entryCountPerAlbum = {};
-  final Map<int, int> _entryCountPerRating = Map.fromEntries(List.generate(7, (i) => MapEntry(5 - i, 0)));
   late final ValueNotifier<bool> _isPageAnimatingNotifier;
   int _totalSizeBytes = 0;
   int _totalDurationMillis = 0;
@@ -116,9 +114,6 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
       if (album != null) {
         _entryCountPerAlbum[album] = (_entryCountPerAlbum[album] ?? 0) + 1;
       }
-
-      final rating = entry.rating;
-      _entryCountPerRating[rating] = (_entryCountPerRating[rating] ?? 0) + 1;
     });
   }
 
@@ -170,8 +165,6 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
                 ),
               ],
             );
-
-            final showRatings = _entryCountPerRating.entries.any((kv) => kv.key != 0 && kv.value > 0);
             final source = widget.source;
             child = NotificationListener<SelectFilterNotification>(
               onNotification: (notification) {
@@ -210,7 +203,6 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
                       ..._buildFilterSection<String>(context, l10n.statsTopPlacesSectionTitle, _entryCountPerPlace, (v) => LocationFilter(LocationLevel.place, v)),
                       ..._buildFilterSection<String>(context, l10n.statsTopTagsSectionTitle, _entryCountPerTag, TagFilter.new),
                       ..._buildFilterSection<String>(context, l10n.statsTopAlbumsSectionTitle, _entryCountPerAlbum, (v) => StoredAlbumFilter(v, source.getStoredAlbumDisplayName(context, v))),
-                      if (showRatings) ..._buildFilterSection<int>(context, l10n.searchRatingSectionTitle, _entryCountPerRating, RatingFilter.new, sortByCount: false, maxRowCount: null),
                     ],
                   ),
                 ),

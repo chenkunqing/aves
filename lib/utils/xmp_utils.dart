@@ -279,27 +279,6 @@ class XMP {
 
     return xmpDoc?.toXmlString();
   }
-
-  static String? toMsPhotoRating(int? rating) {
-    if (rating == null) return null;
-    switch (rating) {
-      case 5:
-        return '99';
-      case 4:
-        return '75';
-      case 3:
-        return '50';
-      case 2:
-        return '25';
-      case 1:
-        return '1';
-      case 0:
-        return null;
-      case -1:
-        return '-1';
-    }
-    return null;
-  }
 }
 
 enum XmpEditStrategy { always, updateIfPresent }

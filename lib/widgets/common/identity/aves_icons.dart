@@ -197,28 +197,6 @@ class MultiPageIcon extends StatelessWidget {
   }
 }
 
-class RatingIcon extends StatelessWidget {
-  final AvesEntry entry;
-
-  const RatingIcon({
-    super.key,
-    required this.entry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: TextStyle(
-        fontSize: context.select<GridThemeData, double>((t) => t.fontSize),
-      ),
-      child: OverlayIcon(
-        icon: AIcons.rating,
-        text: '${entry.rating}',
-      ),
-    );
-  }
-}
-
 class TrashIcon extends StatelessWidget {
   final int? trashDaysLeft;
 

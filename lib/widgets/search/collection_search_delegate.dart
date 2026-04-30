@@ -11,7 +11,6 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/filters/missing.dart';
 import 'package:aves/model/filters/query.dart';
-import 'package:aves/model/filters/rating.dart';
 import 'package:aves/model/filters/recent.dart';
 import 'package:aves/model/filters/type.dart';
 import 'package:aves/model/filters/weekday.dart';
@@ -183,7 +182,6 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
                     _buildPlaceFilters(isVisible),
                     _buildTagFilters(isVisible),
                     _buildAspectRatioFilters(context, isVisible),
-                    _buildRatingFilters(context, isVisible),
                     _buildMetadataFilters(context, isVisible),
                   ],
                 );
@@ -347,14 +345,6 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     );
   }
 
-  Widget _buildRatingFilters(BuildContext context, CollectionFilterPredicate containQuery) {
-    return _buildFilterRow(
-      context: context,
-      title: context.l10n.searchRatingSectionTitle,
-      filters: [5, 4, 3, 2, 1, -1].map(RatingFilter.new).where(containQuery).toList(),
-    );
-  }
-
   Widget _buildMetadataFilters(BuildContext context, CollectionFilterPredicate containQuery) {
     return _buildFilterRow(
       context: context,
@@ -364,7 +354,6 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
         LocationFilter.unlocated,
         MissingFilter.fineAddress,
         TagFilter(''),
-        RatingFilter(0),
         MissingFilter.title,
       ].where(containQuery).toList(),
     );

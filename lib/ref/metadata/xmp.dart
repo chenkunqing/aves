@@ -93,8 +93,6 @@ class XmpElements {
   static const dcDescription = 'description';
   static const dcSubject = 'subject';
   static const dcTitle = 'title';
-  static const msPhotoRating = 'Rating';
-  static const xmpRating = 'Rating';
 }
 
 class XmpAttributes {
