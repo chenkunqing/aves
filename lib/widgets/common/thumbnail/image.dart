@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 class ThumbnailImage extends StatefulWidget {
   final AvesEntry entry;
   final double extent, devicePixelRatio;
+  final double? maxSourceExtent;
   final bool isMosaic, progressive;
   final BoxFit? fit;
   final bool showLoadingBackground;
@@ -32,6 +33,7 @@ class ThumbnailImage extends StatefulWidget {
     required this.entry,
     required this.extent,
     required this.devicePixelRatio,
+    this.maxSourceExtent,
     this.progressive = true,
     this.isMosaic = false,
     this.fit,
@@ -66,6 +68,8 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
 
   bool get isMosaic => widget.isMosaic;
 
+  double get _providerExtent => widget.maxSourceExtent == null ? extent : min(extent, widget.maxSourceExtent!);
+
   @override
   void initState() {
     super.initState();
@@ -76,7 +80,11 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
   @override
   void didUpdateWidget(covariant ThumbnailImage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.entry != entry) {
+    if (oldWidget.entry != entry ||
+        oldWidget.extent != widget.extent ||
+        oldWidget.devicePixelRatio != widget.devicePixelRatio ||
+        oldWidget.progressive != widget.progressive ||
+        oldWidget.maxSourceExtent != widget.maxSourceExtent) {
       _unregisterWidget(oldWidget);
       _registerWidget(widget);
     }
@@ -108,14 +116,15 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
     _lastException = null;
     _providers.clear();
 
-    final highQuality = entry.getThumbnail(extent: extent);
+    final providerExtent = _providerExtent;
+    final highQuality = entry.getThumbnail(extent: providerExtent);
     ThumbnailProvider? lowQuality;
     if (widget.progressive && !entry.isSvg) {
       if (entry.isVideo) {
         // previously fetched thumbnail
         final cached = entry.bestCachedThumbnail;
         final lowQualityExtent = cached.key.extent;
-        if (lowQualityExtent > 0 && lowQualityExtent != extent) {
+        if (lowQualityExtent > 0 && lowQualityExtent != providerExtent) {
           lowQuality = cached;
         }
       } else {
@@ -169,7 +178,7 @@ class _ThumbnailImageState extends State<ThumbnailImage> {
   bool _needSizedProvider(ImageInfo? currentImageInfo) {
     if (currentImageInfo == null) return true;
     final currentImage = currentImageInfo.image;
-    final sizedThreshold = extent * widget.devicePixelRatio;
+    final sizedThreshold = _providerExtent * widget.devicePixelRatio;
     return sizedThreshold > min(currentImage.width, currentImage.height);
   }
 

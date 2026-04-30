@@ -30,6 +30,8 @@ class OrganizeCardStack extends StatefulWidget {
 }
 
 class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProviderStateMixin {
+  static const _maxCardThumbnailExtent = 600.0;
+
   Offset _dragOffset = Offset.zero;
   bool _isDragging = false;
   late AnimationController _dismissController;
@@ -152,6 +154,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
               entry: entry,
               extent: maxWidth,
               devicePixelRatio: dpr,
+              maxSourceExtent: _maxCardThumbnailExtent,
               fit: BoxFit.contain,
               showLoadingBackground: true,
             ),
