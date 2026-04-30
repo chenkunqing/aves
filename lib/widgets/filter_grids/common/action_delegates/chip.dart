@@ -10,7 +10,6 @@ import 'package:aves/model/highlight.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/explorer/explorer_page.dart';
@@ -23,7 +22,7 @@ import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
+class ChipActionDelegate with FeedbackMixin {
   bool isVisible(
     ChipAction action, {
     required CollectionFilter filter,
@@ -113,9 +112,7 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
     }
 
     final filters = {filter};
-    if (!await unlockFilters(context, filters)) return;
 
     settings.changeFilterVisibility(filters, false);
-    lockFilters(filters);
   }
 }

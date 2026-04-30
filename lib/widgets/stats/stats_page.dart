@@ -24,7 +24,6 @@ import 'package:aves/utils/file_utils.dart';
 import 'package:aves/view/src/metadata/exportable_fields.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/basic/insets.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/basic/tv_edge_focus.dart';
@@ -65,7 +64,7 @@ class StatsPage extends StatefulWidget {
   State<StatsPage> createState() => _StatsPageState();
 }
 
-class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMixin {
+class _StatsPageState extends State<StatsPage> with FeedbackMixin {
   final Map<String, int> _entryCountPerCountry = {}, _entryCountPerState = {}, _entryCountPerPlace = {};
   final Map<String, int> _entryCountPerTag = {}, _entryCountPerAlbum = {};
   late final ValueNotifier<bool> _isPageAnimatingNotifier;
@@ -358,8 +357,6 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
   }
 
   Future<void> _onFilterSelection(BuildContext context, CollectionFilter filter) async {
-    if (!await unlockFilter(context, filter)) return;
-
     if (widget.parentCollection != null) {
       _applyToParentCollectionPage(context, filter);
     } else {

@@ -498,7 +498,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   }
 
   Future<void> analyze(AnalysisController? analysisController, {Set<AvesEntry>? entries}) async {
-    // not only visible entries, as hidden and vault items may be analyzed
+    // not only visible entries, as hidden items may be analyzed
     final todoEntries = entries ?? allEntries;
     final defaultAnalysisController = AnalysisController();
     final _analysisController = analysisController ?? defaultAnalysisController;

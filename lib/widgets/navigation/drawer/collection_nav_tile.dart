@@ -7,13 +7,12 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/navigation/drawer/tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CollectionNavTile extends StatelessWidget with FeedbackMixin, VaultAwareMixin {
+class CollectionNavTile extends StatelessWidget with FeedbackMixin {
   final Widget? leading;
   final Widget title;
   final Widget? trailing;
@@ -59,13 +58,6 @@ class CollectionNavTile extends StatelessWidget with FeedbackMixin, VaultAwareMi
 
   Future<void> _goToCollection(BuildContext context) async {
     final _filters = filters;
-    if (_filters != null) {
-      for (final filter in _filters) {
-        if (filter != null) {
-          if (!await unlockFilter(context, filter)) return;
-        }
-      }
-    }
 
     Navigator.maybeOf(context)?.pop();
     unawaited(

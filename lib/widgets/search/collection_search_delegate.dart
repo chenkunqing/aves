@@ -25,7 +25,6 @@ import 'package:aves/model/source/location/place.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/basic/tv_edge_focus.dart';
 import 'package:aves/widgets/common/expandable_filter_row.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
@@ -37,7 +36,7 @@ import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, VaultAwareMixin {
+class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin {
   final CollectionSource source;
   final CollectionLens? parentCollection;
   final ValueNotifier<String?> _expandedSectionNotifier = ValueNotifier(null);
@@ -403,8 +402,6 @@ class CollectionSearchDelegate extends AvesSearchDelegate with FeedbackMixin, Va
     }
 
     for (final filter in newFilters) {
-      if (!await unlockFilter(context, filter)) return;
-
       if (settings.saveSearchHistory) {
         final history = settings.searchHistory
           ..remove(filter)

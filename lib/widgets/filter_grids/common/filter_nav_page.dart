@@ -8,7 +8,6 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/utils/time_utils.dart';
 import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
 import 'package:aves/widgets/common/providers/filter_group_provider.dart';
@@ -121,7 +120,7 @@ class FilterNavigationPage<T extends CollectionFilter, CSAD extends ChipSetActio
   }
 }
 
-class _FilterNavigationPageState<T extends CollectionFilter, CSAD extends ChipSetActionDelegate<T>> extends State<FilterNavigationPage<T, CSAD>> with FeedbackMixin, VaultAwareMixin {
+class _FilterNavigationPageState<T extends CollectionFilter, CSAD extends ChipSetActionDelegate<T>> extends State<FilterNavigationPage<T, CSAD>> with FeedbackMixin {
   final ValueNotifier<double> _appBarHeightNotifier = ValueNotifier(0);
 
   @override
@@ -169,7 +168,6 @@ class _FilterNavigationPageState<T extends CollectionFilter, CSAD extends ChipSe
                   selection.toggleSelection(gridItem);
                 } else {
                   final filter = gridItem.filter;
-                  if (!await unlockFilter(context, filter)) return;
 
                   if (filter is GroupBaseFilter) {
                     context.read<FilterGroupNotifier>().value = filter.uri;

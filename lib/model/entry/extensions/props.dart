@@ -124,15 +124,13 @@ extension ExtraAvesEntryProps on AvesEntry {
 
   // providers
 
-  bool get _isVaultContent => path?.startsWith(androidFileUtils.vaultRoot) ?? false;
-
   bool get _isMediaStoreContent => uri.startsWith(AndroidFileUtils.mediaStoreUriRoot);
 
   bool get isMediaStoreMediaContent => _isMediaStoreContent && AndroidFileUtils.mediaUriPathRoots.any(uri.contains);
 
   // edition
 
-  bool get canEdit => !settings.isReadOnly && path != null && !trashed && (_isMediaStoreContent || _isVaultContent);
+  bool get canEdit => !settings.isReadOnly && path != null && !trashed && _isMediaStoreContent;
 
   bool get canEditDate => canEdit && (isExifEditionSupported || isXmpEditionSupported);
 

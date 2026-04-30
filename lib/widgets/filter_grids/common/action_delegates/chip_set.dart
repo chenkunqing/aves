@@ -19,7 +19,6 @@ import 'package:aves/widgets/collection/collection_page.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
 import 'package:aves/widgets/common/action_mixins/size_aware.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/providers/filter_group_provider.dart';
 import 'package:aves/widgets/common/search/route.dart';
@@ -37,7 +36,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 
-abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMixin, PermissionAwareMixin, SizeAwareMixin, VaultAwareMixin {
+abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMixin, PermissionAwareMixin, SizeAwareMixin {
   Iterable<FilterGridItem<T>> get allItems;
 
   ChipSortFactor get sortFactor;
@@ -376,10 +375,8 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
     }
 
     final filters = getSelectedFilters(context);
-    if (!await unlockFilters(context, filters)) return;
 
     settings.changeFilterVisibility(filters, false);
-    lockFilters(filters);
 
     browse(context);
   }
@@ -389,7 +386,6 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
     if (filters.isEmpty) return;
 
     final filter = filters.first;
-    if (!await unlockFilter(context, filter)) return;
 
     final existingCover = covers.of(filter);
     final entryId = existingCover?.$1;

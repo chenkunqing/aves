@@ -14,7 +14,6 @@ import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
-import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
 import 'package:aves/widgets/common/identity/buttons/captioned_button.dart';
@@ -79,7 +78,7 @@ class _AlbumPickPage extends StatefulWidget {
   State<_AlbumPickPage> createState() => _AlbumPickPageState();
 }
 
-class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, VaultAwareMixin {
+class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin {
   final ValueNotifier<double> _appBarHeightNotifier = ValueNotifier(0);
   final ValueNotifier<AppMode> _appModeNotifier = ValueNotifier(AppMode.pickFilterInternal);
 
@@ -165,7 +164,6 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
                           floatingActionButton: _buildFab(context),
                           onTileTap: (gridItem, _) async {
                             final filter = gridItem.filter;
-                            if (!await unlockFilter(context, filter)) return;
                             switch (filter) {
                               case AlbumGroupFilter _:
                                 context.read<FilterGroupNotifier>().value = filter.uri;

@@ -272,8 +272,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     required Set<AlbumBaseFilter> filters,
     required bool enableBin,
   }) async {
-    if (!await unlockFilters(context, filters)) return;
-
     final source = context.read<CollectionSource>();
     final todoEntries = source.visibleEntries.where((entry) => filters.any((f) => f.test(entry))).toSet();
     final todoAlbums = filters.whereType<StoredAlbumFilter>().map((v) => v.album).toSet();
@@ -409,8 +407,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
 
     final filter = filters.first;
     if (filter is StoredAlbumFilter) {
-      if (!await unlockFilter(context, filter)) return;
-
       final album = filter.album;
       final dir = androidFileUtils.relativeDirectoryFromPath(album);
       // do not allow renaming volume root

@@ -29,7 +29,7 @@ class AndroidFileUtils {
   static const recoveryDir = 'Lost & Found';
   static const trashDirPath = '#trash';
 
-  late final String separator, vaultRoot, primaryStorage;
+  late final String separator, primaryStorage;
   late final String dcimPath, downloadPath, moviesPath, picturesPath, avesVideoCapturesPath;
   late final Set<String> videoCapturesPaths;
   Set<StorageVolume> storageVolumes = {};
@@ -45,7 +45,6 @@ class AndroidFileUtils {
   Future<void> _doInit() async {
     separator = pContext.separator;
     await _initStorageVolumes();
-    vaultRoot = await storageService.getVaultRoot();
     primaryStorage = storageVolumes.firstWhereOrNull((volume) => volume.isPrimary)?.path ?? separator;
     // standard dirs
     dcimPath = pContext.join(primaryStorage, standardDirDcim);
