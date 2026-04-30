@@ -24,7 +24,6 @@ export 'src/source/group.dart';
 export 'src/source/layout.dart';
 export 'src/source/sort.dart';
 export 'src/source/state.dart';
-export 'src/source/vault.dart';
 export 'src/storage/relative_dir.dart';
 export 'src/storage/volume.dart';
 export 'src/wallpaper_target.dart';

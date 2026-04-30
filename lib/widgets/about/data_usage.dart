@@ -59,7 +59,7 @@ class _AboutDataUsageState extends State<AboutDataUsage> with FeedbackMixin {
               final dataMap = {
                 DataUsageDonut.bin: data['trash'] ?? 0,
                 DataUsageDonut.database: data['database'] ?? 0,
-                DataUsageDonut.misc: (data['miscData'] ?? 0) + (data['vaults'] ?? 0),
+                DataUsageDonut.misc: data['miscData'] ?? 0,
               };
               final flutter = data['flutter'] ?? 0;
               if (flutter > 0) {

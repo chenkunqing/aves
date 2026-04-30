@@ -102,7 +102,6 @@
   "chipActionFilterOut": "Filter out",
   "chipActionFilterIn": "Filter in",
   "chipActionHide": "Hide",
-  "chipActionLock": "Lock",
   "chipActionPin": "Pin to top",
   "chipActionUnpin": "Unpin from top",
   "chipActionGroup": "Change grouping",
@@ -111,8 +110,6 @@
   "chipActionShowCountryStates": "Show states",
   "chipActionCreateGroup": "Create group",
   "chipActionCreateAlbum": "Create album",
-  "chipActionCreateVault": "Create vault",
-  "chipActionConfigureVault": "Configure vault",
 
   "entryActionCopyToClipboard": "Copy to clipboard",
   "entryActionDelete": "Delete",
@@ -211,7 +208,6 @@
   "albumTierGroups": "Groups",
   "albumTierSpecial": "Common",
   "albumTierApps": "Apps",
-  "albumTierVaults": "Vaults",
   "albumTierDynamic": "Dynamic",
   "albumTierRegular": "Others",
 
@@ -274,10 +270,6 @@
 
   "unitSystemMetric": "Metric",
   "unitSystemImperial": "Imperial",
-
-  "vaultLockTypePattern": "Pattern",
-  "vaultLockTypePin": "PIN",
-  "vaultLockTypePassword": "Password",
 
   "settingsVideoEnablePip": "Picture-in-picture",
 
@@ -451,12 +443,6 @@
   "groupPickerTitle": "Pick Group",
   "groupPickerUseThisGroupButton": "Use this group",
 
-  "newVaultWarningDialogMessage": "Items in vaults are only available to this app and no others.\n\nIf you uninstall this app, or clear this app data, you will lose all these items.",
-  "newVaultDialogTitle": "New Vault",
-  "configureVaultDialogTitle": "Configure Vault",
-  "vaultDialogLockModeWhenScreenOff": "Lock when screen turns off",
-  "vaultDialogLockTypeLabel": "Lock type",
-
   "patternDialogEnter": "Enter pattern",
   "patternDialogConfirm": "Confirm pattern",
 
@@ -465,11 +451,6 @@
 
   "passwordDialogEnter": "Enter password",
   "passwordDialogConfirm": "Confirm password",
-
-  "authenticateToConfigureVault": "Authenticate to configure vault",
-  "authenticateToUnlockVault": "Authenticate to unlock vault",
-
-  "vaultBinUsageDialogMessage": "Some vaults are using the recycle bin.",
 
   "renameAlbumDialogLabel": "New name",
   "renameAlbumDialogLabelAlreadyExistsHelper": "Directory already exists",
@@ -874,7 +855,6 @@
   "settingsConfirmationBeforeMoveToBinItems": "Ask before moving items to the recycle bin",
   "settingsConfirmationBeforeMoveUndatedItems": "Ask before moving undated items",
   "settingsConfirmationAfterMoveToBinItems": "Show message after moving items to the recycle bin",
-  "settingsConfirmationVaultDataLoss": "Show vault data loss warning",
 
   "settingsNavigationDrawerTile": "Navigation menu",
   "settingsNavigationDrawerEditorPageTitle": "Navigation Menu",

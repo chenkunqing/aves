@@ -15,7 +15,6 @@ import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
 import 'package:aves/model/person.dart';
-import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:collection/collection.dart';
@@ -35,7 +34,6 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   static const favouriteTable = SqfliteLocalMediaDbSchema.favouriteTable;
   static const coverTable = SqfliteLocalMediaDbSchema.coverTable;
   static const dynamicAlbumTable = SqfliteLocalMediaDbSchema.dynamicAlbumTable;
-  static const vaultTable = SqfliteLocalMediaDbSchema.vaultTable;
   static const trashTable = SqfliteLocalMediaDbSchema.trashTable;
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
@@ -357,58 +355,6 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       address.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-  }
-
-  // vaults
-
-  @override
-  Future<void> clearVaults() async {
-    final count = await _db.delete(vaultTable, where: '1');
-    debugPrint('$runtimeType clearVaults deleted $count rows');
-  }
-
-  @override
-  Future<Set<VaultDetails>> loadAllVaults() async {
-    final result = <VaultDetails>{};
-    final cursor = await _db.queryCursor(vaultTable, bufferSize: _queryCursorBufferSize);
-    while (await cursor.moveNext()) {
-      result.add(VaultDetails.fromMap(cursor.current));
-    }
-    return result;
-  }
-
-  @override
-  Future<void> addVaults(Set<VaultDetails> rows) async {
-    if (rows.isEmpty) return;
-    final batch = _db.batch();
-    rows.forEach((row) => _batchInsertVault(batch, row));
-    await batch.commit(noResult: true);
-  }
-
-  @override
-  Future<void> updateVault(String oldName, VaultDetails row) async {
-    final batch = _db.batch();
-    batch.delete(vaultTable, where: 'name = ?', whereArgs: [oldName]);
-    _batchInsertVault(batch, row);
-    await batch.commit(noResult: true);
-  }
-
-  void _batchInsertVault(Batch batch, VaultDetails row) {
-    batch.insert(
-      vaultTable,
-      row.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  @override
-  Future<void> removeVaults(Set<VaultDetails> rows) async {
-    if (rows.isEmpty) return;
-
-    // using array in `whereArgs` and using it with `where arg IN ?` is a pain, so we prefer `batch` instead
-    final batch = _db.batch();
-    rows.map((v) => v.name).forEach((name) => batch.delete(vaultTable, where: 'name = ?', whereArgs: [name]));
-    await batch.commit(noResult: true);
   }
 
   // trash

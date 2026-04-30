@@ -22,7 +22,6 @@ export 'src/settings/keys.dart';
 export 'src/settings/store.dart';
 export 'src/source/album.dart';
 export 'src/source/enums.dart';
-export 'src/source/vault.dart';
 export 'src/storage/relative_dir.dart';
 export 'src/storage/volume.dart';
 export 'src/video/keys.dart';

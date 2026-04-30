@@ -8,7 +8,6 @@ import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
 import 'package:aves/model/person.dart';
-import 'package:aves/model/vaults/details.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 
 abstract class LocalMediaDb {
@@ -69,18 +68,6 @@ abstract class LocalMediaDb {
   Future<void> saveAddresses(Set<AddressDetails> addresses);
 
   Future<void> updateAddress(int id, AddressDetails? address);
-
-  // vaults
-
-  Future<void> clearVaults();
-
-  Future<Set<VaultDetails>> loadAllVaults();
-
-  Future<void> addVaults(Set<VaultDetails> rows);
-
-  Future<void> updateVault(String oldName, VaultDetails row);
-
-  Future<void> removeVaults(Set<VaultDetails> rows);
 
   // trash
 
