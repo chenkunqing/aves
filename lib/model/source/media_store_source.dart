@@ -13,7 +13,6 @@ import 'package:aves/model/person.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/utils/android_file_utils.dart';
@@ -63,7 +62,6 @@ class MediaStoreSource extends CollectionSource {
     final stopwatch = Stopwatch()..start();
     state = SourceState.loading;
     await localMediaDb.init();
-    await vaults.init();
     await favourites.init();
     await entryColors.init();
     await entryFaces.init();
@@ -137,8 +135,6 @@ class MediaStoreSource extends CollectionSource {
     // but use album notification without waiting for cataloguing
     // so that it is more reactive when picking an album in view mode
     notifyAlbumsChanged();
-
-    await _loadVaultEntries(scopeDirectory);
 
     debugPrint('$runtimeType load ${stopwatch.elapsed} load metadata');
     if (scopeDirectory != null) {
@@ -272,7 +268,7 @@ class MediaStoreSource extends CollectionSource {
             Set<AvesEntry>? analysisEntries;
             final analysisIds = analysisController?.entryIds;
             if (analysisIds != null) {
-              // not only visible entries, as hidden and vault items may be analyzed
+              // not only visible entries, as hidden items may be analyzed
               analysisEntries = allEntries.where((entry) => analysisIds.contains(entry.id)).toSet();
             }
             await analyze(analysisController, entries: analysisEntries);
@@ -352,13 +348,6 @@ class MediaStoreSource extends CollectionSource {
       }
     }
 
-    await _refreshVaultEntries(
-      changedUris: changedUris.where(vaults.isVaultEntryUri).toSet(),
-      newEntries: newEntries,
-      entriesToRefresh: entriesToRefresh,
-      existingDirectories: existingDirectories,
-    );
-
     invalidateAlbumFilterSummary(directories: existingDirectories);
 
     if (newEntries.isNotEmpty) {
@@ -420,37 +409,4 @@ class MediaStoreSource extends CollectionSource {
     _lastGeneration = await mediaStoreService.getGeneration();
   }
 
-  // vault
-
-  Future<void> _loadVaultEntries(String? directory) async {
-    addEntries(await localMediaDb.loadEntries(origin: EntryOrigins.vault, directory: directory));
-  }
-
-  Future<void> _refreshVaultEntries({
-    required Set<String> changedUris,
-    required Set<AvesEntry> newEntries,
-    required Set<AvesEntry> entriesToRefresh,
-    required Set<String> existingDirectories,
-  }) async {
-    for (final uri in changedUris) {
-      final existingEntry = allEntries.firstWhereOrNull((entry) => entry.uri == uri);
-      if (existingEntry != null) {
-        entriesToRefresh.add(existingEntry);
-        final existingDirectory = existingEntry.directory;
-        if (existingDirectory != null) {
-          existingDirectories.add(existingDirectory);
-        }
-      } else {
-        final sourceEntry = await mediaFetchService.getEntry(uri, null, allowUnsized: true);
-        if (sourceEntry != null) {
-          newEntries.add(
-            sourceEntry.copyWith(
-              id: localMediaDb.nextId,
-              origin: EntryOrigins.vault,
-            ),
-          );
-        }
-      }
-    }
-  }
 }

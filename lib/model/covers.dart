@@ -10,7 +10,6 @@ import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/utils/android_file_utils.dart';
 import 'package:aves_model/aves_model.dart';
@@ -57,8 +56,6 @@ class Covers {
   Set<CoverRow> get all => Set.unmodifiable(_rows);
 
   CoverProps? of(CollectionFilter filter) {
-    if (filter is StoredAlbumFilter && vaults.isLocked(filter.album)) return null;
-
     final row = _rows.firstWhereOrNull((row) => row.filter == filter);
     return row != null ? (row.entryId, row.packageName, row.color) : null;
   }

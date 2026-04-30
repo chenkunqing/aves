@@ -3,7 +3,6 @@ import 'package:aves/model/covers.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/multipage.dart';
 import 'package:aves/model/entry/extensions/props.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/theme.dart';
@@ -331,8 +330,6 @@ class IconUtils {
                 height: size,
               )
             : null;
-      case .vault:
-        return buildIcon(vaults.isLocked(albumPath) ? AIcons.locked : AIcons.unlocked);
       case .regular:
         return null;
     }

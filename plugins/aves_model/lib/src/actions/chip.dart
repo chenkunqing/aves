@@ -7,5 +7,4 @@ enum ChipAction {
   decompose,
   reverse,
   hide,
-  lockVault,
 }

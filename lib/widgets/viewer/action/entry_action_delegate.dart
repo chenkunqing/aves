@@ -13,7 +13,6 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/media/media_edit_service.dart';
 import 'package:aves/theme/durations.dart';
@@ -422,8 +421,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
   }
 
   Future<void> _delete(BuildContext context, AvesEntry targetEntry) async {
-    final vault = vaults.getVault(targetEntry.directory);
-    final enableBin = vault?.useBin ?? settings.enableBin;
+    final enableBin = settings.enableBin;
 
     if (enableBin && !targetEntry.trashed) {
       await _move(context, targetEntry, moveType: MoveType.toBin);

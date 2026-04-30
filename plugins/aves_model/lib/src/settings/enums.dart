@@ -6,7 +6,7 @@ enum AvesThemeBrightness { system, light, dark }
 
 enum AvesThemeColorMode { monochrome, polychrome }
 
-enum ConfirmationDialog { createVault, deleteForever, moveToBin, moveUndatedItems }
+enum ConfirmationDialog { deleteForever, moveToBin, moveUndatedItems }
 
 enum CoordinateFormat { dms, ddm, decimal }
 

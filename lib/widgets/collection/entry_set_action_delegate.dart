@@ -26,7 +26,6 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/ref/locales.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/app_service.dart';
@@ -301,10 +300,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
   Future<void> _delete(BuildContext context) async {
     final entries = _getTargetItems(context);
-    final byBinUsage = groupBy<AvesEntry, bool>(entries, (entry) {
-      final details = vaults.getVault(entry.directory);
-      return details?.useBin ?? settings.enableBin;
-    });
+    final byBinUsage = groupBy<AvesEntry, bool>(entries, (entry) => settings.enableBin);
     var completed = true;
     await Future.forEach(byBinUsage.entries, (kv) async {
       completed &= await doDelete(

@@ -171,7 +171,6 @@ class AlbumListPage extends StatelessWidget {
         final groupKey = AlbumImportanceSectionKey.group(context);
         final specialKey = AlbumImportanceSectionKey.special(context);
         final appsKey = AlbumImportanceSectionKey.apps(context);
-        final vaultKey = AlbumImportanceSectionKey.vault(context);
         final regularKey = AlbumImportanceSectionKey.regular(context);
         final dynamicKey = AlbumImportanceSectionKey.dynamic(context);
         sections = groupBy<FilterGridItem<AlbumBaseFilter>, ChipSectionKey>(unpinnedMapEntries, (kv) {
@@ -183,8 +182,6 @@ class AlbumListPage extends StatelessWidget {
                   return regularKey;
                 case .app:
                   return appsKey;
-                case .vault:
-                  return vaultKey;
                 default:
                   return specialKey;
               }
@@ -201,7 +198,6 @@ class AlbumListPage extends StatelessWidget {
           if (sections.containsKey(groupKey)) groupKey: sections[groupKey]!,
           if (sections.containsKey(specialKey)) specialKey: sections[specialKey]!,
           if (sections.containsKey(appsKey)) appsKey: sections[appsKey]!,
-          if (sections.containsKey(vaultKey)) vaultKey: sections[vaultKey]!,
           if (sections.containsKey(dynamicKey)) dynamicKey: sections[dynamicKey]!,
           if (sections.containsKey(regularKey)) regularKey: sections[regularKey]!,
         };

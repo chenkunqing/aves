@@ -9,7 +9,6 @@ enum ChipSetAction {
   toggleTitleSearch,
   createGroup,
   createAlbum,
-  createVault,
   // browsing or selecting
   map,
   slideshow,
@@ -21,13 +20,11 @@ enum ChipSetAction {
   pin,
   unpin,
   group,
-  lockVault,
   showCountryStates,
   showCollection,
   // selecting (single filter)
   rename,
   setCover,
-  configureVault,
 }
 
 class ChipSetActions {
@@ -48,7 +45,6 @@ class ChipSetActions {
     ChipSetAction.stats,
     null,
     ChipSetAction.createAlbum,
-    ChipSetAction.createVault,
   ];
 
   // `null` items are converted to dividers
@@ -67,8 +63,5 @@ class ChipSetActions {
     ChipSetAction.map,
     ChipSetAction.slideshow,
     ChipSetAction.stats,
-    null,
-    ChipSetAction.configureVault,
-    ChipSetAction.lockVault,
   ];
 }

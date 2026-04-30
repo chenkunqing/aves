@@ -59,8 +59,7 @@ class _AboutDataUsageState extends State<AboutDataUsage> with FeedbackMixin {
               final dataMap = {
                 DataUsageDonut.bin: data['trash'] ?? 0,
                 DataUsageDonut.database: data['database'] ?? 0,
-                DataUsageDonut.vaults: data['vaults'] ?? 0,
-                DataUsageDonut.misc: data['miscData'] ?? 0,
+                DataUsageDonut.misc: (data['miscData'] ?? 0) + (data['vaults'] ?? 0),
               };
               final flutter = data['flutter'] ?? 0;
               if (flutter > 0) {
@@ -125,7 +124,6 @@ class DataUsageDonut extends StatelessWidget {
   static const String bin = 'bin';
   static const String database = 'database';
   static const String flutter = 'flutter';
-  static const String vaults = 'vaults';
   static const String misc = 'misc';
 
   // cache
@@ -156,8 +154,6 @@ class DataUsageDonut extends StatelessWidget {
             return l10n.aboutDataUsageDatabase;
           case flutter:
             return 'Flutter';
-          case vaults:
-            return l10n.albumTierVaults;
           case misc:
             return l10n.aboutDataUsageMisc;
           case internal:

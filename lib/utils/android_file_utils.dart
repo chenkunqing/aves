@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:aves/model/app_inventory.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
@@ -108,8 +107,6 @@ class AndroidFileUtils {
   bool isOnRemovableStorage(String path) => getStorageVolume(path)?.isRemovable ?? false;
 
   AlbumType getAlbumType(String dirPath) {
-    if (vaults.isVault(dirPath)) return AlbumType.vault;
-
     if (isCameraPath(dirPath)) return AlbumType.camera;
     if (isDownloadPath(dirPath)) return AlbumType.download;
     if (isScreenRecordingsPath(dirPath)) return AlbumType.screenRecordings;

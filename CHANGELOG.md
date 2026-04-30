@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 
 - Analysis: preserve all face embeddings for multi-face images and version embeddings by recognition model for safer rescans
 - Analysis: tighten face quality filtering and hide single-photo people clusters by default to reduce noisy person results
+- Android: recover collection loading on Android 16 / newer MediaStore implementations when the `_data` path column is unavailable
 
 ### Changed
 

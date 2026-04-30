@@ -50,10 +50,6 @@ mixin NavigationSettings on SettingsAccess {
     set(SettingKeys.homeCustomExplorerPathKey, customExplorerPath);
   }
 
-  bool get confirmCreateVault => getBool(SettingKeys.confirmCreateVaultKey) ?? SettingsDefaults.confirm;
-
-  set confirmCreateVault(bool newValue) => set(SettingKeys.confirmCreateVaultKey, newValue);
-
   bool get confirmDeleteForever => getBool(SettingKeys.confirmDeleteForeverKey) ?? SettingsDefaults.confirm;
 
   set confirmDeleteForever(bool newValue) => set(SettingKeys.confirmDeleteForeverKey, newValue);

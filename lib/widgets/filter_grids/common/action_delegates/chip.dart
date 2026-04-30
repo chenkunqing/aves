@@ -8,7 +8,6 @@ import 'package:aves/model/filters/path.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/highlight.dart';
 import 'package:aves/model/settings/settings.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/action_mixins/vault_aware.dart';
@@ -39,14 +38,12 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
       case .goToTagPage:
         return filter is TagFilter;
       case .goToExplorerPage:
-        return (filter is StoredAlbumFilter && !vaults.isVault(filter.album)) || filter is PathFilter;
+        return filter is StoredAlbumFilter || filter is PathFilter;
       case .decompose:
         return filter is DynamicAlbumFilter;
       case .reverse:
       case .hide:
         return true;
-      case .lockVault:
-        return (filter is StoredAlbumFilter && vaults.isVault(filter.album) && !vaults.isLocked(filter.album));
     }
   }
 
@@ -85,10 +82,6 @@ class ChipActionDelegate with FeedbackMixin, VaultAwareMixin {
         SelectFilterNotification(filter.reverse()).dispatch(context);
       case .hide:
         _hide(context, filter);
-      case .lockVault:
-        if (filter is StoredAlbumFilter) {
-          lockFilters({filter});
-        }
     }
   }
 

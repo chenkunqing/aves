@@ -6,7 +6,7 @@ enum ChipType { regular, group }
 
 enum AlbumChipType { stored, dynamic, group }
 
-enum AlbumImportance { newAlbum, pinned, group, special, apps, vaults, dynamic, regular }
+enum AlbumImportance { newAlbum, pinned, group, special, apps, dynamic, regular }
 
 extension ExtraAlbumImportance on AlbumImportance {
   String getText(BuildContext context) {
@@ -17,7 +17,6 @@ extension ExtraAlbumImportance on AlbumImportance {
       AlbumImportance.group => l10n.albumTierGroups,
       AlbumImportance.special => l10n.albumTierSpecial,
       AlbumImportance.apps => l10n.albumTierApps,
-      AlbumImportance.vaults => l10n.albumTierVaults,
       AlbumImportance.dynamic => l10n.albumTierDynamic,
       AlbumImportance.regular => l10n.albumTierRegular,
     };
@@ -30,7 +29,6 @@ extension ExtraAlbumImportance on AlbumImportance {
       AlbumImportance.group => AIcons.group,
       AlbumImportance.special => AIcons.important,
       AlbumImportance.apps => AIcons.app,
-      AlbumImportance.vaults => AIcons.locked,
       AlbumImportance.dynamic => AIcons.dynamicAlbum,
       AlbumImportance.regular => AIcons.album,
     };

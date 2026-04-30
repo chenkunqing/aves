@@ -11,7 +11,7 @@ extension ExtraAlbumTypeView on AlbumType {
       AlbumType.screenshots => l10n.albumScreenshots,
       AlbumType.screenRecordings => l10n.albumScreenRecordings,
       AlbumType.videoCaptures => l10n.albumVideoCaptures,
-      AlbumType.regular || AlbumType.vault || AlbumType.app => null,
+      AlbumType.regular || AlbumType.app => null,
     };
   }
 }

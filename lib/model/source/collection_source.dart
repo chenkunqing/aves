@@ -30,7 +30,6 @@ import 'package:aves/model/source/face.dart';
 import 'package:aves/model/source/person.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/model/source/trash.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/analysis_service.dart';
 import 'package:aves/services/common/image_op_events.dart';
 import 'package:aves/services/common/services.dart';
@@ -91,7 +90,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         _onFilterVisibilityChanged(newlyVisibleFilters);
       }
     });
-    vaults.addListener(_onVaultsChanged);
   }
 
   @mustCallSuper
@@ -99,7 +97,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     if (kFlutterMemoryAllocationsEnabled) {
       LeakTracking.dispatchObjectDisposed(object: this);
     }
-    vaults.removeListener(_onVaultsChanged);
     _disposeAllEntries();
   }
 
@@ -149,7 +146,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
 
   Set<CollectionFilter> _getAppHiddenFilters() => {
     ...settings.hiddenFilters,
-    ...vaults.vaultDirectories.where(vaults.isLocked).map((v) => StoredAlbumFilter(v, null)),
   };
 
   Iterable<AvesEntry> _applyHiddenFilters(Iterable<AvesEntry> entries) {
@@ -303,10 +299,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
 
     final group = albumGrouping.getFilterParent(oldFilter);
     final pinned = settings.pinnedFilters.contains(oldFilter);
-
-    if (vaults.isVault(sourceAlbum)) {
-      await vaults.rename(sourceAlbum, destinationAlbum);
-    }
 
     final existingCover = covers.of(oldFilter);
     await covers.set(
@@ -644,11 +636,6 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
       final candidateEntries = visibleEntries.where((entry) => newlyVisibleFilters.any((f) => f.test(entry))).toSet();
       analyze(null, entries: candidateEntries);
     }
-  }
-
-  void _onVaultsChanged() {
-    final newlyVisibleFilters = vaults.vaultDirectories.whereNot(vaults.isLocked).map((v) => StoredAlbumFilter(v, null)).toSet();
-    _onFilterVisibilityChanged(newlyVisibleFilters);
   }
 }
 

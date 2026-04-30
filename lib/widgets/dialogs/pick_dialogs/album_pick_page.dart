@@ -9,8 +9,6 @@ import 'package:aves/model/settings/enums/accessibility_animations.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/details.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
@@ -24,10 +22,8 @@ import 'package:aves/widgets/common/identity/empty.dart';
 import 'package:aves/widgets/common/providers/filter_group_provider.dart';
 import 'package:aves/widgets/common/providers/query_provider.dart';
 import 'package:aves/widgets/common/providers/selection_provider.dart';
-import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/create_group_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/create_stored_album_dialog.dart';
-import 'package:aves/widgets/dialogs/filter_editors/edit_vault_dialog.dart';
 import 'package:aves/widgets/filter_grids/albums_page.dart';
 import 'package:aves/widgets/filter_grids/common/action_delegates/album_set.dart';
 import 'package:aves/widgets/filter_grids/common/app_bar.dart';
@@ -233,8 +229,6 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
           _createGroup(parentGroupUri);
         case .createAlbum:
           _createAlbum();
-        case .createVault:
-          _createVault();
         default:
           actionDelegate.onActionSelected(context, action);
       }
@@ -287,10 +281,6 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
       ...ChipSetActions.general,
       null,
       ChipSetAction.toggleTitleSearch,
-      if (canCreateStoredAlbums) ...[
-        null,
-        ChipSetAction.createVault,
-      ],
     ];
 
     return [
@@ -350,31 +340,6 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
     await Future.delayed(ADurations.dialogTransitionLoose * timeDilation);
 
     _pickStoredAlbum(context, directory);
-  }
-
-  Future<void> _createVault() async {
-    final l10n = context.l10n;
-    if (!await showSkippableConfirmationDialog(
-      context: context,
-      type: ConfirmationDialog.createVault,
-      message: l10n.newVaultWarningDialogMessage,
-      confirmationButtonLabel: l10n.continueButtonLabel,
-    )) {
-      return;
-    }
-
-    final details = await showDialog<VaultDetails>(
-      context: context,
-      builder: (context) => const EditVaultDialog(),
-      routeSettings: const RouteSettings(name: EditVaultDialog.routeName),
-    );
-    if (details == null) return;
-
-    // wait for the dialog to hide
-    await Future.delayed(ADurations.dialogTransitionLoose * timeDilation);
-
-    await vaults.create(details);
-    _pickStoredAlbum(context, details.path);
   }
 
   void _pickStoredAlbum(BuildContext context, String directory) {

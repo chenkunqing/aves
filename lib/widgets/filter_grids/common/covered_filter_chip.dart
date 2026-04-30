@@ -19,7 +19,6 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/location/country.dart';
 import 'package:aves/model/source/person.dart';
 import 'package:aves/model/source/tag.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/text.dart';
@@ -144,7 +143,7 @@ class CoveredFilterChip<T extends CollectionFilter> extends StatelessWidget {
 
   Widget _buildChip(BuildContext context, CollectionSource source) {
     final _filter = filter;
-    final entry = _filter is StoredAlbumFilter && vaults.isLocked(_filter.album) ? null : source.coverEntry(_filter);
+    final entry = source.coverEntry(_filter);
     final titlePadding = min<double>(4.0, extent / 32);
     Key? chipKey;
     if (_filter is StoredAlbumFilter) {
@@ -218,7 +217,6 @@ class CoveredFilterChip<T extends CollectionFilter> extends StatelessWidget {
       children: [
         if (pinned) _buildDetailIcon(context, AIcons.pin),
         if (filter is StoredAlbumFilter && androidFileUtils.isOnRemovableStorage(filter.album)) _buildDetailIcon(context, AIcons.storageCard),
-        if (filter is StoredAlbumFilter && vaults.isVault(filter.album)) _buildDetailIcon(context, AIcons.locked),
         if (filter is DynamicAlbumFilter) _buildDetailIcon(context, AIcons.dynamicAlbum),
         if (filter is AlbumGroupFilter) ...[
           _buildDetailIcon(context, AIcons.album, padding: detailIconTextPadding(extent)),

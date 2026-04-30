@@ -5,8 +5,6 @@ import 'package:aves/model/favourites.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
-import 'package:aves/model/vaults/details.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 import 'package:aves/ref/locales.dart';
 import 'package:aves/services/common/services.dart';
@@ -29,7 +27,6 @@ class _DebugAppDatabaseSectionState extends State<DebugAppDatabaseSection> with 
   late Future<Set<CatalogMetadata>> _dbMetadataLoader;
   late Future<Set<AddressDetails>> _dbAddressLoader;
   late Future<Set<TrashDetails>> _dbTrashLoader;
-  late Future<Set<VaultDetails>> _dbVaultsLoader;
   late Future<Set<FavouriteRow>> _dbFavouritesLoader;
   late Future<Set<CoverRow>> _dbCoversLoader;
   late Future<Set<DynamicAlbumRow>> _dbDynamicAlbumsLoader;
@@ -187,27 +184,6 @@ class _DebugAppDatabaseSectionState extends State<DebugAppDatabaseSection> with 
                 },
               ),
               FutureBuilder<Set>(
-                future: _dbVaultsLoader,
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) return Text(snapshot.error.toString());
-
-                  if (snapshot.connectionState != ConnectionState.done) return const SizedBox();
-
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: Text('vault rows: ${snapshot.data!.length} (${vaults.all.length} in memory)'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => vaults.clear().then((_) => _reload()),
-                        child: const Text('Clear'),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              FutureBuilder<Set>(
                 future: _dbFavouritesLoader,
                 builder: (context, snapshot) {
                   if (snapshot.hasError) return Text(snapshot.error.toString());
@@ -326,7 +302,6 @@ class _DebugAppDatabaseSectionState extends State<DebugAppDatabaseSection> with 
     _dbMetadataLoader = localMediaDb.loadCatalogMetadata();
     _dbAddressLoader = localMediaDb.loadAddresses();
     _dbTrashLoader = localMediaDb.loadAllTrashDetails();
-    _dbVaultsLoader = localMediaDb.loadAllVaults();
     _dbFavouritesLoader = localMediaDb.loadAllFavourites();
     _dbCoversLoader = localMediaDb.loadAllCovers();
     _dbDynamicAlbumsLoader = localMediaDb.loadAllDynamicAlbums();

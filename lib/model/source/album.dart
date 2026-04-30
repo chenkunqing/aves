@@ -4,7 +4,6 @@ import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/utils/android_file_utils.dart';
 import 'package:aves/utils/collection_utils.dart';
@@ -73,7 +72,6 @@ mixin AlbumMixin on SourceBase {
     addDirectories(
       albums: {
         ...visibleEntries.map((entry) => entry.directory),
-        ...vaults.all.map((v) => v.path),
       },
     );
     cleanEmptyAlbums();
@@ -220,8 +218,6 @@ mixin AlbumMixin on SourceBase {
       final name = type.getName(context);
       if (name != null) return name;
     }
-
-    if (type == AlbumType.vault) return pContext.basename(dirPath);
 
     final dir = androidFileUtils.relativeDirectoryFromPath(dirPath);
     if (dir == null) return dirPath;

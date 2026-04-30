@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
@@ -88,23 +87,14 @@ class SettingsTilePrivacyEnableBin extends SettingsTile {
   );
 
   static Future<bool> setBinUsage(BuildContext context, bool enabled) async {
-    final l10n = context.l10n;
     if (!enabled) {
-      if (vaults.all.any((v) => v.useBin)) {
-        await showWarningDialog(
-          context: context,
-          message: l10n.vaultBinUsageDialogMessage,
-        );
-        return false;
-      }
-
       final source = context.read<CollectionSource>();
       final trashedEntries = source.trashedEntries;
       if (trashedEntries.isNotEmpty) {
         if (!await showConfirmationDialog(
           context: context,
-          message: l10n.settingsDisablingBinWarningDialogMessage,
-          ok: l10n.applyButtonLabel,
+          message: context.l10n.settingsDisablingBinWarningDialogMessage,
+          ok: context.l10n.applyButtonLabel,
         )) {
           return false;
         }

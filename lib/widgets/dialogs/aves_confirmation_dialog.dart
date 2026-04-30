@@ -55,8 +55,6 @@ Future<bool> showSkippableConfirmationDialog({
 
 bool _shouldConfirm(ConfirmationDialog type) {
   switch (type) {
-    case .createVault:
-      return settings.confirmCreateVault;
     case .deleteForever:
       return settings.confirmDeleteForever;
     case .moveToBin:
@@ -68,8 +66,6 @@ bool _shouldConfirm(ConfirmationDialog type) {
 
 void _skipConfirmation(ConfirmationDialog type) {
   switch (type) {
-    case .createVault:
-      settings.confirmCreateVault = false;
     case .deleteForever:
       settings.confirmDeleteForever = false;
     case .moveToBin:

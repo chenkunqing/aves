@@ -515,7 +515,6 @@ class Settings
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:
           case SettingKeys.mustBackTwiceToExitKey:
-          case SettingKeys.confirmCreateVaultKey:
           case SettingKeys.confirmDeleteForeverKey:
           case SettingKeys.confirmMoveToBinKey:
           case SettingKeys.confirmMoveUndatedItemsKey:

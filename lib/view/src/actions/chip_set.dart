@@ -19,7 +19,6 @@ extension ExtraChipSetActionView on ChipSetAction {
         l10n.collectionActionShowTitleSearch,
       ChipSetAction.createGroup => l10n.chipActionCreateGroup,
       ChipSetAction.createAlbum => l10n.chipActionCreateAlbum,
-      ChipSetAction.createVault => l10n.chipActionCreateVault,
       // browsing or selecting
       ChipSetAction.map => l10n.menuActionMap,
       ChipSetAction.slideshow => l10n.menuActionSlideshow,
@@ -31,13 +30,11 @@ extension ExtraChipSetActionView on ChipSetAction {
       ChipSetAction.pin => l10n.chipActionPin,
       ChipSetAction.unpin => l10n.chipActionUnpin,
       ChipSetAction.group => l10n.chipActionGroup,
-      ChipSetAction.lockVault => l10n.chipActionLock,
       ChipSetAction.showCountryStates => l10n.chipActionShowCountryStates,
       ChipSetAction.showCollection => l10n.chipActionShowCollection,
       // selecting (single filter)
       ChipSetAction.rename => l10n.chipActionRename,
       ChipSetAction.setCover => l10n.chipActionSetCover,
-      ChipSetAction.configureVault => l10n.chipActionConfigureVault,
     };
   }
 
@@ -57,7 +54,6 @@ extension ExtraChipSetActionView on ChipSetAction {
         AIcons.filter,
       ChipSetAction.createGroup => AIcons.add,
       ChipSetAction.createAlbum => AIcons.add,
-      ChipSetAction.createVault => AIcons.vaultAdd,
       // browsing or selecting
       ChipSetAction.map => AIcons.map,
       ChipSetAction.slideshow => AIcons.slideshow,
@@ -69,13 +65,11 @@ extension ExtraChipSetActionView on ChipSetAction {
       ChipSetAction.pin => AIcons.pin,
       ChipSetAction.unpin => AIcons.unpin,
       ChipSetAction.group => AIcons.group,
-      ChipSetAction.lockVault => AIcons.vaultLock,
       ChipSetAction.showCountryStates => AIcons.state,
       ChipSetAction.showCollection => AIcons.allCollection,
       // selecting (single filter)
       ChipSetAction.rename => AIcons.rename,
       ChipSetAction.setCover => AIcons.setCover,
-      ChipSetAction.configureVault => AIcons.vaultConfigure,
     };
   }
 }

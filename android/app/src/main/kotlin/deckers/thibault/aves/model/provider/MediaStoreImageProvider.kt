@@ -8,6 +8,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
+import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -68,19 +69,19 @@ class MediaStoreImageProvider : ImageProvider() {
             val relativePathDirectory = ensureTrailingSeparator(directory)
             val relativePath = PathSegments(context, relativePathDirectory).relativeDir
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && relativePath != null) {
-                selection = "${MediaStore.MediaColumns.RELATIVE_PATH} = ? AND ${MediaStore.MediaColumns.DATA} LIKE ?"
-                selectionArgs = arrayOf(relativePath, "$relativePathDirectory%")
+                selection = "${MediaStore.MediaColumns.RELATIVE_PATH} = ?"
+                selectionArgs = arrayOf(relativePath)
+                handleNew = handleNewEntry
             } else {
                 selection = "${MediaStore.MediaColumns.DATA} LIKE ?"
                 selectionArgs = arrayOf("$relativePathDirectory%")
-            }
-
-            val parentCheckDirectory = removeTrailingSeparator(directory)
-            handleNew = { entry ->
-                // skip entries in subfolders
-                val path = entry[EntryFields.PATH] as String?
-                if (path != null && File(path).parent == parentCheckDirectory) {
-                    handleNewEntry(entry)
+                val parentCheckDirectory = removeTrailingSeparator(directory)
+                handleNew = { entry ->
+                    // skip entries in subfolders
+                    val path = entry[EntryFields.PATH] as String?
+                    if (path != null && File(path).parent == parentCheckDirectory) {
+                        handleNewEntry(entry)
+                    }
                 }
             }
         } else {
@@ -152,15 +153,33 @@ class MediaStoreImageProvider : ImageProvider() {
     fun checkObsoletePaths(context: Context, knownPathById: Map<Long?, String?>): List<Long> {
         val obsoleteIds = ArrayList<Long>()
         fun check(context: Context, contentUri: Uri) {
-            val projection = arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA)
+            val projection = arrayOf(
+                MediaStore.MediaColumns._ID,
+                MediaStore.MediaColumns.DATA,
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                *if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) arrayOf(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    MediaStore.MediaColumns.VOLUME_NAME,
+                ) else emptyArray(),
+            )
             try {
                 val cursor = context.contentResolver.query(contentUri, projection, null, null, null)
                 if (cursor != null) {
                     val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                    val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                    val pathColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                    val relativePathColumn = cursor.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH)
+                    val displayNameColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                    val volumeNameColumn = cursor.getColumnIndex(MediaStore.MediaColumns.VOLUME_NAME)
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(idColumn)
-                        val path = cursor.getString(pathColumn)
+                        val path = getPath(
+                            context = context,
+                            cursor = cursor,
+                            pathColumn = pathColumn,
+                            relativePathColumn = relativePathColumn,
+                            displayNameColumn = displayNameColumn,
+                            volumeNameColumn = volumeNameColumn,
+                        )
                         if (knownPathById.containsKey(id) && knownPathById[id] != path) {
                             obsoleteIds.add(id)
                         }
@@ -223,7 +242,10 @@ class MediaStoreImageProvider : ImageProvider() {
 
                 // image & video
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-                val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+                val pathColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                val relativePathColumn = cursor.getColumnIndex(MediaStore.MediaColumns.RELATIVE_PATH)
+                val displayNameColumn = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME)
+                val volumeNameColumn = cursor.getColumnIndex(MediaStore.MediaColumns.VOLUME_NAME)
                 val mimeTypeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
                 val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.SIZE)
                 val widthColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.WIDTH)
@@ -256,7 +278,14 @@ class MediaStoreImageProvider : ImageProvider() {
                         if (mimeType == null) {
                             Log.w(LOG_TAG, "failed to make entry from uri=$itemUri because of null MIME type")
                         } else {
-                            val path = cursor.getString(pathColumn)
+                            val path = getPath(
+                                context = context,
+                                cursor = cursor,
+                                pathColumn = pathColumn,
+                                relativePathColumn = relativePathColumn,
+                                displayNameColumn = displayNameColumn,
+                                volumeNameColumn = volumeNameColumn,
+                            )
 
                             val isDir = path != null && File(path).isDirectory
                             if (isDir) {
@@ -329,6 +358,39 @@ class MediaStoreImageProvider : ImageProvider() {
             Log.e(LOG_TAG, "failed to get entries", e)
         }
         return found
+    }
+
+    private fun getPath(
+        context: Context,
+        cursor: Cursor,
+        pathColumn: Int,
+        relativePathColumn: Int,
+        displayNameColumn: Int,
+        volumeNameColumn: Int,
+    ): String? {
+        if (pathColumn != -1) {
+            cursor.getString(pathColumn)?.takeIf { it.isNotEmpty() }?.let { return it }
+        }
+
+        val displayName = if (displayNameColumn != -1) cursor.getString(displayNameColumn) else null
+        if (displayName.isNullOrEmpty()) return null
+
+        val relativePath = if (relativePathColumn != -1) cursor.getString(relativePathColumn) else null
+        val volumeName = if (volumeNameColumn != -1) cursor.getString(volumeNameColumn) else null
+        val volumePath = getVolumePath(context, volumeName) ?: return null
+        return volumePath + (relativePath ?: "") + displayName
+    }
+
+    private fun getVolumePath(context: Context, volumeName: String?): String? {
+        if (volumeName.isNullOrEmpty() || volumeName == MediaStore.VOLUME_EXTERNAL || volumeName == MediaStore.VOLUME_EXTERNAL_PRIMARY) {
+            return StorageUtils.getPrimaryVolumePath(context)
+        }
+
+        return StorageUtils.getVolumePaths(context).firstOrNull {
+            val path = removeTrailingSeparator(it)
+            val pathVolumeName = path.split(File.separator).lastOrNull(String::isNotEmpty)
+            volumeName.equals(pathVolumeName, ignoreCase = true)
+        }
     }
 
     private fun hasEntry(context: Context, contentUri: Uri): Boolean {
@@ -1035,6 +1097,7 @@ class MediaStoreImageProvider : ImageProvider() {
         private val BASE_PROJECTION = arrayOf(
             MediaStore.MediaColumns._ID,
             MediaStore.MediaColumns.DATA,
+            MediaStore.MediaColumns.DISPLAY_NAME,
             MediaStore.MediaColumns.MIME_TYPE,
             MediaStore.MediaColumns.SIZE,
             MediaStore.MediaColumns.WIDTH,
@@ -1042,6 +1105,10 @@ class MediaStoreImageProvider : ImageProvider() {
             MediaStore.MediaColumns.DATE_ADDED,
             MediaStore.MediaColumns.DATE_MODIFIED,
             MediaColumns.DATE_TAKEN,
+            *if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) arrayOf(
+                MediaStore.MediaColumns.RELATIVE_PATH,
+                MediaStore.MediaColumns.VOLUME_NAME,
+            ) else emptyArray(),
         )
 
         private val IMAGE_PROJECTION = arrayOf(

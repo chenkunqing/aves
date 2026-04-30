@@ -14,8 +14,6 @@ import 'package:aves/model/grouping/convert.dart';
 import 'package:aves/model/highlight.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/vaults/details.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/image_op_events.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/services/media/enums.dart';
@@ -30,7 +28,6 @@ import 'package:aves/widgets/common/providers/filter_group_provider.dart';
 import 'package:aves/widgets/common/tile_extent_controller.dart';
 import 'package:aves/widgets/dialogs/aves_confirmation_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/create_stored_album_dialog.dart';
-import 'package:aves/widgets/dialogs/filter_editors/edit_vault_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/rename_dynamic_album_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/rename_group_dialog.dart';
 import 'package:aves/widgets/dialogs/filter_editors/rename_stored_album_dialog.dart';
@@ -86,16 +83,13 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     required int itemCount,
     required Set<AlbumBaseFilter> selectedFilters,
   }) {
-    final selectedSingleItem = selectedFilters.length == 1;
     final isMain = appMode == AppMode.main;
-    bool isVault(CollectionFilter filter) => filter is StoredAlbumFilter && filter.isVault;
     bool isBuiltInDynamicAlbum(CollectionFilter filter) => filter is DynamicAlbumFilter && filter.isBuiltIn;
 
     switch (action) {
       case .createGroup:
         return true;
       case .createAlbum:
-      case .createVault:
         return !settings.isReadOnly && appMode.canCreateFilter && !isSelecting;
       case .group:
         return isMain && isSelecting;
@@ -105,10 +99,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         return isMain && isSelecting && !settings.isReadOnly && selectedFilters.isNotEmpty && selectedFilters.every((v) => v is DynamicAlbumFilter && !v.isBuiltIn);
       case .rename:
         return isMain && isSelecting && !settings.isReadOnly && !selectedFilters.any(isBuiltInDynamicAlbum);
-      case .configureVault:
-        return isMain && selectedSingleItem && isVault(selectedFilters.first);
-      case .lockVault:
-        return isMain && selectedFilters.any(isVault);
       default:
         return super.isVisible(
           action,
@@ -136,10 +126,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         if (filter is StoredAlbumFilter) return filter.canRename;
         if (filter is DynamicAlbumFilter) return !filter.isBuiltIn;
         return true;
-      case .lockVault:
-        return selectedFilters.whereType<StoredAlbumFilter>().map((v) => v.album).any((v) => vaults.isVault(v) && !vaults.isLocked(v));
-      case .configureVault:
-        return true;
       default:
         return super.canApply(
           action,
@@ -156,9 +142,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     switch (action) {
       // general
       case .createAlbum:
-        _createStoredAlbum(context, locked: false);
-      case .createVault:
-        _createStoredAlbum(context, locked: true);
+        _createStoredAlbum(context);
       // single/multiple filters
       case .delete:
         _deleteAlbums(context);
@@ -166,22 +150,13 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         _removeDynamicAlbum(context);
       case .group:
         _group(context);
-      case .lockVault:
-        lockFilters(_getSelectedStoredAlbumFilters(context));
-        browse(context);
       // single filter
       case .rename:
         _rename(context);
-      case .configureVault:
-        _configureVault(context);
       default:
         break;
     }
     super.onActionSelected(context, action);
-  }
-
-  Set<StoredAlbumFilter> _getSelectedStoredAlbumFilters(BuildContext context) {
-    return getSelectedFilters(context).whereType<StoredAlbumFilter>().toSet();
   }
 
   Set<DynamicAlbumFilter> _getSelectedDynamicAlbumFilters(BuildContext context) {
@@ -221,7 +196,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     }
   }
 
-  void _createStoredAlbum(BuildContext context, {required bool locked}) async {
+  void _createStoredAlbum(BuildContext context) async {
     final l10n = context.l10n;
     final source = context.read<CollectionSource>();
 
@@ -229,37 +204,16 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     // local context may be deactivated when action is triggered after navigation
     final navigator = Navigator.maybeOf(context);
 
-    late final String? directory;
-    if (locked) {
-      if (!await showSkippableConfirmationDialog(
-        context: context,
-        type: ConfirmationDialog.createVault,
-        message: l10n.newVaultWarningDialogMessage,
-        confirmationButtonLabel: l10n.continueButtonLabel,
-      )) {
-        return;
-      }
+    final directory = await showDialog<String>(
+      context: context,
+      builder: (context) => const CreateStoredAlbumDialog(),
+      routeSettings: const RouteSettings(name: CreateStoredAlbumDialog.routeName),
+    );
+    if (directory == null) return;
 
-      final details = await showDialog<VaultDetails>(
-        context: context,
-        builder: (context) => const EditVaultDialog(),
-        routeSettings: const RouteSettings(name: CreateStoredAlbumDialog.routeName),
-      );
-      if (details == null) return;
+    // wait for the dialog to hide
+    await Future.delayed(ADurations.dialogTransitionLoose * timeDilation);
 
-      await vaults.create(details);
-      directory = details.path;
-    } else {
-      directory = await showDialog<String>(
-        context: context,
-        builder: (context) => const CreateStoredAlbumDialog(),
-        routeSettings: const RouteSettings(name: CreateStoredAlbumDialog.routeName),
-      );
-      if (directory == null) return;
-
-      // wait for the dialog to hide
-      await Future.delayed(ADurations.dialogTransitionLoose * timeDilation);
-    }
     final filter = StoredAlbumFilter(directory, source.getStoredAlbumDisplayName(context, directory));
 
     final albumExists = source.rawAlbums.contains(directory);
@@ -301,13 +255,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
 
   Future<void> _deleteAlbums(BuildContext context) async {
     final filters = getSelectedFilters(context);
-    final byBinUsage = groupBy<AlbumBaseFilter, bool>(filters, (filter) {
-      if (filter is StoredAlbumFilter) {
-        final details = vaults.getVault(filter.album);
-        return details?.useBin ?? settings.enableBin;
-      }
-      return settings.enableBin;
-    });
+    final byBinUsage = groupBy<AlbumBaseFilter, bool>(filters, (filter) => settings.enableBin);
     await Future.forEach(
       byBinUsage.entries,
       (kv) => _doDelete(
@@ -369,14 +317,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
     if (!await checkStoragePermissionForAlbums(context, filledAlbums)) return;
 
     await _deleteEntriesForever(context, todoEntries, todoAlbums);
-
-    final storedFilters = filters.whereType<StoredAlbumFilter>().toSet();
-    final vaultAlbumFilters = storedFilters.where((v) => vaults.isVault(v.album)).toSet();
-    if (vaultAlbumFilters.isNotEmpty) {
-      final allEntries = source.allEntries;
-      final emptyVaultAlbums = vaultAlbumFilters.whereNot((v) => allEntries.any(v.test)).map((v) => v.album).toSet();
-      await vaults.remove(emptyVaultAlbums);
-    }
   }
 
   Future<void> _deleteEntriesForever(BuildContext context, Set<AvesEntry> todoEntries, [Set<String> albumDirs = const {}]) async {
@@ -472,18 +412,16 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       if (!await unlockFilter(context, filter)) return;
 
       final album = filter.album;
-      if (!vaults.isVault(album)) {
-        final dir = androidFileUtils.relativeDirectoryFromPath(album);
-        // do not allow renaming volume root
-        if (dir == null || dir.relativeDir.isEmpty) return;
+      final dir = androidFileUtils.relativeDirectoryFromPath(album);
+      // do not allow renaming volume root
+      if (dir == null || dir.relativeDir.isEmpty) return;
 
-        // check whether renaming is possible given OS restrictions,
-        // before asking to input a new name
-        final restrictedDirsLowerCase = await storageService.getRestrictedDirectoriesLowerCase();
-        if (restrictedDirsLowerCase.contains(dir.copyWith(relativeDir: dir.relativeDir.toLowerCase()))) {
-          await showRestrictedDirectoryDialog(context, dir);
-          return;
-        }
+      // check whether renaming is possible given OS restrictions,
+      // before asking to input a new name
+      final restrictedDirsLowerCase = await storageService.getRestrictedDirectoriesLowerCase();
+      if (restrictedDirsLowerCase.contains(dir.copyWith(relativeDir: dir.relativeDir.toLowerCase()))) {
+        await showRestrictedDirectoryDialog(context, dir);
+        return;
       }
 
       final newName = await showDialog<String>(
@@ -583,44 +521,5 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
         await storageService.deleteEmptyRegularDirectories({album});
       },
     );
-  }
-
-  Future<void> _configureVault(BuildContext context) async {
-    final filters = getSelectedFilters(context);
-    if (filters.isEmpty) return;
-
-    final filter = filters.first;
-    if (filter is! StoredAlbumFilter) return;
-
-    if (!await unlockFilter(context, filter)) return;
-
-    final oldDetails = vaults.getVault(filter.album);
-    if (oldDetails == null) return;
-
-    final newDetails = await showDialog<VaultDetails>(
-      context: context,
-      builder: (context) => EditVaultDialog(initialDetails: oldDetails),
-      routeSettings: const RouteSettings(name: EditVaultDialog.routeName),
-    );
-    if (newDetails == null || oldDetails == newDetails) return;
-
-    if (oldDetails.useBin && !newDetails.useBin) {
-      final filter = StoredAlbumFilter(oldDetails.path, null);
-      final source = context.read<CollectionSource>();
-      await _deleteEntriesForever(context, source.trashedEntries.where(filter.test).toSet());
-    }
-
-    final oldName = oldDetails.name;
-    final newName = newDetails.name;
-    if (oldName != newName) {
-      await vaults.update(newDetails.copyWith(name: oldName));
-      // wipe the old pass, if any, so that it does not overwrite the new pass
-      // when renaming the vault afterwards
-      await securityService.writeValue(oldDetails.passKey, null);
-      await _doRenameStoredAlbum(context, filter, newName);
-    } else {
-      await vaults.update(newDetails);
-      browse(context);
-    }
   }
 }

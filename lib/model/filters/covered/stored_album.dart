@@ -2,7 +2,6 @@ import 'package:aves/model/covers.dart';
 import 'package:aves/model/filters/container/album_group.dart';
 import 'package:aves/model/filters/covered/covered.dart';
 import 'package:aves/model/filters/filters.dart';
-import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/icons.dart';
@@ -54,7 +53,7 @@ class StoredAlbumFilter extends CollectionFilter with CoveredFilter, AlbumBaseFi
   String get universalLabel => displayName ?? pContext.split(album).last;
 
   @override
-  String getTooltip(BuildContext context) => isVault ? super.getTooltip(context) : album;
+  String getTooltip(BuildContext context) => album;
 
   @override
   Widget? iconBuilder(BuildContext context, double size, {bool allowGenericIcon = true}) {
@@ -78,7 +77,6 @@ class StoredAlbumFilter extends CollectionFilter with CoveredFilter, AlbumBaseFi
     final albumType = covers.effectiveAlbumType(album);
     switch (albumType) {
       case .regular:
-      case .vault:
         break;
       case .app:
         final appColor = colors.appColor(album);
@@ -107,12 +105,8 @@ class StoredAlbumFilter extends CollectionFilter with CoveredFilter, AlbumBaseFi
   StorageVolume? get storageVolume => androidFileUtils.getStorageVolume(album);
 
   bool get canRename {
-    if (isVault) return true;
-
     // do not allow renaming volume root
     final dir = androidFileUtils.relativeDirectoryFromPath(album);
     return dir != null && dir.relativeDir.isNotEmpty;
   }
-
-  bool get isVault => vaults.isVault(album);
 }

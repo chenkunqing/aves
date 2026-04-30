@@ -98,7 +98,6 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
         return !useTvLayout && !isSelecting;
       case .createGroup:
       case .createAlbum:
-      case .createVault:
         return false;
       // browsing or selecting
       case .map:
@@ -117,14 +116,12 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .delete:
       case .remove:
       case .group:
-      case .lockVault:
       case .showCountryStates:
         return false;
       // selecting (single filter)
       case .setCover:
         return isMain;
       case .rename:
-      case .configureVault:
         return false;
     }
   }
@@ -151,7 +148,6 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .toggleTitleSearch:
       case .createGroup:
       case .createAlbum:
-      case .createVault:
         return true;
       // browsing or selecting
       case .map:
@@ -165,14 +161,12 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .pin:
       case .unpin:
       case .group:
-      case .lockVault:
       case .showCountryStates:
       case .showCollection:
         return hasSelection;
       // selecting (single filter)
       case .rename:
       case .setCover:
-      case .configureVault:
         return selectedItemCount == 1;
     }
   }
@@ -198,7 +192,6 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
         context.read<Query>().toggle();
       case .createGroup:
       case .createAlbum:
-      case .createVault:
         break;
       // browsing or selecting
       case .map:
@@ -221,14 +214,12 @@ abstract class ChipSetActionDelegate<T extends CollectionFilter> with FeedbackMi
       case .delete:
       case .remove:
       case .group:
-      case .lockVault:
       case .showCountryStates:
         break;
       // selecting (single filter)
       case .setCover:
         _setCover(context);
       case .rename:
-      case .configureVault:
         break;
     }
   }

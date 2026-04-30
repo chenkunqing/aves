@@ -50,7 +50,6 @@ class SettingKeys {
   static const homePageKey = 'home_page';
   static const homeCustomCollectionKey = 'home_custom_collection';
   static const homeCustomExplorerPathKey = 'home_custom_explorer_path';
-  static const confirmCreateVaultKey = 'confirm_create_vault';
   static const confirmDeleteForeverKey = 'confirm_delete_forever';
   static const confirmMoveToBinKey = 'confirm_move_to_bin';
   static const confirmMoveUndatedItemsKey = 'confirm_move_undated_items';
