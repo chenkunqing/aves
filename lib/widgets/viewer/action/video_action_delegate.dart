@@ -18,7 +18,6 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/dialogs/aves_dialog.dart';
 import 'package:aves/widgets/dialogs/video_speed_dialog.dart';
 import 'package:aves/widgets/dialogs/video_stream_selection_dialog.dart';
-import 'package:aves/widgets/settings/video/video_settings_page.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_video/aves_video.dart';
@@ -64,7 +63,7 @@ class VideoActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .videoABRepeat:
         controller.toggleABRepeat();
       case .videoSettings:
-        await _showSettings(context, controller);
+        return;
       case .videoTogglePlay:
         await _togglePlayPause(context, controller);
       case .videoReplay10:
@@ -192,26 +191,6 @@ class VideoActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
     if (newSpeed == null) return;
 
     controller.speed = newSpeed;
-  }
-
-  Future<void> _showSettings(BuildContext context, AvesVideoController controller) async {
-    int? resumePosition;
-    if (controller.isPlaying) {
-      resumePosition = controller.currentPosition;
-      await controller.pause();
-    }
-    await Navigator.maybeOf(context)?.push(
-      MaterialPageRoute(
-        settings: const RouteSettings(name: VideoSettingsPage.routeName),
-        builder: (context) => const VideoSettingsPage(),
-      ),
-    );
-    if (resumePosition != null) {
-      if (!controller.isReady) {
-        await controller.seekTo(resumePosition);
-      }
-      await controller.play();
-    }
   }
 
   Future<void> _togglePlayPause(BuildContext context, AvesVideoController controller) async {

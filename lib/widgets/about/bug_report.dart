@@ -194,7 +194,6 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
       'System locales: ${WidgetsBinding.instance.platformDispatcher.locales.join(', ')}',
       'Storage volumes: ${storageVolumes.map((v) => v.path).join(', ')}',
       'Storage grants: ${storageGrants.join(', ')}',
-      'Error reporting: ${settings.isErrorReportingAllowed}',
       'Collection: ${source.allEntries.length} items, ${source.rawAlbums.length} albums, ${source.sortedTags.length} tags',
     ].join('\n');
   }

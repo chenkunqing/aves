@@ -30,10 +30,6 @@ mixin AppSettings on SettingsAccess {
 
   set isInstalledAppAccessAllowed(bool newValue) => set(SettingKeys.isInstalledAppAccessAllowedKey, newValue);
 
-  bool get isErrorReportingAllowed => getBool(SettingKeys.isErrorReportingAllowedKey) ?? SettingsDefaults.isErrorReportingAllowed;
-
-  set isErrorReportingAllowed(bool newValue) => set(SettingKeys.isErrorReportingAllowedKey, newValue);
-
   static const localeSeparator = '-';
 
   Locale? get locale {

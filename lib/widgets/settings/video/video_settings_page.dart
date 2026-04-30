@@ -32,7 +32,7 @@ class _VideoSettingsPageState extends State<VideoSettingsPage> {
         ),
         child: SafeArea(
           child: FutureBuilder<List<SettingsTile>>(
-            future: VideoSection(standalonePage: true).tiles(context),
+            future: VideoSection().tiles(context),
             builder: (context, snapshot) {
               final tiles = snapshot.data;
               if (tiles == null) return const SizedBox();

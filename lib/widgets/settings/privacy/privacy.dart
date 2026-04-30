@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:aves/app_flavor.dart';
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
@@ -35,10 +34,8 @@ class PrivacySection extends SettingsSection {
 
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) async {
-    final canEnableErrorReporting = context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting);
     return [
       SettingsTilePrivacyAllowInstalledAppAccess(),
-      if (canEnableErrorReporting) SettingsTilePrivacyAllowErrorReporting(),
       if (!settings.useTvLayout && device.canRequestManageMedia) SettingsTilePrivacyManageMedia(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
@@ -58,18 +55,6 @@ class SettingsTilePrivacyAllowInstalledAppAccess extends SettingsTile {
     onChanged: (v) => settings.isInstalledAppAccessAllowed = v,
     title: title(context),
     subtitle: context.l10n.settingsAllowInstalledAppAccessSubtitle,
-  );
-}
-
-class SettingsTilePrivacyAllowErrorReporting extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsAllowErrorReporting;
-
-  @override
-  Widget build(BuildContext context) => SettingsSwitchListTile(
-    selector: (context, s) => s.isErrorReportingAllowed,
-    onChanged: (v) => settings.isErrorReportingAllowed = v,
-    title: title(context),
   );
 }
 

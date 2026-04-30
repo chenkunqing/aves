@@ -33,7 +33,6 @@ import 'package:aves/widgets/filter_grids/tags_page.dart';
 import 'package:aves_map/aves_map.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
-import 'package:aves_video/aves_video.dart';
 import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -58,8 +57,6 @@ class Settings
         PrivacySettings,
         ScreenSaverSettings,
         SlideshowSettings,
-        SubtitlesSettings,
-        VideoSettings,
         ViewerSettings,
         WidgetSettings {
   final Set<StreamSubscription> _subscriptions = {};
@@ -183,10 +180,6 @@ class Settings
     showOverlayThumbnailPreview = false;
     viewerGestureSideTapNext = false;
     viewerUseCutout = true;
-    videoBackgroundMode = VideoBackgroundMode.disabled;
-    videoControlActions = [];
-    videoGestureDoubleTapTogglePlay = false;
-    videoGestureSideDoubleTapSeek = false;
     enableBin = false;
     showPinchGestureAlternatives = true;
     resetShowTitleQuery();
@@ -199,16 +192,89 @@ class Settings
     if (viewerUseCutout != SettingsDefaults.viewerUseCutout && !await windowService.isCutoutAware()) {
       set(SettingKeys.viewerUseCutoutKey, null);
     }
-    if (videoBackgroundMode == VideoBackgroundMode.pip && !device.supportPictureInPicture) {
-      set(SettingKeys.videoBackgroundModeKey, null);
-    }
     collectionBurstPatterns = collectionBurstPatterns.where(BurstPatterns.options.contains).toList();
 
-    // emulator
-    if (!device.isPhysicalDevice) {
-      set(SettingKeys.videoHardwareAccelerationKey, VideoHardwareAcceleration.disabled);
+    for (final key in {
+      SettingKeys.isErrorReportingAllowedKey,
+      SettingKeys.videoAutoPlayModeKey,
+      SettingKeys.videoBackgroundModeKey,
+      SettingKeys.videoHardwareAccelerationKey,
+      SettingKeys.videoLoopModeKey,
+      SettingKeys.videoResumptionModeKey,
+      SettingKeys.videoControlActionsKey,
+      SettingKeys.videoGestureDoubleTapTogglePlayKey,
+      SettingKeys.videoGestureSideDoubleTapSeekKey,
+      SettingKeys.videoGestureVerticalDragBrightnessVolumeKey,
+      SettingKeys.subtitleFontSizeKey,
+      SettingKeys.subtitleTextAlignmentKey,
+      SettingKeys.subtitleTextPositionKey,
+      SettingKeys.subtitleShowOutlineKey,
+      SettingKeys.subtitleTextColorKey,
+      SettingKeys.subtitleBackgroundColorKey,
+    }) {
+      set(key, null);
     }
   }
+
+  VideoHardwareAcceleration get videoHardwareAcceleration => device.isPhysicalDevice ? VideoHardwareAcceleration.enabled : VideoHardwareAcceleration.disabled;
+
+  set videoHardwareAcceleration(VideoHardwareAcceleration newValue) => set(SettingKeys.videoHardwareAccelerationKey, null);
+
+  VideoAutoPlayMode get videoAutoPlayMode => VideoAutoPlayMode.disabled;
+
+  set videoAutoPlayMode(VideoAutoPlayMode newValue) => set(SettingKeys.videoAutoPlayModeKey, null);
+
+  VideoBackgroundMode get videoBackgroundMode => VideoBackgroundMode.disabled;
+
+  set videoBackgroundMode(VideoBackgroundMode newValue) => set(SettingKeys.videoBackgroundModeKey, null);
+
+  VideoLoopMode get videoLoopMode => VideoLoopMode.shortOnly;
+
+  set videoLoopMode(VideoLoopMode newValue) => set(SettingKeys.videoLoopModeKey, null);
+
+  VideoResumptionMode get videoResumptionMode => VideoResumptionMode.ask;
+
+  set videoResumptionMode(VideoResumptionMode newValue) => set(SettingKeys.videoResumptionModeKey, null);
+
+  List<EntryAction> get videoControlActions => useTvLayout ? const [] : const [EntryAction.videoTogglePlay];
+
+  set videoControlActions(List<EntryAction> newValue) => set(SettingKeys.videoControlActionsKey, null);
+
+  bool get videoGestureDoubleTapTogglePlay => false;
+
+  set videoGestureDoubleTapTogglePlay(bool newValue) => set(SettingKeys.videoGestureDoubleTapTogglePlayKey, null);
+
+  bool get videoGestureSideDoubleTapSeek => !useTvLayout;
+
+  set videoGestureSideDoubleTapSeek(bool newValue) => set(SettingKeys.videoGestureSideDoubleTapSeekKey, null);
+
+  bool get videoGestureVerticalDragBrightnessVolume => false;
+
+  set videoGestureVerticalDragBrightnessVolume(bool newValue) => set(SettingKeys.videoGestureVerticalDragBrightnessVolumeKey, null);
+
+  double get subtitleFontSize => 20;
+
+  set subtitleFontSize(double newValue) => set(SettingKeys.subtitleFontSizeKey, null);
+
+  TextAlign get subtitleTextAlignment => TextAlign.center;
+
+  set subtitleTextAlignment(TextAlign newValue) => set(SettingKeys.subtitleTextAlignmentKey, null);
+
+  SubtitlePosition get subtitleTextPosition => SubtitlePosition.bottom;
+
+  set subtitleTextPosition(SubtitlePosition newValue) => set(SettingKeys.subtitleTextPositionKey, null);
+
+  bool get subtitleShowOutline => true;
+
+  set subtitleShowOutline(bool newValue) => set(SettingKeys.subtitleShowOutlineKey, null);
+
+  Color get subtitleTextColor => const Color(0xFFFFFFFF);
+
+  set subtitleTextColor(Color newValue) => set(SettingKeys.subtitleTextColorKey, null);
+
+  Color get subtitleBackgroundColor => const Color(0x80000000);
+
+  set subtitleBackgroundColor(Color newValue) => set(SettingKeys.subtitleBackgroundColorKey, null);
 
   // tag editor
 
@@ -372,7 +438,6 @@ class Settings
             } else {
               debugPrint('failed to import key=$key, value=$newValue is not an int');
             }
-          case SettingKeys.subtitleFontSizeKey:
           case SettingKeys.infoMapZoomKey:
             if (newValue is double) {
               store.setDouble(key, newValue);
@@ -380,7 +445,6 @@ class Settings
               debugPrint('failed to import key=$key, value=$newValue is not a double');
             }
           case SettingKeys.isInstalledAppAccessAllowedKey:
-          case SettingKeys.isErrorReportingAllowedKey:
           case SettingKeys.forceWesternArabicNumeralsKey:
           case SettingKeys.enableDynamicColorKey:
           case SettingKeys.enableBlurEffectKey:
@@ -415,10 +479,6 @@ class Settings
           case SettingKeys.viewerGestureSideTapNextKey:
           case SettingKeys.viewerUseCutoutKey:
           case SettingKeys.enableMotionPhotoAutoPlayKey:
-          case SettingKeys.videoGestureDoubleTapTogglePlayKey:
-          case SettingKeys.videoGestureSideDoubleTapSeekKey:
-          case SettingKeys.videoGestureVerticalDragBrightnessVolumeKey:
-          case SettingKeys.subtitleShowOutlineKey:
           case SettingKeys.tagEditorCurrentFilterSectionExpandedKey:
           case SettingKeys.convertWriteMetadataKey:
           case SettingKeys.saveSearchHistoryKey:
@@ -456,15 +516,6 @@ class Settings
           case SettingKeys.albumGroupsKey:
           case SettingKeys.tagGroupsKey:
           case SettingKeys.imageBackgroundKey:
-          case SettingKeys.videoAutoPlayModeKey:
-          case SettingKeys.videoBackgroundModeKey:
-          case SettingKeys.videoHardwareAccelerationKey:
-          case SettingKeys.videoLoopModeKey:
-          case SettingKeys.videoResumptionModeKey:
-          case SettingKeys.subtitleTextAlignmentKey:
-          case SettingKeys.subtitleTextPositionKey:
-          case SettingKeys.subtitleTextColorKey:
-          case SettingKeys.subtitleBackgroundColorKey:
           case SettingKeys.tagEditorExpandedSectionKey:
           case SettingKeys.convertMimeTypeKey:
           case SettingKeys.mapStyleKey:
@@ -495,7 +546,6 @@ class Settings
           case SettingKeys.collectionBrowsingQuickActionsKey:
           case SettingKeys.collectionSelectionQuickActionsKey:
           case SettingKeys.viewerQuickActionsKey:
-          case SettingKeys.videoControlActionsKey:
           case SettingKeys.screenSaverCollectionFiltersKey:
             if (newValue is List) {
               store.setStringList(key, newValue.cast<String>());

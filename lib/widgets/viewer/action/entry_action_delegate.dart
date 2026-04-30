@@ -100,7 +100,6 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .videoSelectStreams:
         case .videoSetSpeed:
         case .videoABRepeat:
-        case .videoSettings:
         case .videoTogglePlay:
         case .videoReplay10:
         case .videoSkip10:
@@ -108,6 +107,8 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         case .videoShowNextFrame:
         case .openVideoPlayer:
           return targetEntry.isPureVideo;
+        case .videoSettings:
+          return false;
         case .rotateScreen:
           return !settings.useTvLayout && settings.isRotationLocked;
         case .addShortcut:

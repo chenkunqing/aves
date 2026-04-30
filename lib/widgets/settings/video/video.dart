@@ -8,18 +8,11 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
-import 'package:aves/widgets/settings/video/controls.dart';
-import 'package:aves/widgets/settings/video/playback.dart';
-import 'package:aves/widgets/settings/video/subtitle_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class VideoSection extends SettingsSection {
-  final bool standalonePage;
-
-  VideoSection({
-    this.standalonePage = false,
-  });
+  VideoSection();
 
   @override
   String get key => 'video';
@@ -36,10 +29,7 @@ class VideoSection extends SettingsSection {
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) async {
     return [
-      if (!standalonePage) SettingsTileVideoShowVideos(),
-      SettingsTileVideoPlayback(),
-      if (!settings.useTvLayout) SettingsTileVideoControls(),
-      SettingsTileVideoSubtitleTheme(),
+      SettingsTileVideoShowVideos(),
     ];
   }
 }
@@ -53,41 +43,5 @@ class SettingsTileVideoShowVideos extends SettingsTile {
     selector: (context, s) => !s.hiddenFilters.contains(MimeFilter.video),
     onChanged: (v) => settings.changeFilterVisibility({MimeFilter.video}, v),
     title: title(context),
-  );
-}
-
-class SettingsTileVideoPlayback extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsVideoPlaybackTile;
-
-  @override
-  Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
-    routeName: VideoPlaybackPage.routeName,
-    builder: (context) => const VideoPlaybackPage(),
-  );
-}
-
-class SettingsTileVideoControls extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsVideoControlsTile;
-
-  @override
-  Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
-    routeName: VideoControlsPage.routeName,
-    builder: (context) => const VideoControlsPage(),
-  );
-}
-
-class SettingsTileVideoSubtitleTheme extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsSubtitleThemeTile;
-
-  @override
-  Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
-    routeName: SubtitleThemePage.routeName,
-    builder: (context) => const SubtitleThemePage(),
   );
 }

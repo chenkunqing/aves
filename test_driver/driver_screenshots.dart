@@ -18,7 +18,6 @@ Future<void> configureAndLaunch() async {
     // app
     ..hasAcceptedTerms = true
     ..isInstalledAppAccessAllowed = true
-    ..isErrorReportingAllowed = false
     ..setTileExtent(CollectionPage.routeName, 69)
     ..setTileLayout(CollectionPage.routeName, TileLayout.mosaic)
     ..setTileExtent(CountryListPage.routeName, 112)
