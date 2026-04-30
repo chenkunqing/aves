@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:aves/app_flavor.dart';
 import 'package:aves/model/device.dart';
@@ -151,13 +150,7 @@ class Settings
 
     // availability
     if (flavor.hasMapStyleDefault) {
-      final defaultMapStyle = mobileServices.defaultMapStyle;
-      if (defaultMapStyle != null && mobileServices.mapStyles.contains(defaultMapStyle)) {
-        mapStyle = defaultMapStyle;
-      } else {
-        final styles = EntryMapStyles.baseStyles;
-        mapStyle = styles[Random().nextInt(styles.length)];
-      }
+      mapStyle = EntryMapStyles.auto;
     }
 
     if (settings.useTvLayout) {

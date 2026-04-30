@@ -58,7 +58,8 @@ class LiveAvesAvailability implements AvesAvailability {
 
   @override
   List<EntryMapStyle> get mapStyles => [
-    ...mobileServices.mapStyles,
-    ...EntryMapStyles.baseStyles,
+    EntryMapStyles.auto,
+    EntryMapStyles.amap,
+    EntryMapStyles.arcgisWorldStreetMap,
   ];
 }
