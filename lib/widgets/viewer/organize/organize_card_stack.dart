@@ -269,6 +269,16 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
     final velocity = details.velocity.pixelsPerSecond;
     final direction = _currentDirection;
 
+    if (_dragOffset.distance < 10 && velocity.distance < 100) {
+      setState(() {
+        _dragOffset = Offset.zero;
+        _rotation = 0;
+        _currentDirection = null;
+      });
+      _showZoomPreview();
+      return;
+    }
+
     if (direction == _SwipeDirection.up &&
         (-_dragOffset.dy > size.height * _dismissThresholdVertical || -velocity.dy > _velocityThreshold)) {
       _dismiss(Offset(_dragOffset.dx, -size.height * 1.5));
