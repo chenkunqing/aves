@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 class OrganizeBasket extends ChangeNotifier {
   final LinkedHashMap<String, AvesEntry> _deletionEntries = LinkedHashMap();
+  final Set<String> _movedEntries = {};
   final List<OrganizeUndoAction> _undoStack = [];
 
   Set<AvesEntry> get deletionEntries => _deletionEntries.values.toSet();
@@ -15,6 +16,15 @@ class OrganizeBasket extends ChangeNotifier {
   bool get canUndo => _undoStack.isNotEmpty;
 
   bool isMarkedForDeletion(AvesEntry entry) => _deletionEntries.containsKey(_keyFor(entry));
+
+  bool isMovedAway(AvesEntry entry) => _movedEntries.contains(_keyFor(entry));
+
+  bool shouldSkip(AvesEntry entry) => isMarkedForDeletion(entry) || isMovedAway(entry);
+
+  void addToMoved(AvesEntry entry) {
+    _movedEntries.add(_keyFor(entry));
+    notifyListeners();
+  }
 
   void addToDeletion(AvesEntry entry, int atIndex) {
     _deletionEntries[_keyFor(entry)] = entry;

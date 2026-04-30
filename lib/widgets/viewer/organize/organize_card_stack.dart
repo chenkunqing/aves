@@ -292,8 +292,17 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
       _dismiss(Offset(_dragOffset.dx, size.height * 1.5));
     } else if (direction == _SwipeDirection.right &&
         (_dragOffset.dx > size.width * _dismissThresholdHorizontal || velocity.dx > _velocityThreshold)) {
-      _dismiss(Offset(size.width * 1.5, _dragOffset.dy));
-      _onSwipeRight();
+      final basket = context.read<OrganizeBasket>();
+      var targetIndex = currentIndex - 1;
+      while (targetIndex >= 0 && basket.shouldSkip(entries[targetIndex])) {
+        targetIndex--;
+      }
+      if (targetIndex >= 0) {
+        _dismiss(Offset(size.width * 1.5, _dragOffset.dy));
+        _pendingIndex = targetIndex;
+      } else {
+        _snapBack();
+      }
     } else if (direction == _SwipeDirection.left &&
         (-_dragOffset.dx > size.width * _dismissThresholdHorizontal || -velocity.dx > _velocityThreshold)) {
       _dismiss(Offset(-size.width * 1.5, _dragOffset.dy));
@@ -385,12 +394,13 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
     _pendingIndex = currentIndex + 1;
   }
 
-  void _onSwipeRight() {
-    _pendingIndex = (currentIndex - 1).clamp(0, entries.length);
-  }
-
   void _onSwipeLeft() {
-    _pendingIndex = currentIndex + 1;
+    final basket = context.read<OrganizeBasket>();
+    var targetIndex = currentIndex + 1;
+    while (targetIndex < entries.length && basket.shouldSkip(entries[targetIndex])) {
+      targetIndex++;
+    }
+    _pendingIndex = targetIndex;
   }
 
   void goToIndex(int index) {

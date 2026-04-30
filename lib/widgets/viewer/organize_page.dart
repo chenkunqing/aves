@@ -186,6 +186,10 @@ class _OrganizePageState extends State<OrganizePage> {
     );
     if (!success || !mounted) return;
 
+    if (moveType == MoveType.move) {
+      _basket.addToMoved(entry);
+    }
+
     final l10n = context.l10n;
     final isCopy = moveType == MoveType.copy;
     _undoMessageNotifier.value = isCopy
