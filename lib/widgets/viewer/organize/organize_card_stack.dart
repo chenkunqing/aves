@@ -394,6 +394,12 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
   void _onSwipeDown() {
     final basket = context.read<OrganizeBasket>();
     final entry = entries[currentIndex];
+    if (entry.isFavourite) {
+      // already favourited: show animation but stay on current card
+      setState(() => _showFavouriteAnimation = true);
+      _favouriteController.forward(from: 0);
+      return;
+    }
     basket.toggleFavourite(entry);
     setState(() => _showFavouriteAnimation = true);
     _favouriteController.forward(from: 0);

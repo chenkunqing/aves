@@ -222,4 +222,5 @@ flutter build apk --flavor libre --release --split-per-abi
 | 2026-05-02 | 功能优化 | 清理数据库升级脚本中 vaults 表残留迁移代码                    |
 | 2026-05-02 | 功能优化 | 重构数据源层，合并 Location mixin、拆分 DB 仓库、提取 EntryCache |
 | 2026-05-02 | 功能优化 | 提取 AnalysisStep 配置类，统一分析步骤执行逻辑              |
+| 2026-05-02 | 功能优化 | 整理模式：已收藏照片再次下滑收藏时保持收藏状态且不离开当前卡片    |
 

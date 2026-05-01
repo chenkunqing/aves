@@ -79,6 +79,8 @@ lib/
 | `model/source/media_store_source.dart` | 从 Android MediaStore 加载数据 |
 | `model/source/album.dart` | 相册管理 |
 | `model/source/analysis_controller.dart` | 分析流程控制器 |
+| `model/source/analysis_step.dart` | **AnalysisStep** — 分析步骤声明式配置（batch + predicate + state） |
+| `model/source/batch_processor.dart` | **BatchProcessor** — 通用批处理循环（提交阈值 + 停止检查 + 进度） |
 | `model/source/events.dart` | 数据源事件定义 |
 | `model/source/face.dart` | 人脸检测数据源 |
 | `model/source/tag.dart` | 标签数据源 |
