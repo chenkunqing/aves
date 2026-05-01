@@ -220,4 +220,6 @@ flutter build apk --flavor libre --release --split-per-abi
 | 2026-05-01 | 功能优化 | 移除保险箱(Vault)功能全部残留代码，精简代码体积                 |
 | 2026-05-02 | 修改bug | 整理模式完成后返回查看器时不再闪现已删除照片                    |
 | 2026-05-02 | 功能优化 | 清理数据库升级脚本中 vaults 表残留迁移代码                    |
+| 2026-05-02 | 功能优化 | 重构数据源层，合并 Location mixin、拆分 DB 仓库、提取 EntryCache |
+| 2026-05-02 | 功能优化 | 提取 AnalysisStep 配置类，统一分析步骤执行逻辑              |
 
