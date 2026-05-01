@@ -18,6 +18,7 @@ import 'package:aves/model/metadata/trash.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/analysis_controller.dart';
+import 'package:aves/model/source/analysis_step.dart';
 import 'package:aves/model/source/events.dart';
 import 'package:aves/model/source/location/location.dart';
 import 'package:aves/model/source/analysis_orchestrator.dart';
@@ -59,6 +60,33 @@ mixin SourceBase {
   ValueNotifier<ProgressEvent> progressNotifier = ValueNotifier(const ProgressEvent(done: 0, total: 0));
 
   void setProgress({required int done, required int total}) => progressNotifier.value = ProgressEvent(done: done, total: total);
+
+  Future<bool> runAnalysisStep<T>({
+    required AnalysisStep step,
+    required AnalysisController controller,
+    required Set<AvesEntry> candidateEntries,
+    required Future<T?> Function(AvesEntry entry) process,
+    required Future<void> Function(Set<T> batch) onCommit,
+    FutureOr<void> Function(Set<AvesEntry> todo)? onBeforeRun,
+  }) async {
+    if (controller.isStopping) return false;
+    final todo = controller.force
+        ? (step.forceFilter != null ? candidateEntries.where(step.forceFilter!).toSet() : candidateEntries)
+        : candidateEntries.where(step.testPredicate).toSet();
+    if (todo.isEmpty) return false;
+    if (onBeforeRun != null) await onBeforeRun(todo);
+    state = step.sourceState;
+    await step.batch.run<T>(
+      controller: controller,
+      entries: todo,
+      process: process,
+      onCommit: onCommit,
+      onProgress: (done, total) => setProgress(done: done, total: total),
+      progressOffset: controller.progressOffset,
+      progressTotal: controller.progressTotal > 0 ? controller.progressTotal : null,
+    );
+    return true;
+  }
 
   void invalidateEntries();
 }

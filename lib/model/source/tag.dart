@@ -4,6 +4,7 @@ import 'package:aves/model/filters/container/tag_group.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/source/analysis_controller.dart';
+import 'package:aves/model/source/analysis_step.dart';
 import 'package:aves/model/source/batch_processor.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/filter_summary_cache.dart';
@@ -14,7 +15,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 mixin TagMixin on SourceBase {
-  static const _batch = BatchProcessor(commitThreshold: 400, stopCheckThreshold: 100);
+  static const _step = AnalysisStep(
+    batch: BatchProcessor(commitThreshold: 400, stopCheckThreshold: 100),
+    testPredicate: catalogEntriesTest,
+    sourceState: SourceState.cataloguing,
+  );
 
   List<String> sortedTags = List.unmodifiable([]);
 
@@ -28,17 +33,11 @@ mixin TagMixin on SourceBase {
   static bool catalogEntriesTest(AvesEntry entry) => !entry.isCatalogued;
 
   Future<void> catalogEntries(AnalysisController controller, Set<AvesEntry> candidateEntries) async {
-    if (controller.isStopping) return;
-
     final force = controller.force;
-    final todo = force ? candidateEntries : candidateEntries.where(catalogEntriesTest).toSet();
-    if (todo.isEmpty) return;
-
-    state = SourceState.cataloguing;
-
-    await _batch.run<CatalogMetadata>(
+    final ran = await runAnalysisStep<CatalogMetadata>(
+      step: _step,
       controller: controller,
-      entries: todo,
+      candidateEntries: candidateEntries,
       process: (entry) async {
         await entry.catalog(background: true, force: force, persist: true);
         return entry.isCatalogued ? entry.catalogMetadata : null;
@@ -47,11 +46,8 @@ mixin TagMixin on SourceBase {
         await localMediaDb.saveCatalogMetadata(batch);
         onCatalogMetadataChanged();
       },
-      onProgress: (done, total) => setProgress(done: done, total: total),
-      progressOffset: controller.progressOffset,
-      progressTotal: controller.progressTotal > 0 ? controller.progressTotal : null,
     );
-    onCatalogMetadataChanged();
+    if (ran) onCatalogMetadataChanged();
   }
 
   void onCatalogMetadataChanged() {
