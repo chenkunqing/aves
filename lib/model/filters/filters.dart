@@ -18,7 +18,6 @@ import 'package:aves/model/filters/favourite.dart';
 import 'package:aves/model/filters/mime.dart';
 import 'package:aves/model/filters/missing.dart';
 import 'package:aves/model/filters/path.dart';
-import 'package:aves/model/filters/person.dart';
 import 'package:aves/model/filters/placeholder.dart';
 import 'package:aves/model/filters/query.dart';
 import 'package:aves/model/filters/recent.dart';
@@ -54,7 +53,6 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
     TagFilter.type,
     AspectRatioFilter.type,
     FaceCountFilter.type,
-    PersonFilter.type,
     ColorFilter.type,
     MissingFilter.type,
     PathFilter.type,
@@ -97,8 +95,6 @@ abstract class CollectionFilter extends Equatable implements Comparable<Collecti
         return SetOrFilter.fromMap(jsonMap);
       case PathFilter.type:
         return PathFilter.fromMap(jsonMap);
-      case PersonFilter.type:
-        return PersonFilter.fromMap(jsonMap);
       case PlaceholderFilter.type:
         return PlaceholderFilter.fromMap(jsonMap);
       case QueryFilter.type:

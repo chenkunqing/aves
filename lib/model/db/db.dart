@@ -1,13 +1,11 @@
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/dynamic_albums.dart';
 import 'package:aves/model/entry/entry.dart';
-import 'package:aves/model/face_embedding.dart';
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
-import 'package:aves/model/person.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 
 abstract class LocalMediaDb {
@@ -130,38 +128,6 @@ abstract class LocalMediaDb {
   Future<void> saveEntryFaces(int entryId, int faceCount, String? boundingBoxes);
 
   Future<void> removeEntryFacesByIds(Set<int> ids);
-
-  Future<Map<int, String>> loadEntryFacesNeedingEmbeddings(String modelVersion);
-
-  // face embeddings
-
-  Future<void> clearFaceEmbeddings();
-
-  Future<Map<int, List<FaceEmbeddingRow>>> loadAllFaceEmbeddings();
-
-  Future<void> saveFaceEmbeddings(int entryId, List<FaceEmbeddingRow> embeddings);
-
-  Future<void> removeFaceEmbeddingsByEntryIds(Set<int> ids);
-
-  Future<void> updateFaceEmbeddingPersonId(int faceId, int? personId);
-
-  Future<List<FaceEmbeddingRow>> loadFaceEmbeddingsByPersonId(int personId);
-
-  Future<List<FaceEmbeddingRow>> loadUnassignedFaceEmbeddings();
-
-  Future<void> resetAllFaceEmbeddingPersonIds();
-
-  // persons
-
-  Future<void> clearPersons();
-
-  Future<Set<PersonRow>> loadAllPersons();
-
-  Future<int> savePerson(PersonRow person);
-
-  Future<void> updatePerson(PersonRow person);
-
-  Future<void> removePerson(int personId);
 
   // video playback
 

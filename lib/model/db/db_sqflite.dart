@@ -1,20 +1,16 @@
 import 'dart:io';
 
-import 'dart:typed_data';
-
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/db/db.dart';
 import 'package:aves/model/db/db_sqflite_schema.dart';
 import 'package:aves/model/db/db_sqflite_upgrade.dart';
 import 'package:aves/model/dynamic_albums.dart';
 import 'package:aves/model/entry/entry.dart';
-import 'package:aves/model/face_embedding.dart';
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/metadata/trash.dart';
-import 'package:aves/model/person.dart';
 import 'package:aves/model/viewer/video_playback.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:collection/collection.dart';
@@ -38,8 +34,6 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
   static const entryFacesTable = SqfliteLocalMediaDbSchema.entryFacesTable;
-  static const faceEmbeddingsTable = SqfliteLocalMediaDbSchema.faceEmbeddingsTable;
-  static const personsTable = SqfliteLocalMediaDbSchema.personsTable;
 
   static const _entryInsertSliceMaxCount = 10000; // number of entries
   static const _queryCursorBufferSize = 1000; // number of rows
@@ -54,7 +48,7 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
       await path,
       onCreate: (db, version) => SqfliteLocalMediaDbSchema.createLatestVersion(db),
       onUpgrade: LocalMediaDbUpgrader.upgradeDb,
-      version: 21,
+      version: 22,
     );
 
     final maxIdRows = await _db.rawQuery('SELECT MAX(id) AS maxId FROM $entryTable');
@@ -104,7 +98,6 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
         batch.delete(videoPlaybackTable, where: where, whereArgs: whereArgs);
         batch.delete(entryColorsTable, where: 'entryId = ?', whereArgs: whereArgs);
         batch.delete(entryFacesTable, where: 'entryId = ?', whereArgs: whereArgs);
-        batch.delete(faceEmbeddingsTable, where: 'entryId = ?', whereArgs: whereArgs);
       }
     });
     await batch.commit(noResult: true);
@@ -725,161 +718,11 @@ class SqfliteLocalMediaDb implements LocalMediaDb {
   }
 
   @override
-  Future<Map<int, String>> loadEntryFacesNeedingEmbeddings(String modelVersion) async {
-    final result = <int, String>{};
-    final rows = await _db.rawQuery(
-      'SELECT ef.entryId, ef.boundingBoxes FROM $entryFacesTable ef '
-      'LEFT JOIN $faceEmbeddingsTable fe ON fe.entryId = ef.entryId AND fe.modelVersion = ? '
-      'WHERE ef.faceCount > 0 AND ef.boundingBoxes IS NOT NULL '
-      'GROUP BY ef.entryId, ef.boundingBoxes, ef.faceCount '
-      'HAVING COUNT(fe.faceId) != ef.faceCount',
-      [modelVersion],
-    );
-    for (final row in rows) {
-      final entryId = row['entryId'] as int;
-      final boundingBoxes = row['boundingBoxes'] as String;
-      result[entryId] = boundingBoxes;
-    }
-    return result;
-  }
-
-  @override
   Future<void> removeEntryFacesByIds(Set<int> ids) async {
     if (ids.isEmpty) return;
     final batch = _db.batch();
     ids.forEach((id) => batch.delete(entryFacesTable, where: 'entryId = ?', whereArgs: [id]));
     await batch.commit(noResult: true);
-  }
-
-  // face embeddings
-
-  @override
-  Future<void> clearFaceEmbeddings() async {
-    final count = await _db.delete(faceEmbeddingsTable, where: '1');
-    debugPrint('$runtimeType clearFaceEmbeddings deleted $count rows');
-  }
-
-  @override
-  Future<Map<int, List<FaceEmbeddingRow>>> loadAllFaceEmbeddings() async {
-    final result = <int, List<FaceEmbeddingRow>>{};
-    final cursor = await _db.queryCursor(faceEmbeddingsTable, bufferSize: _queryCursorBufferSize);
-    while (await cursor.moveNext()) {
-      final row = FaceEmbeddingRow.fromMap(cursor.current);
-      result.putIfAbsent(row.entryId, () => []).add(row);
-    }
-    return result;
-  }
-
-  @override
-  Future<void> saveFaceEmbeddings(int entryId, List<FaceEmbeddingRow> embeddings) async {
-    if (embeddings.isEmpty) return;
-    final batch = _db.batch();
-    batch.delete(faceEmbeddingsTable, where: 'entryId = ?', whereArgs: [entryId]);
-    for (final emb in embeddings) {
-      batch.insert(faceEmbeddingsTable, emb.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-    }
-    await batch.commit(noResult: true);
-  }
-
-  @override
-  Future<void> removeFaceEmbeddingsByEntryIds(Set<int> ids) async {
-    if (ids.isEmpty) return;
-    final batch = _db.batch();
-    ids.forEach((id) => batch.delete(faceEmbeddingsTable, where: 'entryId = ?', whereArgs: [id]));
-    await batch.commit(noResult: true);
-  }
-
-  @override
-  Future<void> updateFaceEmbeddingPersonId(int faceId, int? personId) async {
-    await _db.update(
-      faceEmbeddingsTable,
-      {'personId': personId},
-      where: 'faceId = ?',
-      whereArgs: [faceId],
-    );
-  }
-
-  @override
-  Future<List<FaceEmbeddingRow>> loadFaceEmbeddingsByPersonId(int personId) async {
-    final result = <FaceEmbeddingRow>[];
-    final cursor = await _db.queryCursor(
-      faceEmbeddingsTable,
-      where: 'personId = ?',
-      whereArgs: [personId],
-      bufferSize: _queryCursorBufferSize,
-    );
-    while (await cursor.moveNext()) {
-      result.add(FaceEmbeddingRow.fromMap(cursor.current));
-    }
-    return result;
-  }
-
-  @override
-  Future<List<FaceEmbeddingRow>> loadUnassignedFaceEmbeddings() async {
-    final result = <FaceEmbeddingRow>[];
-    final cursor = await _db.queryCursor(
-      faceEmbeddingsTable,
-      where: 'personId IS NULL',
-      bufferSize: _queryCursorBufferSize,
-    );
-    while (await cursor.moveNext()) {
-      result.add(FaceEmbeddingRow.fromMap(cursor.current));
-    }
-    return result;
-  }
-
-  @override
-  Future<void> resetAllFaceEmbeddingPersonIds() async {
-    await _db.update(faceEmbeddingsTable, {'personId': null});
-  }
-
-  // persons
-
-  @override
-  Future<void> clearPersons() async {
-    final count = await _db.delete(personsTable, where: '1');
-    debugPrint('$runtimeType clearPersons deleted $count rows');
-  }
-
-  @override
-  Future<Set<PersonRow>> loadAllPersons() async {
-    final result = <PersonRow>{};
-    final cursor = await _db.queryCursor(personsTable, bufferSize: _queryCursorBufferSize);
-    while (await cursor.moveNext()) {
-      result.add(PersonRow.fromMap(cursor.current));
-    }
-    return result;
-  }
-
-  @override
-  Future<int> savePerson(PersonRow person) async {
-    return await _db.insert(
-      personsTable,
-      person.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  @override
-  Future<void> updatePerson(PersonRow person) async {
-    if (person.personId == null) return;
-    await _db.update(
-      personsTable,
-      person.toMap(),
-      where: 'personId = ?',
-      whereArgs: [person.personId],
-    );
-  }
-
-  @override
-  Future<void> removePerson(int personId) async {
-    await _db.update(
-      faceEmbeddingsTable,
-      {'personId': null},
-      where: 'personId = ?',
-      whereArgs: [personId],
-    );
-    await _db.delete(personsTable, where: 'personId = ?', whereArgs: [personId]);
   }
 
   // convenience methods

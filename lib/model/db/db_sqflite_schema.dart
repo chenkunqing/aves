@@ -13,8 +13,6 @@ class SqfliteLocalMediaDbSchema {
   static const videoPlaybackTable = 'videoPlayback';
   static const entryColorsTable = 'entryColors';
   static const entryFacesTable = 'entryFaces';
-  static const faceEmbeddingsTable = 'faceEmbeddings';
-  static const personsTable = 'persons';
 
   static const allTables = [
     entryTable,
@@ -29,8 +27,6 @@ class SqfliteLocalMediaDbSchema {
     videoPlaybackTable,
     entryColorsTable,
     entryFacesTable,
-    faceEmbeddingsTable,
-    personsTable,
   ];
 
   static Future<void> createLatestVersion(Database db) async {
@@ -152,31 +148,6 @@ class SqfliteLocalMediaDbSchema {
           'entryId INTEGER PRIMARY KEY'
           ', faceCount INTEGER'
           ', boundingBoxes TEXT'
-          ')',
-        );
-      case faceEmbeddingsTable:
-        return db
-            .execute(
-              'CREATE TABLE $faceEmbeddingsTable('
-              'faceId INTEGER PRIMARY KEY AUTOINCREMENT'
-              ', entryId INTEGER NOT NULL'
-              ', boundingBox TEXT NOT NULL'
-              ', embedding BLOB NOT NULL'
-              ', modelVersion TEXT NOT NULL'
-              ', personId INTEGER'
-              ')',
-            )
-            .then((_) async {
-              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
-              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
-              await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
-            });
-      case personsTable:
-        return db.execute(
-          'CREATE TABLE $personsTable('
-          'personId INTEGER PRIMARY KEY AUTOINCREMENT'
-          ', name TEXT'
-          ', coverEntryId INTEGER'
           ')',
         );
       default:

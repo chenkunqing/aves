@@ -55,6 +55,4 @@ mixin FaceMixin on SourceBase {
       setProgress(done: ++progressDone, total: progressTotal);
     }
   }
-
-  Future<void> extractMissingEmbeddings(AnalysisController controller) async {}
 }

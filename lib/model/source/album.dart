@@ -4,6 +4,7 @@ import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/model/source/filter_summary_cache.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/utils/android_file_utils.dart';
 import 'package:aves/utils/collection_utils.dart';
@@ -106,32 +107,24 @@ mixin AlbumMixin on SourceBase {
 
   // filter summary
 
-  // by filter key
-  final Map<String, int> _filterEntryCountMap = {}, _filterSizeMap = {};
-  final Map<String, AvesEntry?> _filterRecentEntryMap = {};
+  final FilterSummaryCache<String> _albumSummary = FilterSummaryCache();
 
   void invalidateAlbumFilterSummary({
     Set<AvesEntry>? entries,
     Set<String?>? directories,
     bool notify = true,
   }) {
-    if (_filterEntryCountMap.isEmpty && _filterSizeMap.isEmpty && _filterRecentEntryMap.isEmpty) return;
+    if (_albumSummary.isEmpty) return;
 
     if (entries == null && directories == null) {
-      _filterEntryCountMap.clear();
-      _filterSizeMap.clear();
-      _filterRecentEntryMap.clear();
+      _albumSummary.invalidate();
     } else {
       // clear entries only for modified album directories
       directories ??= {};
       if (entries != null) {
         directories.addAll(entries.map((entry) => entry.directory).nonNulls);
       }
-      directories.nonNulls.map((v) => StoredAlbumFilter(v, null).key).forEach((key) {
-        _filterEntryCountMap.remove(key);
-        _filterSizeMap.remove(key);
-        _filterRecentEntryMap.remove(key);
-      });
+      _albumSummary.invalidate(directories.nonNulls.map((v) => StoredAlbumFilter(v, null).key).toSet());
 
       // clear entries for all dynamic albums and groups
       invalidateDynamicAlbumFilterSummary(notify: false);
@@ -145,9 +138,7 @@ mixin AlbumMixin on SourceBase {
   }
 
   void invalidateDynamicAlbumFilterSummary({bool notify = true}) {
-    _filterEntryCountMap.removeWhere(_isDynamicAlbumKey);
-    _filterSizeMap.removeWhere(_isDynamicAlbumKey);
-    _filterRecentEntryMap.removeWhere(_isDynamicAlbumKey);
+    _albumSummary.invalidateWhere((key) => key.startsWith('${DynamicAlbumFilter.type}-'));
 
     if (notify) {
       eventBus.fire(const DynamicAlbumSummaryInvalidatedEvent());
@@ -155,29 +146,23 @@ mixin AlbumMixin on SourceBase {
   }
 
   void invalidateAlbumGroupFilterSummary({bool notify = true}) {
-    _filterEntryCountMap.removeWhere(_isAlbumGroupKey);
-    _filterSizeMap.removeWhere(_isAlbumGroupKey);
-    _filterRecentEntryMap.removeWhere(_isAlbumGroupKey);
+    _albumSummary.invalidateWhere((key) => key.startsWith('${AlbumGroupFilter.type}-'));
 
     if (notify) {
       eventBus.fire(const AlbumGroupSummaryInvalidatedEvent());
     }
   }
 
-  bool _isDynamicAlbumKey(String key, _) => key.startsWith('${DynamicAlbumFilter.type}-');
-
-  bool _isAlbumGroupKey(String key, _) => key.startsWith('${AlbumGroupFilter.type}-');
-
   int albumEntryCount(AlbumBaseFilter filter) {
-    return _filterEntryCountMap.putIfAbsent(filter.key, () => visibleEntries.where(filter.test).length);
+    return _albumSummary.count(filter.key, () => visibleEntries.where(filter.test).length);
   }
 
   int albumSize(AlbumBaseFilter filter) {
-    return _filterSizeMap.putIfAbsent(filter.key, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
+    return _albumSummary.size(filter.key, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
   }
 
   AvesEntry? albumRecentEntry(AlbumBaseFilter filter) {
-    return _filterRecentEntryMap.putIfAbsent(filter.key, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
+    return _albumSummary.recentEntry(filter.key, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
   }
 
   // new albums

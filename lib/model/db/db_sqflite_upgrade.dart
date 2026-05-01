@@ -20,8 +20,6 @@ class LocalMediaDbUpgrader {
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
   static const entryFacesTable = SqfliteLocalMediaDbSchema.entryFacesTable;
-  static const faceEmbeddingsTable = SqfliteLocalMediaDbSchema.faceEmbeddingsTable;
-  static const personsTable = SqfliteLocalMediaDbSchema.personsTable;
 
   // warning: "ALTER TABLE ... RENAME COLUMN ..." is not supported
   // on SQLite <3.25.0, bundled on older Android devices
@@ -69,6 +67,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom19(db);
         case 20:
           await _upgradeFrom20(db);
+        case 21:
+          await _upgradeFrom21(db);
       }
       oldVersion++;
     }
@@ -616,7 +616,7 @@ class LocalMediaDbUpgrader {
     debugPrint('upgrading DB from v18');
 
     await db.execute(
-      'CREATE TABLE IF NOT EXISTS $faceEmbeddingsTable('
+      'CREATE TABLE IF NOT EXISTS faceEmbeddings('
       'faceId INTEGER PRIMARY KEY AUTOINCREMENT'
       ', entryId INTEGER NOT NULL'
       ', boundingBox TEXT NOT NULL'
@@ -625,12 +625,12 @@ class LocalMediaDbUpgrader {
       ', personId INTEGER'
       ')',
     );
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON $faceEmbeddingsTable(entryId)');
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON $faceEmbeddingsTable(personId)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId ON faceEmbeddings(entryId)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON faceEmbeddings(entryId, modelVersion)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_personId ON faceEmbeddings(personId)');
 
     await db.execute(
-      'CREATE TABLE IF NOT EXISTS $personsTable('
+      'CREATE TABLE IF NOT EXISTS persons('
       'personId INTEGER PRIMARY KEY AUTOINCREMENT'
       ', name TEXT'
       ', coverEntryId INTEGER'
@@ -641,12 +641,12 @@ class LocalMediaDbUpgrader {
   static Future<void> _upgradeFrom19(Database db) async {
     debugPrint('upgrading DB from v19');
 
-    final columns = await db.rawQuery('PRAGMA table_info($faceEmbeddingsTable)');
+    final columns = await db.rawQuery('PRAGMA table_info(faceEmbeddings)');
     final hasModelVersion = columns.any((row) => row['name'] == 'modelVersion');
     if (!hasModelVersion) {
-      await db.execute('ALTER TABLE $faceEmbeddingsTable ADD COLUMN modelVersion TEXT NOT NULL DEFAULT \'\'');
+      await db.execute('ALTER TABLE faceEmbeddings ADD COLUMN modelVersion TEXT NOT NULL DEFAULT \'\'');
     }
-    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON $faceEmbeddingsTable(entryId, modelVersion)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_faceEmbeddings_entryId_modelVersion ON faceEmbeddings(entryId, modelVersion)');
   }
 
   static Future<void> _upgradeFrom20(Database db) async {
@@ -675,5 +675,12 @@ class LocalMediaDbUpgrader {
       await db.execute('DROP TABLE $metadataTable;');
       await db.execute('ALTER TABLE $newMetadataTable RENAME TO $metadataTable;');
     });
+  }
+
+  static Future<void> _upgradeFrom21(Database db) async {
+    debugPrint('upgrading DB from v21');
+
+    await db.execute('DROP TABLE IF EXISTS faceEmbeddings');
+    await db.execute('DROP TABLE IF EXISTS persons');
   }
 }

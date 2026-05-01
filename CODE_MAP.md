@@ -46,10 +46,7 @@ lib/
 | `model/entry/entry.dart` | **AvesEntry** — 照片/视频条目，核心数据对象 |
 | `model/entry/extensions/` | Entry 扩展：catalog、favourites、images、location、props 等 |
 | `model/entry/sort.dart` | 条目排序逻辑 |
-| `model/person.dart` | Person 人物模型 |
-| `model/face_embedding.dart` | 人脸 embedding 数据行模型 |
-| `model/face_clustering.dart` | 人脸聚类工具（余弦相似度计算） |
-| `model/entry_faces.dart` | 条目-人脸关联 |
+| `model/entry_faces.dart` | 条目-人脸检测结果（人脸数量、边界框） |
 
 ### 筛选器 (Filters)
 | 路径 | 说明 |
@@ -64,7 +61,6 @@ lib/
 | `model/filters/mime.dart` | MIME 类型筛选 |
 | `model/filters/missing.dart` | 缺失元数据筛选 |
 | `model/filters/path.dart` | 路径筛选 |
-| `model/filters/person.dart` | 人物筛选 |
 | `model/filters/placeholder.dart` | 占位筛选 |
 | `model/filters/query.dart` | 搜索查询筛选 |
 | `model/filters/rating.dart` | 评分筛选 |
@@ -85,8 +81,7 @@ lib/
 | `model/source/album.dart` | 相册管理 |
 | `model/source/analysis_controller.dart` | 分析流程控制器 |
 | `model/source/events.dart` | 数据源事件定义 |
-| `model/source/face.dart` | 人脸数据源 |
-| `model/source/person.dart` | 人物数据源 |
+| `model/source/face.dart` | 人脸检测数据源 |
 | `model/source/section_keys.dart` | 分段键（分组排序标识） |
 | `model/source/tag.dart` | 标签数据源 |
 | `model/source/trash.dart` | 回收站数据源 |
@@ -308,9 +303,6 @@ Android MediaStore / 文件系统
 
 ```
 图片 → FaceDetectionService (TFLite SSD) → 人脸坐标 & 数量
-     → FaceEmbeddingRow (数据存储)
-     → FaceClustering (余弦相似度) → Person 分组
-     → PersonSource → UI 展示
+     → EntryFaces (存储检测结果)
+     → FaceCountFilter (按人脸数量筛选：合影/单人/无人脸)
 ```
-
-> 注：本地人脸识别（MobileFaceNet embedding 提取）已移除，仅保留人脸检测和基于已有 embedding 的聚类。

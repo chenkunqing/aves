@@ -5,6 +5,7 @@ import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/model/source/filter_summary_cache.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/utils/collection_utils.dart';
 import 'package:aves_model/aves_model.dart';
@@ -79,31 +80,23 @@ mixin TagMixin on SourceBase {
 
   // filter summary
 
-  // by tag
-  final Map<String, int> _filterEntryCountMap = {}, _filterSizeMap = {};
-  final Map<String, AvesEntry?> _filterRecentEntryMap = {};
+  final FilterSummaryCache<String> _tagSummary = FilterSummaryCache();
 
   void invalidateTagFilterSummary({
     Set<AvesEntry>? entries,
     Set<String>? tags,
     bool notify = true,
   }) {
-    if (_filterEntryCountMap.isEmpty && _filterSizeMap.isEmpty && _filterRecentEntryMap.isEmpty) return;
+    if (_tagSummary.isEmpty) return;
 
     if (entries == null && tags == null) {
-      _filterEntryCountMap.clear();
-      _filterSizeMap.clear();
-      _filterRecentEntryMap.clear();
+      _tagSummary.invalidate();
     } else {
       tags ??= {};
       if (entries != null) {
         tags.addAll(entries.where((entry) => entry.isCatalogued).expand((entry) => entry.tags));
       }
-      tags.map((v) => TagFilter(v).key).forEach((key) {
-        _filterEntryCountMap.remove(key);
-        _filterSizeMap.remove(key);
-        _filterRecentEntryMap.remove(key);
-      });
+      _tagSummary.invalidate(tags.map((v) => TagFilter(v).key).toSet());
 
       // clear entries for all groups
       invalidateTagGroupFilterSummary(notify: false);
@@ -115,27 +108,23 @@ mixin TagMixin on SourceBase {
   }
 
   void invalidateTagGroupFilterSummary({bool notify = true}) {
-    _filterEntryCountMap.removeWhere(_isTagGroupKey);
-    _filterSizeMap.removeWhere(_isTagGroupKey);
-    _filterRecentEntryMap.removeWhere(_isTagGroupKey);
+    _tagSummary.invalidateWhere((key) => key.startsWith('${TagGroupFilter.type}-'));
 
     if (notify) {
       eventBus.fire(const TagGroupSummaryInvalidatedEvent());
     }
   }
 
-  bool _isTagGroupKey(String key, _) => key.startsWith('${TagGroupFilter.type}-');
-
   int tagEntryCount(TagBaseFilter filter) {
-    return _filterEntryCountMap.putIfAbsent(filter.key, () => visibleEntries.where(filter.test).length);
+    return _tagSummary.count(filter.key, () => visibleEntries.where(filter.test).length);
   }
 
   int tagSize(TagBaseFilter filter) {
-    return _filterSizeMap.putIfAbsent(filter.key, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
+    return _tagSummary.size(filter.key, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
   }
 
   AvesEntry? tagRecentEntry(TagBaseFilter filter) {
-    return _filterRecentEntryMap.putIfAbsent(filter.key, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
+    return _tagSummary.recentEntry(filter.key, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
   }
 }
 

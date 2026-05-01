@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:aves/model/app_inventory.dart';
@@ -11,13 +10,10 @@ import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/filters/covered/stored_album.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/filters/filters.dart';
-import 'package:aves/model/filters/person.dart';
 import 'package:aves/model/grouping/common.dart';
-import 'package:aves/model/person.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/location/country.dart';
-import 'package:aves/model/source/person.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
@@ -123,13 +119,6 @@ class CoveredFilterChip<T extends CollectionFilter> extends StatelessWidget {
                 final tag = filter.tag;
                 return StreamBuilder<TagSummaryInvalidatedEvent>(
                   stream: source.eventBus.on<TagSummaryInvalidatedEvent>().where((event) => event.tags == null || event.tags!.contains(tag)),
-                  builder: (context, snapshot) => _buildChip(context, source),
-                );
-              }
-            case PersonFilter _:
-              {
-                return StreamBuilder<PersonSummaryInvalidatedEvent>(
-                  stream: source.eventBus.on<PersonSummaryInvalidatedEvent>(),
                   builder: (context, snapshot) => _buildChip(context, source),
                 );
               }
@@ -247,39 +236,6 @@ class CoveredFilterChip<T extends CollectionFilter> extends StatelessWidget {
 
   Widget _buildThumbnail(BuildContext context, AvesEntry entry, CollectionFilter filter) {
     final dpr = MediaQuery.devicePixelRatioOf(context);
-    if (filter is PersonFilter) {
-      final bboxJson = personStore.getCoverBoundingBox(filter.personId);
-      if (bboxJson != null) {
-        try {
-          final bbox = jsonDecode(bboxJson) as Map<String, dynamic>;
-          final left = (bbox['left'] as num).toDouble();
-          final top = (bbox['top'] as num).toDouble();
-          final right = (bbox['right'] as num).toDouble();
-          final bottom = (bbox['bottom'] as num).toDouble();
-
-          final centerX = (left + right) / 2;
-          final centerY = (top + bottom) / 2;
-          final faceSize = max(right - left, bottom - top);
-          final viewSize = faceSize * 1.5;
-          final scale = (1.0 / viewSize).clamp(1.0, 5.0);
-
-          final alignX = (centerX * 2 - 1).clamp(-1.0, 1.0);
-          final alignY = (centerY * 2 - 1).clamp(-1.0, 1.0);
-
-          return ClipRect(
-            child: Transform.scale(
-              scale: scale,
-              alignment: Alignment(alignX, alignY),
-              child: ThumbnailImage(
-                entry: entry,
-                extent: thumbnailExtent,
-                devicePixelRatio: dpr,
-              ),
-            ),
-          );
-        } catch (_) {}
-      }
-    }
     return ThumbnailImage(
       entry: entry,
       extent: thumbnailExtent,

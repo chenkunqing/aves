@@ -1,35 +1,28 @@
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/source/collection_source.dart';
+import 'package:aves/model/source/filter_summary_cache.dart';
 import 'package:aves/utils/collection_utils.dart';
 import 'package:collection/collection.dart';
 
 mixin PlaceMixin on SourceBase {
-  // by place
-  final Map<String, int> _filterEntryCountMap = {}, _filterSizeMap = {};
-  final Map<String, AvesEntry?> _filterRecentEntryMap = {};
+  final FilterSummaryCache<String> _placeSummary = FilterSummaryCache();
 
   void invalidatePlaceFilterSummary({
     Set<AvesEntry>? entries,
     Set<String>? places,
     bool notify = true,
   }) {
-    if (_filterEntryCountMap.isEmpty && _filterSizeMap.isEmpty && _filterRecentEntryMap.isEmpty) return;
+    if (_placeSummary.isEmpty) return;
 
     if (entries == null && places == null) {
-      _filterEntryCountMap.clear();
-      _filterSizeMap.clear();
-      _filterRecentEntryMap.clear();
+      _placeSummary.invalidate();
     } else {
       places ??= {};
       if (entries != null) {
         places.addAll(entries.map((entry) => entry.addressDetails?.place).nonNulls);
       }
-      places.forEach((place) {
-        _filterEntryCountMap.remove(place);
-        _filterSizeMap.remove(place);
-        _filterRecentEntryMap.remove(place);
-      });
+      _placeSummary.invalidate(places);
     }
     if (notify) {
       eventBus.fire(PlaceSummaryInvalidatedEvent(places));
@@ -37,15 +30,15 @@ mixin PlaceMixin on SourceBase {
   }
 
   int placeEntryCount(LocationFilter filter) {
-    return _filterEntryCountMap.putIfAbsent(filter.place, () => visibleEntries.where(filter.test).length);
+    return _placeSummary.count(filter.place, () => visibleEntries.where(filter.test).length);
   }
 
   int placeSize(LocationFilter filter) {
-    return _filterSizeMap.putIfAbsent(filter.place, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
+    return _placeSummary.size(filter.place, () => visibleEntries.where(filter.test).map((v) => v.sizeBytes).sum);
   }
 
   AvesEntry? placeRecentEntry(LocationFilter filter) {
-    return _filterRecentEntryMap.putIfAbsent(filter.place, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
+    return _placeSummary.recentEntry(filter.place, () => sortedEntriesByDate.firstWhereOrNull(filter.test));
   }
 }
 
