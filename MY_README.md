@@ -191,10 +191,10 @@ adb connect 127.0.0.1:7555
 ## 打包安装包
 
 ```bash
-flutter build apk --flavor libre --release --split-per-abi
+flutter build apk --flavor libre -t lib/main_libre.dart --target-platform android-arm64 --split-per-abi
 ```
 
-打完后装机包在 `build/app/outputs/flutter-apk/app-libre-arm64-v8a-release.apk`。
+打完后装机包在 `build/app/outputs/flutter-apk/app-arm64-v8a-libre-release.apk`。
 
 > 以后跟 Claude 说"打个安装包"就行。
 
