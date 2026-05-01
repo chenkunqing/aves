@@ -4,6 +4,7 @@ import 'package:aves/model/filters/container/tag_group.dart';
 import 'package:aves/model/filters/covered/tag.dart';
 import 'package:aves/model/metadata/catalog.dart';
 import 'package:aves/model/source/analysis_controller.dart';
+import 'package:aves/model/source/batch_processor.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/filter_summary_cache.dart';
 import 'package:aves/services/common/services.dart';
@@ -13,8 +14,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 mixin TagMixin on SourceBase {
-  static const commitCountThreshold = 400;
-  static const _stopCheckCountThreshold = 100;
+  static const _batch = BatchProcessor(commitThreshold: 400, stopCheckThreshold: 100);
 
   List<String> sortedTags = List.unmodifiable([]);
 
@@ -35,32 +35,22 @@ mixin TagMixin on SourceBase {
     if (todo.isEmpty) return;
 
     state = SourceState.cataloguing;
-    var progressDone = controller.progressOffset;
-    var progressTotal = controller.progressTotal;
-    if (progressTotal == 0) {
-      progressTotal = todo.length;
-    }
-    setProgress(done: progressDone, total: progressTotal);
 
-    var stopCheckCount = 0;
-    final newMetadata = <CatalogMetadata>{};
-    for (final entry in todo) {
-      await entry.catalog(background: true, force: force, persist: true);
-      if (entry.isCatalogued) {
-        newMetadata.add(entry.catalogMetadata!);
-        if (newMetadata.length >= commitCountThreshold) {
-          await localMediaDb.saveCatalogMetadata(Set.unmodifiable(newMetadata));
-          onCatalogMetadataChanged();
-          newMetadata.clear();
-        }
-        if (++stopCheckCount >= _stopCheckCountThreshold) {
-          stopCheckCount = 0;
-          if (controller.isStopping) return;
-        }
-      }
-      setProgress(done: ++progressDone, total: progressTotal);
-    }
-    await localMediaDb.saveCatalogMetadata(Set.unmodifiable(newMetadata));
+    await _batch.run<CatalogMetadata>(
+      controller: controller,
+      entries: todo,
+      process: (entry) async {
+        await entry.catalog(background: true, force: force, persist: true);
+        return entry.isCatalogued ? entry.catalogMetadata : null;
+      },
+      onCommit: (batch) async {
+        await localMediaDb.saveCatalogMetadata(batch);
+        onCatalogMetadataChanged();
+      },
+      onProgress: (done, total) => setProgress(done: done, total: total),
+      progressOffset: controller.progressOffset,
+      progressTotal: controller.progressTotal > 0 ? controller.progressTotal : null,
+    );
     onCatalogMetadataChanged();
   }
 

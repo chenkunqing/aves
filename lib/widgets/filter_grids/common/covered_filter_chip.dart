@@ -13,7 +13,7 @@ import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/collection_source.dart';
-import 'package:aves/model/source/location/country.dart';
+import 'package:aves/model/source/location/location.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';

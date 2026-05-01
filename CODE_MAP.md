@@ -76,16 +76,20 @@ lib/
 | 路径 | 说明 |
 |------|------|
 | `model/source/collection_source.dart` | **CollectionSource** — 所有条目的中央数据源 |
-| `model/source/collection_lens.dart` | **CollectionLens** — 带筛选/排序的视图 |
 | `model/source/media_store_source.dart` | 从 Android MediaStore 加载数据 |
 | `model/source/album.dart` | 相册管理 |
 | `model/source/analysis_controller.dart` | 分析流程控制器 |
 | `model/source/events.dart` | 数据源事件定义 |
 | `model/source/face.dart` | 人脸检测数据源 |
-| `model/source/section_keys.dart` | 分段键（分组排序标识） |
 | `model/source/tag.dart` | 标签数据源 |
 | `model/source/trash.dart` | 回收站数据源 |
-| `model/source/location/` | 位置分级（国家/省/地点） |
+| `model/source/location/location.dart` | **LocationMixin** — 位置分级（国家/省/地点）筛选摘要缓存 + 地理编码 |
+
+### 展示层 (Presentation)
+| 路径 | 说明 |
+|------|------|
+| `model/presentation/collection_lens.dart` | **CollectionLens** — 带筛选/排序/分组的集合视图 |
+| `model/presentation/section_keys.dart` | 分段键（分组排序标识） |
 
 ### 数据库
 | 路径 | 说明 |

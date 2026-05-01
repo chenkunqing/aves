@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:aves/model/covers.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/catalog.dart';
-import 'package:aves/model/entry/extensions/props.dart';
 import 'package:aves/model/entry/extensions/keys.dart';
 import 'package:aves/model/entry/extensions/location.dart';
-import 'package:aves/model/entry/sort.dart';
 import 'package:aves/model/favourites.dart';
 import 'package:aves/model/filters/container/album_group.dart';
 import 'package:aves/model/filters/container/tag_group.dart';
@@ -21,17 +19,14 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/album.dart';
 import 'package:aves/model/source/analysis_controller.dart';
 import 'package:aves/model/source/events.dart';
-import 'package:aves/model/source/location/country.dart';
 import 'package:aves/model/source/location/location.dart';
-import 'package:aves/model/source/location/place.dart';
-import 'package:aves/model/source/location/state.dart';
+import 'package:aves/model/source/analysis_orchestrator.dart';
+import 'package:aves/model/source/entry_cache.dart';
 import 'package:aves/model/source/face.dart';
 import 'package:aves/model/source/tag.dart';
 import 'package:aves/model/source/trash.dart';
-import 'package:aves/services/analysis_service.dart';
 import 'package:aves/services/common/image_op_events.dart';
 import 'package:aves/services/common/services.dart';
-import 'package:aves/widgets/aves_app.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:event_bus/event_bus.dart';
@@ -68,7 +63,7 @@ mixin SourceBase {
   void invalidateEntries();
 }
 
-abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, PlaceMixin, StateMixin, LocationMixin, TagMixin, FaceMixin, TrashMixin {
+abstract class CollectionSource with SourceBase, AlbumMixin, LocationMixin, TagMixin, FaceMixin, TrashMixin {
   static const fullScope = <CollectionFilter>{};
 
   CollectionSource() {
@@ -95,7 +90,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     if (kFlutterMemoryAllocationsEnabled) {
       LeakTracking.dispatchObjectDisposed(object: this);
     }
-    _disposeAllEntries();
+    entryCache.disposeAll();
   }
 
   set canAnalyze(bool enabled);
@@ -105,59 +100,24 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   @override
   EventBus get eventBus => _eventBus;
 
-  @override
-  AvesEntry? getEntryById(int id) => _entriesById[id];
-
-  final Map<int, AvesEntry> _entriesById = {};
+  final EntryCache entryCache = EntryCache();
 
   @override
-  Set<AvesEntry> get allEntries => Set.unmodifiable(_entriesById.values);
-
-  Set<AvesEntry>? _visibleEntries, _trashedEntries;
+  AvesEntry? getEntryById(int id) => entryCache.getById(id);
 
   @override
-  Set<AvesEntry> get visibleEntries {
-    _visibleEntries ??= Set.unmodifiable(_applyHiddenFilters(_entriesById.values));
-    return _visibleEntries!;
-  }
+  Set<AvesEntry> get allEntries => entryCache.all;
 
   @override
-  Set<AvesEntry> get trashedEntries {
-    _trashedEntries ??= Set.unmodifiable(_applyTrashFilter(_entriesById.values));
-    return _trashedEntries!;
-  }
-
-  List<AvesEntry>? _sortedEntriesByDate;
+  Set<AvesEntry> get visibleEntries => entryCache.visible;
 
   @override
-  List<AvesEntry> get sortedEntriesByDate {
-    _sortedEntriesByDate ??= List.unmodifiable(visibleEntries.toList()..sort(AvesEntrySort.compareByDate));
-    return _sortedEntriesByDate!;
-  }
+  Set<AvesEntry> get trashedEntries => entryCache.trashed;
 
-  // known date by entry ID
-  late Map<int?, int?> _savedDates;
+  @override
+  List<AvesEntry> get sortedEntriesByDate => entryCache.sortedByDate;
 
-  Future<void> loadDates() async {
-    _savedDates = Map.unmodifiable(await localMediaDb.loadDates());
-  }
-
-  Set<CollectionFilter> _getAppHiddenFilters() => {
-    ...settings.hiddenFilters,
-  };
-
-  Iterable<AvesEntry> _applyHiddenFilters(Iterable<AvesEntry> entries) {
-    final hiddenFilters = {
-      TrashFilter.instance,
-      ..._getAppHiddenFilters(),
-    };
-    return entries.where((entry) => !hiddenFilters.any((filter) => filter.test(entry)));
-  }
-
-  Iterable<AvesEntry> _applyTrashFilter(Iterable<AvesEntry> entries) {
-    final hiddenFilters = _getAppHiddenFilters();
-    return entries.where(TrashFilter.instance.test).where((entry) => !hiddenFilters.any((filter) => filter.test(entry)));
-  }
+  Future<void> loadDates() => entryCache.loadDates();
 
   void _invalidate({Set<AvesEntry>? entries, bool notify = true}) {
     invalidateEntries();
@@ -169,11 +129,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   }
 
   @override
-  void invalidateEntries() {
-    _visibleEntries = null;
-    _trashedEntries = null;
-    _sortedEntriesByDate = null;
-  }
+  void invalidateEntries() => entryCache.invalidate();
 
   void updateDerivedFilters([Set<AvesEntry>? entries]) {
     _invalidate(entries: entries);
@@ -184,28 +140,13 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     updateTags();
   }
 
-  void _disposeEntries(bool Function(int id, AvesEntry entry) test) {
-    final todoEntries = _entriesById.entries.where((kv) => test(kv.key, kv.value)).toSet();
-    todoEntries.forEach((kv) => _entriesById.remove(kv.key)?.dispose());
-  }
-
-  void _disposeAllEntries() => _disposeEntries((_, _) => true);
-
   void addEntries(Set<AvesEntry> entries, {bool notify = true}) {
     if (entries.isEmpty) return;
 
-    entries.where((entry) => entry.catalogDateMillis == null).forEach((entry) {
-      entry.catalogDateMillis = _savedDates[entry.id];
-    });
-
-    final newEntriesById = Map.fromEntries(entries.map((entry) => MapEntry(entry.id, entry)));
-    final newIds = newEntriesById.keys.toSet();
-    _disposeEntries((id, _) => newIds.contains(id));
-
-    _entriesById.addAll(newEntriesById);
+    entryCache.addEntries(entries);
     _invalidate(entries: entries, notify: notify);
 
-    addDirectories(albums: _applyHiddenFilters(entries).map((entry) => entry.directory).toSet(), notify: notify);
+    addDirectories(albums: entryCache.applyHiddenFilters(entries).map((entry) => entry.directory).toSet(), notify: notify);
     if (notify) {
       eventBus.fire(EntryAddedEvent(entries));
     }
@@ -225,13 +166,13 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     await covers.removeIds(oldIds);
     await localMediaDb.removeIds(oldIds);
 
-    _disposeEntries((id, _) => oldIds.contains(id));
+    entryCache.disposeWhere((id, _) => oldIds.contains(id));
     updateDerivedFilters(oldEntries);
     eventBus.fire(EntryRemovedEvent(oldEntries));
   }
 
   void clearEntries() {
-    _disposeAllEntries();
+    entryCache.disposeAll();
     _invalidate();
 
     // do not update directories/locations/tags here
@@ -493,59 +434,10 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     eventBus.fire(EntryRefreshedEvent(entries));
   }
 
-  Future<void> analyze(AnalysisController? analysisController, {Set<AvesEntry>? entries}) async {
-    // not only visible entries, as hidden items may be analyzed
-    final todoEntries = entries ?? allEntries;
-    final defaultAnalysisController = AnalysisController();
-    final _analysisController = analysisController ?? defaultAnalysisController;
-    final force = _analysisController.force;
-    if (!_analysisController.isStopping) {
-      var startAnalysisService = false;
-      if (_analysisController.canStartService && settings.canUseAnalysisService) {
-        // cataloguing
-        if (!startAnalysisService) {
-          final opCount = (force ? todoEntries : todoEntries.where(TagMixin.catalogEntriesTest)).length;
-          startAnalysisService = opCount > TagMixin.commitCountThreshold;
-        }
-        // face detection
-        if (!startAnalysisService) {
-          final opCount = (force ? todoEntries.where((entry) => entry.isImage) : todoEntries.where(FaceMixin.faceDetectionTest)).length;
-          startAnalysisService = opCount > FaceMixin.commitCountThreshold;
-        }
-        // ignore locating countries
-        // locating places
-        if (!startAnalysisService && await availability.canLocatePlaces) {
-          final opCount = (force ? todoEntries.where((entry) => entry.hasGps) : todoEntries.where(LocationMixin.locatePlacesTest)).length;
-          startAnalysisService = opCount > LocationMixin.commitCountThreshold;
-        }
-      }
+  late final _analysisOrchestrator = AnalysisOrchestrator(this);
 
-      debugPrint('analyze ${todoEntries.length} entries, force=$force, starting service=$startAnalysisService');
-      if (startAnalysisService) {
-        final lifecycleState = AvesApp.lifecycleStateNotifier.value;
-        switch (lifecycleState) {
-          case .resumed:
-          case .inactive:
-            await AnalysisService.startService(
-              force: force,
-              entryIds: entries?.map((entry) => entry.id).toList(),
-            );
-          default:
-            unawaited(reportService.log('analysis service not started because app is in state=$lifecycleState'));
-        }
-      } else {
-        // explicit GC before cataloguing multiple items
-        await deviceService.requestGarbageCollection();
-        await catalogEntries(_analysisController, todoEntries);
-        updateDerivedFilters(todoEntries);
-        await locateEntries(_analysisController, todoEntries);
-        updateDerivedFilters(todoEntries);
-        await detectFaces(_analysisController, todoEntries);
-      }
-    }
-    defaultAnalysisController.dispose();
-    state = SourceState.ready;
-  }
+  Future<void> analyze(AnalysisController? analysisController, {Set<AvesEntry>? entries}) =>
+      _analysisOrchestrator.analyze(analysisController, entries: entries);
 
   void onAspectRatioChanged() => eventBus.fire(AspectRatioChangedEvent());
 
