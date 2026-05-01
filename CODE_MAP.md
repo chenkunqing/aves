@@ -47,8 +47,8 @@ lib/
 | `model/entry/extensions/` | Entry 扩展：catalog、favourites、images、location、props 等 |
 | `model/entry/sort.dart` | 条目排序逻辑 |
 | `model/person.dart` | Person 人物模型 |
-| `model/face_embedding.dart` | 人脸 embedding 向量 |
-| `model/face_clustering.dart` | 人脸聚类算法 (DBSCAN) |
+| `model/face_embedding.dart` | 人脸 embedding 数据行模型 |
+| `model/face_clustering.dart` | 人脸聚类工具（余弦相似度计算） |
 | `model/entry_faces.dart` | 条目-人脸关联 |
 
 ### 筛选器 (Filters)
@@ -56,11 +56,22 @@ lib/
 |------|------|
 | `model/filters/filters.dart` | CollectionFilter 基类 |
 | `model/filters/aspect_ratio.dart` | 宽高比筛选 |
-| `model/filters/person.dart` | 人物筛选 |
-| `model/filters/colour.dart` | 颜色筛选 |
+| `model/filters/color.dart` | 颜色筛选 |
+| `model/filters/coordinate.dart` | 地理坐标筛选 |
 | `model/filters/date.dart` | 日期筛选 |
+| `model/filters/face_count.dart` | 人脸数量筛选（合影/单人/无人脸） |
+| `model/filters/favourite.dart` | 收藏筛选 |
 | `model/filters/mime.dart` | MIME 类型筛选 |
+| `model/filters/missing.dart` | 缺失元数据筛选 |
+| `model/filters/path.dart` | 路径筛选 |
+| `model/filters/person.dart` | 人物筛选 |
+| `model/filters/placeholder.dart` | 占位筛选 |
+| `model/filters/query.dart` | 搜索查询筛选 |
 | `model/filters/rating.dart` | 评分筛选 |
+| `model/filters/recent.dart` | 最近添加筛选 |
+| `model/filters/trash.dart` | 回收站筛选 |
+| `model/filters/type.dart` | 类型筛选（图片/视频等） |
+| `model/filters/weekday.dart` | 星期筛选 |
 | `model/filters/covered/stored_album.dart` | 相册筛选 |
 | `model/filters/covered/tag.dart` | 标签筛选 |
 | `model/filters/container/` | 复合筛选 (AND/OR/Group) |
@@ -72,9 +83,13 @@ lib/
 | `model/source/collection_lens.dart` | **CollectionLens** — 带筛选/排序的视图 |
 | `model/source/media_store_source.dart` | 从 Android MediaStore 加载数据 |
 | `model/source/album.dart` | 相册管理 |
+| `model/source/analysis_controller.dart` | 分析流程控制器 |
+| `model/source/events.dart` | 数据源事件定义 |
 | `model/source/face.dart` | 人脸数据源 |
 | `model/source/person.dart` | 人物数据源 |
+| `model/source/section_keys.dart` | 分段键（分组排序标识） |
 | `model/source/tag.dart` | 标签数据源 |
+| `model/source/trash.dart` | 回收站数据源 |
 | `model/source/location/` | 位置分级（国家/省/地点） |
 
 ### 数据库
@@ -112,7 +127,6 @@ lib/
 | `services/common/services.dart` | 服务注册中心 |
 | `services/common/channel.dart` | Platform Channel 基础封装 |
 | `services/face_detection_service.dart` | 人脸检测服务（调用 Android 原生） |
-| `services/face_recognition_service.dart` | 人脸识别服务（embedding 提取） |
 | `services/analysis_service.dart` | 媒体分析服务（扫描元数据） |
 | `services/media/media_fetch_service.dart` | 媒体获取 |
 | `services/media/media_edit_service.dart` | 媒体编辑 |
@@ -167,7 +181,7 @@ lib/
 |------|------|
 | `filter_grids/albums_page.dart` | 相册列表页 |
 | `filter_grids/tags_page.dart` | 标签列表页 |
-| `filter_grids/people_page.dart` | 人物列表页 |
+| `filter_grids/states_page.dart` | 省/州列表页 |
 | `filter_grids/countries_page.dart` | 国家列表 |
 | `filter_grids/places_page.dart` | 地点列表 |
 | `filter_grids/common/` | 通用筛选网格组件 |
@@ -224,7 +238,6 @@ lib/
 | 路径 | 说明 |
 |------|------|
 | `FaceDetectionHandler.kt` | 人脸检测（TFLite 模型） |
-| `FaceRecognitionHandler.kt` | 人脸识别（embedding 提取） |
 | `MediaStoreHandler.kt` | MediaStore 查询 |
 | `MediaEditHandler.kt` | 媒体编辑操作 |
 | `MetadataFetchHandler.kt` | 元数据读取 |
@@ -291,11 +304,13 @@ Android MediaStore / 文件系统
     Widgets (Collection Grid / Viewer / Filter Grids)
 ```
 
-## 人脸识别流程
+## 人脸检测流程
 
 ```
-图片 → FaceDetectionService (TFLite SSD) → 人脸坐标
-     → FaceRecognitionService (MobileFaceNet) → embedding 向量
-     → FaceClustering (DBSCAN) → Person 分组
-     → PersonSource → People Page UI
+图片 → FaceDetectionService (TFLite SSD) → 人脸坐标 & 数量
+     → FaceEmbeddingRow (数据存储)
+     → FaceClustering (余弦相似度) → Person 分组
+     → PersonSource → UI 展示
 ```
+
+> 注：本地人脸识别（MobileFaceNet embedding 提取）已移除，仅保留人脸检测和基于已有 embedding 的聚类。
