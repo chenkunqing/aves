@@ -312,3 +312,75 @@ Android MediaStore / 文件系统
      → EntryFaces (存储检测结果)
      → FaceCountFilter (按人脸数量筛选：合影/单人/无人脸)
 ```
+
+---
+
+## 高频功能切面索引
+
+> 列出常改功能涉及的文件链路，方便快速定位。
+
+### 候选篮 (Candidate Basket)
+
+| 层 | 文件 | 职责 |
+|---|------|------|
+| Model | `model/candidate_basket.dart` | 篮子状态（增删查、ChangeNotifier） |
+| Widget | `widgets/collection/candidate_basket_bar.dart` | 底部篮子条形 UI（计数、预览、保存、分享、清除） |
+| Widget | `widgets/collection/app_bar.dart` | AppBar 中"加入/移出篮子"操作 |
+| Widget | `widgets/collection/collection_page.dart` | 集成篮子条形到页面底部 |
+| Widget | `widgets/collection/collection_grid.dart` | 网格多选时联动篮子 |
+| Root | `widgets/aves_app.dart` | Provider 注册 CandidateBasket |
+
+**操作流**：选中条目 → AppBar._toggleSelectionBasket → basket.addAll/removeAll → CandidateBasketBar 响应
+
+---
+
+### 整理照片 (Organize)
+
+| 层 | 文件 | 职责 |
+|---|------|------|
+| Model | `model/organize_basket.dart` | 整理状态（删除集合、移动集合、撤销栈） |
+| Widget | `widgets/viewer/organize_page.dart` | 整理模式主页面容器 |
+| Widget | `widgets/viewer/organize/organize_card_stack.dart` | 卡片堆叠交互（上滑删除、下滑收藏、左右切换） |
+| Widget | `widgets/viewer/organize/organize_overlay.dart` | 覆盖层（进度条、相册条带、撤销气泡） |
+| Widget | `widgets/viewer/organize/organize_exit_dialog.dart` | 退出确认对话框 |
+| Widget | `widgets/viewer/organize/organize_zoom_preview.dart` | 双击缩放预览 |
+| Action | `widgets/collection/entry_set_action_delegate.dart` | 集合级入口 _goToOrganize() |
+| Action | `widgets/viewer/action/entry_action_delegate.dart` | 单图级入口 _goToOrganize() |
+| Enum | `plugins/aves_model/lib/src/actions/organize.dart` | OrganizeAction 枚举 |
+
+**操作流**：EntrySetAction.organize → OrganizePage → OrganizeCardStack 手势 → OrganizeBasket 状态更新 → OrganizeOverlay 反馈
+
+---
+
+### 合照 / 人脸检测 (Face Detection)
+
+| 层 | 文件 | 职责 |
+|---|------|------|
+| Model | `model/entry_faces.dart` | EntryFaces 单例（人脸数量 + 边界框缓存） |
+| Filter | `model/filters/face_count.dart` | FaceCountFilter（两人/多人/自定义范围） |
+| Filter | `model/filters/container/dynamic_album.dart` | 内置动态相册（两人合照、多人合照） |
+| Source | `model/source/face.dart` | FaceMixin.detectFaces 批处理入口 |
+| Source | `model/source/analysis_orchestrator.dart` | 分析编排器，调度人脸检测步骤 |
+| Service | `services/face_detection_service.dart` | 调用 Android TFLite 原生检测 |
+| DB | `model/db/db_media_state_repository.dart` | entryFaces 表 CRUD |
+| Widget | `widgets/viewer/info/basic_section.dart` | 照片详情页显示人脸数量 |
+| Widget | `widgets/search/collection_search_delegate.dart` | 搜索中集成人脸筛选 |
+| Native | `android/.../channel/calls/FaceDetectionHandler.kt` | TFLite SSD 模型推理 |
+
+**操作流**：AnalysisOrchestrator → FaceMixin.detectFaces → FaceDetectionService → Native TFLite → 结果存 DB → FaceCountFilter 筛选展示
+
+---
+
+### 收藏夹 (Favourites)
+
+| 层 | 文件 | 职责 |
+|---|------|------|
+| Model | `model/favourites.dart` | Favourites 单例（增删、导入导出） |
+| Model | `model/entry/extensions/favourites.dart` | AvesEntry 扩展：isFavourite / toggleFavourite |
+| Filter | `model/filters/favourite.dart` | FavouriteFilter（正向/反向） |
+| DB | `model/db/db_collection_repository.dart` | favourites 表 CRUD |
+| Widget | `widgets/common/action_controls/togglers/favourite.dart` | 收藏切换按钮 |
+| Widget | `widgets/viewer/overlay/viewer_buttons.dart` | 查看器中收藏按钮 |
+| Action | `widgets/collection/entry_set_action_delegate.dart` | 批量收藏/取消操作 |
+
+**操作流**：用户点击 ❤ → entry.toggleFavourite → Favourites.add/remove → DB 持久化 → FavouriteFilter 筛选生效
