@@ -15,7 +15,6 @@ class LocalMediaDbUpgrader {
   static const favouriteTable = SqfliteLocalMediaDbSchema.favouriteTable;
   static const coverTable = SqfliteLocalMediaDbSchema.coverTable;
   static const dynamicAlbumTable = SqfliteLocalMediaDbSchema.dynamicAlbumTable;
-  static const vaultTable = SqfliteLocalMediaDbSchema.vaultTable;
   static const trashTable = SqfliteLocalMediaDbSchema.trashTable;
   static const videoPlaybackTable = SqfliteLocalMediaDbSchema.videoPlaybackTable;
   static const entryColorsTable = SqfliteLocalMediaDbSchema.entryColorsTable;
@@ -69,6 +68,8 @@ class LocalMediaDbUpgrader {
           await _upgradeFrom20(db);
         case 21:
           await _upgradeFrom21(db);
+        case 22:
+          await _upgradeFrom22(db);
       }
       oldVersion++;
     }
@@ -465,15 +466,6 @@ class LocalMediaDbUpgrader {
     debugPrint('upgrading DB from v10');
 
     await db.execute('ALTER TABLE $entryTable ADD COLUMN origin INTEGER DEFAULT 0;');
-
-    await db.execute(
-      'CREATE TABLE $vaultTable ('
-      'name TEXT PRIMARY KEY'
-      ', autoLock INTEGER'
-      ', useBin INTEGER'
-      ', lockType TEXT'
-      ')',
-    );
   }
 
   static Future<void> _upgradeFrom11(Database db) async {
@@ -682,5 +674,9 @@ class LocalMediaDbUpgrader {
 
     await db.execute('DROP TABLE IF EXISTS faceEmbeddings');
     await db.execute('DROP TABLE IF EXISTS persons');
+  }
+
+  static Future<void> _upgradeFrom22(Database db) async {
+    debugPrint('upgrading DB from v22');
   }
 }

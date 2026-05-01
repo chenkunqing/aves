@@ -8,7 +8,6 @@ class SqfliteLocalMediaDbSchema {
   static const favouriteTable = 'favourites';
   static const coverTable = 'covers';
   static const dynamicAlbumTable = 'dynamicAlbums';
-  static const vaultTable = 'vaults';
   static const trashTable = 'trash';
   static const videoPlaybackTable = 'videoPlayback';
   static const entryColorsTable = 'entryColors';
@@ -22,7 +21,6 @@ class SqfliteLocalMediaDbSchema {
     favouriteTable,
     coverTable,
     dynamicAlbumTable,
-    vaultTable,
     trashTable,
     videoPlaybackTable,
     entryColorsTable,
@@ -108,15 +106,6 @@ class SqfliteLocalMediaDbSchema {
           'CREATE TABLE $dynamicAlbumTable('
           'name TEXT PRIMARY KEY'
           ', filter TEXT'
-          ')',
-        );
-      case vaultTable:
-        return db.execute(
-          'CREATE TABLE $vaultTable('
-          'name TEXT PRIMARY KEY'
-          ', autoLock INTEGER'
-          ', useBin INTEGER'
-          ', lockType TEXT'
           ')',
         );
       case trashTable:
