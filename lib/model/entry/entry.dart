@@ -36,7 +36,7 @@ class AvesEntry with AvesEntryBase {
   int? contentId;
   final String sourceMimeType;
   int width, height, sourceRotationDegrees;
-  int? dateAddedSecs, _dateModifiedMillis, sourceDateTakenMillis, _durationMillis;
+  int? dateAddedSecs, _dateModifiedMillis, _sourceDateTakenMillis, _durationMillis;
   bool trashed;
   int origin;
 
@@ -67,7 +67,7 @@ class AvesEntry with AvesEntryBase {
     required String? sourceTitle,
     required this.dateAddedSecs,
     required int? dateModifiedMillis,
-    required this.sourceDateTakenMillis,
+    required int? sourceDateTakenMillis,
     required int? durationMillis,
     required this.trashed,
     required this.origin,
@@ -82,6 +82,7 @@ class AvesEntry with AvesEntryBase {
     }
     this.path = path;
     this.sourceTitle = sourceTitle;
+    this.sourceDateTakenMillis = sourceDateTakenMillis;
     this.dateModifiedMillis = dateModifiedMillis;
     this.durationMillis = durationMillis;
   }
@@ -240,6 +241,14 @@ class AvesEntry with AvesEntryBase {
   bool get isCatalogued => _catalogMetadata != null;
 
   DateTime? _bestDate;
+  DateTime? _monthTaken;
+  bool _isMonthTakenCached = false;
+
+  void _resetDateCaches() {
+    _bestDate = null;
+    _monthTaken = null;
+    _isMonthTakenCached = false;
+  }
 
   DateTime? get bestDate {
     _bestDate ??= dateTimeFromMillis(_catalogDateMillis) ?? dateTimeFromMillis(sourceDateTakenMillis) ?? dateTimeFromMillis(dateModifiedMillis ?? 0);
@@ -291,17 +300,26 @@ class AvesEntry with AvesEntryBase {
     _bestTitle = null;
   }
 
+  int? get sourceDateTakenMillis => _sourceDateTakenMillis;
+
+  set sourceDateTakenMillis(int? sourceDateTakenMillis) {
+    _sourceDateTakenMillis = sourceDateTakenMillis;
+    _resetDateCaches();
+  }
+
   int? get dateModifiedMillis => _dateModifiedMillis;
 
   set dateModifiedMillis(int? dateModifiedMillis) {
     _dateModifiedMillis = dateModifiedMillis;
-    _bestDate = null;
+    _resetDateCaches();
   }
 
-  // TODO TLAD cache _monthTaken
   DateTime? get monthTaken {
+    if (_isMonthTakenCached) return _monthTaken;
     final d = bestDate;
-    return d == null ? null : DateTime(d.year, d.month);
+    _monthTaken = d == null ? null : DateTime(d.year, d.month);
+    _isMonthTakenCached = true;
+    return _monthTaken;
   }
 
   // TODO TLAD cache _dayTaken
@@ -354,7 +372,7 @@ class AvesEntry with AvesEntryBase {
 
   set catalogDateMillis(int? dateMillis) {
     _catalogDateMillis = dateMillis;
-    _bestDate = null;
+    _resetDateCaches();
   }
 
   CatalogMetadata? get catalogMetadata => _catalogMetadata;
@@ -458,7 +476,7 @@ class AvesEntry with AvesEntryBase {
     required Set<EntryDataType> dataTypes,
   }) async {
     // clear derived fields
-    _bestDate = null;
+    _resetDateCaches();
     _bestTitle = null;
     _tags = null;
 
