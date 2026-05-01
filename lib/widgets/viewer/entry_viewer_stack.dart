@@ -771,6 +771,7 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
 
   void _onCollectionChanged() {
     _updateEntry();
+    if (mounted) setState(() {});
   }
 
   void _onEntryRestored(Set<AvesEntry> restoredEntries) {
