@@ -7,6 +7,7 @@ import 'package:aves/model/filters/covered/location.dart';
 import 'package:aves/model/metadata/address.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/analysis_controller.dart';
+import 'package:aves/model/source/analysis_step.dart';
 import 'package:aves/model/source/batch_processor.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/source/filter_summary_cache.dart';
@@ -17,7 +18,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 mixin LocationMixin on SourceBase {
-  static const _batch = BatchProcessor(commitThreshold: 200, stopCheckThreshold: 50);
+  static final _locatePlacesStep = AnalysisStep(
+    batch: const BatchProcessor(commitThreshold: 200, stopCheckThreshold: 50),
+    testPredicate: locatePlacesTest,
+    forceFilter: (entry) => entry.hasGps,
+    sourceState: SourceState.locatingPlaces,
+  );
 
   // region Country filter summary
 
@@ -206,13 +212,9 @@ mixin LocationMixin on SourceBase {
   }
 
   Future<void> _locatePlaces(AnalysisController controller, Set<AvesEntry> candidateEntries) async {
-    if (controller.isStopping) return;
     if (!await availability.canLocatePlaces) return;
 
     final force = controller.force;
-    final todo = (force ? candidateEntries.where((entry) => entry.hasGps) : candidateEntries.where(locatePlacesTest)).toSet();
-    if (todo.isEmpty) return;
-
     final latLngFactor = pow(10, 2);
     (int latitude, int longitude) approximateLatLng(AvesEntry entry) {
       final catalogMetadata = entry.catalogMetadata!;
@@ -221,17 +223,18 @@ mixin LocationMixin on SourceBase {
       return ((lat * latLngFactor).round(), (lng * latLngFactor).round());
     }
 
-    final located = visibleEntries.where((entry) => entry.hasGps).toSet().difference(todo);
     final knownLocations = <(int, int), AddressDetails?>{};
-    located.forEach((entry) {
-      knownLocations.putIfAbsent(approximateLatLng(entry), () => entry.addressDetails);
-    });
 
-    state = SourceState.locatingPlaces;
-
-    await _batch.run<AddressDetails>(
+    final ran = await runAnalysisStep<AddressDetails>(
+      step: _locatePlacesStep,
       controller: controller,
-      entries: todo,
+      candidateEntries: candidateEntries,
+      onBeforeRun: (todo) {
+        final located = visibleEntries.where((entry) => entry.hasGps).toSet().difference(todo);
+        for (final entry in located) {
+          knownLocations.putIfAbsent(approximateLatLng(entry), () => entry.addressDetails);
+        }
+      },
       process: (entry) async {
         final latLng = approximateLatLng(entry);
         if (knownLocations.containsKey(latLng)) {
@@ -246,9 +249,8 @@ mixin LocationMixin on SourceBase {
         await localMediaDb.saveAddresses(batch);
         onAddressMetadataChanged();
       },
-      onProgress: (done, total) => setProgress(done: done, total: total),
     );
-    onAddressMetadataChanged();
+    if (ran) onAddressMetadataChanged();
   }
 
   void onAddressMetadataChanged() {
