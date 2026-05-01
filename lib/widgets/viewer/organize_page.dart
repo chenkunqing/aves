@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/organize_basket.dart';
@@ -6,7 +8,6 @@ import 'package:aves/model/source/collection_lens.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/utils/android_file_utils.dart';
-import 'package:aves_model/aves_model.dart';
 import 'package:aves/widgets/common/action_mixins/entry_editor.dart';
 import 'package:aves/widgets/common/action_mixins/entry_storage.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
@@ -19,6 +20,7 @@ import 'package:aves/widgets/dialogs/filter_editors/create_stored_album_dialog.d
 import 'package:aves/widgets/viewer/organize/organize_card_stack.dart';
 import 'package:aves/widgets/viewer/organize/organize_exit_dialog.dart';
 import 'package:aves/widgets/viewer/organize/organize_overlay.dart';
+import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,8 +49,8 @@ class _OrganizePageState extends State<OrganizePage> {
   late final List<AvesEntry> _entries;
   final _actionDelegate = _OrganizeActionDelegate();
   late final ValueNotifier<bool> _showHintsNotifier;
+  Timer? _hintsAutoHideTimer;
   final ValueNotifier<int> _albumOrderNotifier = ValueNotifier(0);
-  final ValueNotifier<String?> _undoMessageNotifier = ValueNotifier(null);
   final ValueNotifier<bool> _isMoveMode = ValueNotifier(false);
 
   CollectionSource get source => widget.collection.source;
@@ -56,7 +58,9 @@ class _OrganizePageState extends State<OrganizePage> {
   @override
   void initState() {
     super.initState();
-    _showHintsNotifier = ValueNotifier(!settings.hasSeenOrganizeHints);
+    final showHints = !settings.hasSeenOrganizeHints;
+    _showHintsNotifier = ValueNotifier(showHints);
+    if (showHints) _startHintsAutoHideTimer();
     _indexNotifier = ValueNotifier(widget.initialIndex);
     _organizeCollection = CollectionLens(
       source: source,
@@ -69,15 +73,32 @@ class _OrganizePageState extends State<OrganizePage> {
 
   @override
   void dispose() {
+    _hintsAutoHideTimer?.cancel();
     _appModeNotifier.dispose();
     _basket.dispose();
     _indexNotifier.dispose();
     _showHintsNotifier.dispose();
     _albumOrderNotifier.dispose();
-    _undoMessageNotifier.dispose();
     _isMoveMode.dispose();
     _organizeCollection.dispose();
     super.dispose();
+  }
+
+  void _startHintsAutoHideTimer() {
+    _hintsAutoHideTimer?.cancel();
+    _hintsAutoHideTimer = Timer(const Duration(seconds: 3), () {
+      _showHintsNotifier.value = false;
+    });
+  }
+
+  void _toggleHints() {
+    final show = !_showHintsNotifier.value;
+    _showHintsNotifier.value = show;
+    if (show) {
+      _startHintsAutoHideTimer();
+    } else {
+      _hintsAutoHideTimer?.cancel();
+    }
   }
 
   @override
@@ -107,6 +128,7 @@ class _OrganizePageState extends State<OrganizePage> {
                           entries: _entries,
                           indexNotifier: _indexNotifier,
                           onFirstInteraction: () {
+                            _hintsAutoHideTimer?.cancel();
                             _showHintsNotifier.value = false;
                             settings.hasSeenOrganizeHints = true;
                           },
@@ -118,13 +140,11 @@ class _OrganizePageState extends State<OrganizePage> {
                           return OrganizeOverlay(
                             indexNotifier: _indexNotifier,
                             totalCount: _entries.length,
-                            onUndo: _onUndo,
                             showHints: showHints,
-                            onShowHints: () => _showHintsNotifier.value = true,
+                            onShowHints: _toggleHints,
                             onCopyToAlbum: _onCopyToAlbum,
                             onCreateAlbum: _onCreateAlbum,
                             albumOrderNotifier: _albumOrderNotifier,
-                            undoMessageNotifier: _undoMessageNotifier,
                             isMoveMode: _isMoveMode,
                           );
                         },
@@ -135,22 +155,6 @@ class _OrganizePageState extends State<OrganizePage> {
         ),
       ),
     );
-  }
-
-  void _onUndo() {
-    final action = _basket.undo();
-    if (action == null) return;
-
-    if (action is UndoMarkForDeletion) {
-      _cardStackKey.currentState?.goToIndex(action.atIndex);
-    }
-
-    final l10n = context.l10n;
-    final message = switch (action) {
-      UndoMarkForDeletion() => l10n.organizeUndoDeletion,
-      UndoToggleFavourite() => l10n.organizeUndoFavourite,
-    };
-    _undoMessageNotifier.value = message;
   }
 
   Future<void> _onCreateAlbum() async {
@@ -190,11 +194,6 @@ class _OrganizePageState extends State<OrganizePage> {
       _basket.addToMoved(entry);
     }
 
-    final l10n = context.l10n;
-    final isCopy = moveType == MoveType.copy;
-    _undoMessageNotifier.value = isCopy
-        ? l10n.collectionCopySuccessFeedback(1)
-        : l10n.collectionMoveSuccessFeedback(1);
     var targetIndex = currentIndex + 1;
     while (targetIndex < _entries.length && _basket.shouldSkip(_entries[targetIndex])) {
       targetIndex++;

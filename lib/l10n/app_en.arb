@@ -1126,9 +1126,6 @@
       }
     }
   },
-  "organizeUndoTooltip": "Undo",
-  "organizeUndoDeletion": "Undo delete",
-  "organizeUndoFavourite": "Undo favourite",
   "organizeComplete": "All items reviewed",
   "organizeCopyToAlbum": "Copy to Album",
   "organizeMoveToAlbum": "Move to Album"

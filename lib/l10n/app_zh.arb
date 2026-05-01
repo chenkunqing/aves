@@ -735,9 +735,6 @@
         }
       }
     },
-    "organizeUndoTooltip": "撤销",
-    "organizeUndoDeletion": "撤销删除",
-    "organizeUndoFavourite": "撤销收藏",
     "organizeComplete": "所有项目已整理完毕",
     "organizeCopyToAlbum": "复制到相册",
     "organizeMoveToAlbum": "剪切到相册"

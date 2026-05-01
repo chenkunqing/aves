@@ -383,7 +383,7 @@ class OrganizeCardStackState extends State<OrganizeCardStack> with TickerProvide
   void _onSwipeUp() {
     final basket = context.read<OrganizeBasket>();
     final entry = entries[currentIndex];
-    basket.addToDeletion(entry, currentIndex);
+    basket.addToDeletion(entry);
     var targetIndex = currentIndex + 1;
     while (targetIndex < entries.length && basket.shouldSkip(entries[targetIndex])) {
       targetIndex++;

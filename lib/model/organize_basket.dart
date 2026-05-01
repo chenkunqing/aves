@@ -7,13 +7,10 @@ import 'package:flutter/foundation.dart';
 class OrganizeBasket extends ChangeNotifier {
   final LinkedHashMap<String, AvesEntry> _deletionEntries = LinkedHashMap();
   final Set<String> _movedEntries = {};
-  final List<OrganizeUndoAction> _undoStack = [];
 
   Set<AvesEntry> get deletionEntries => _deletionEntries.values.toSet();
 
   int get deletionCount => _deletionEntries.length;
-
-  bool get canUndo => _undoStack.isNotEmpty;
 
   bool isMarkedForDeletion(AvesEntry entry) => _deletionEntries.containsKey(_keyFor(entry));
 
@@ -26,9 +23,8 @@ class OrganizeBasket extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToDeletion(AvesEntry entry, int atIndex) {
+  void addToDeletion(AvesEntry entry) {
     _deletionEntries[_keyFor(entry)] = entry;
-    _undoStack.add(UndoMarkForDeletion(entry, atIndex));
     notifyListeners();
   }
 
@@ -38,49 +34,14 @@ class OrganizeBasket extends ChangeNotifier {
   }
 
   void toggleFavourite(AvesEntry entry) {
-    final wasFavourite = entry.isFavourite;
     entry.toggleFavourite();
-    _undoStack.add(UndoToggleFavourite(entry, wasFavourite));
     notifyListeners();
-  }
-
-  OrganizeUndoAction? undo() {
-    if (_undoStack.isEmpty) return null;
-    final action = _undoStack.removeLast();
-    switch (action) {
-      case UndoMarkForDeletion():
-        _deletionEntries.remove(_keyFor(action.entry));
-      case UndoToggleFavourite():
-        if (action.wasFavourite) {
-          action.entry.addToFavourites();
-        } else {
-          action.entry.removeFromFavourites();
-        }
-    }
-    notifyListeners();
-    return action;
   }
 
   void clear() {
     _deletionEntries.clear();
-    _undoStack.clear();
     notifyListeners();
   }
 
   static String _keyFor(AvesEntry entry) => '${entry.uri}::${entry.pageId ?? ''}';
-}
-
-sealed class OrganizeUndoAction {
-  final AvesEntry entry;
-  OrganizeUndoAction(this.entry);
-}
-
-class UndoMarkForDeletion extends OrganizeUndoAction {
-  final int atIndex;
-  UndoMarkForDeletion(super.entry, this.atIndex);
-}
-
-class UndoToggleFavourite extends OrganizeUndoAction {
-  final bool wasFavourite;
-  UndoToggleFavourite(super.entry, this.wasFavourite);
 }
