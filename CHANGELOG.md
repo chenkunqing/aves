@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - improved cataloguing for AVIF still images (requires rescan)
+- Lao translation (thanks BoneNI)
 
 ### Changed
 
