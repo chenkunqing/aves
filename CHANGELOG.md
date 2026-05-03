@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 
 - Viewer: no longer hide overlay on playing video
 - build: package compressed native libraries for `izzy` flavor
+- upgraded Flutter to stable v3.41.9
 
 ### Removed
 
