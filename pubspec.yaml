@@ -214,8 +214,8 @@ flutter:
 #  adapts from Flutter v3.16.0 `FixedExtentScrollPhysics` in `/widgets/list_wheel_scroll_view.dart`
 #
 #  `TransitionImage` in `/widgets/common/fx/transition_image.dart`
-#  adapts from Flutter v3.10.0 `_ImageState` in `/widgets/image.dart`
-#  and `DecorationImagePainter` in `/painting/decoration_image.dart`
+#  adapts from Flutter v3.41.9 `_ImageState` in `/widgets/image.dart`
+#  and `paintImage` in `/painting/decoration_image.dart`
 #
 #  `_RenderSliverKnownExtentBoxAdaptor` in `/widgets/common/grid/sliver.dart`
 #  adapts from Flutter v3.41.9 `RenderSliverFixedExtentBoxAdaptor` in `/rendering/sliver_fixed_extent_list.dart`
