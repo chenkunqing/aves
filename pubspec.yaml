@@ -221,4 +221,4 @@ flutter:
 #  adapts from Flutter v3.41.9 `RenderSliverFixedExtentBoxAdaptor` in `/rendering/sliver_fixed_extent_list.dart`
 #
 #  `AvesSearchDelegate`, `SearchPageRoute` in `/widgets/common/search/*.dart`
-#  adapts from Flutter v3.16.0 `SearchDelegate`, `_SearchPageRoute` in `/material/search.dart`
+#  adapts from Flutter v3.41.9 `SearchDelegate`, `_SearchPageRoute` in `/material/search.dart`
