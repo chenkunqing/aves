@@ -208,10 +208,10 @@ flutter:
 #  adapts from Flutter v3.21.1 `InkResponse` and related classes in `/material/ink_well.dart`
 #
 #  `EagerScaleGestureRecognizer` in `/widgets/common/behaviour/eager_scale_gesture_recognizer.dart`
-#  adapts from Flutter v3.16.0 `ScaleGestureRecognizer` in `/gestures/scale.dart`
+#  adapts from Flutter v3.41.9 `ScaleGestureRecognizer` in `/gestures/scale.dart`
 #
 #  `KnownExtentScrollPhysics` in `/widgets/common/behaviour/known_extent_scroll_physics.dart`
-#  adapts from Flutter v3.16.0 `FixedExtentScrollPhysics` in `/widgets/list_wheel_scroll_view.dart`
+#  adapts from Flutter v3.41.9 `FixedExtentScrollPhysics` in `/widgets/list_wheel_scroll_view.dart`
 #
 #  `TransitionImage` in `/widgets/common/fx/transition_image.dart`
 #  adapts from Flutter v3.41.9 `_ImageState` in `/widgets/image.dart`
