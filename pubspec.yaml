@@ -202,7 +202,7 @@ flutter:
 #  adapts from Flutter v3.23.0 `SnackBar` in `/material/snack_bar.dart`
 #
 #  `AGestureDetector` in `/widgets/common/basic/gestures/gesture_detector.dart`
-#  adapts from Flutter v3.21.1 `GestureDetector` in `/widgets/gesture_detector.dart`
+#  adapts from Flutter v3.41.9 `GestureDetector` in `/widgets/gesture_detector.dart`
 #
 #  `AInkResponse` in `/widgets/common/basic/gestures/ink_well.dart`
 #  adapts from Flutter v3.41.9 `InkResponse` and related classes in `/material/ink_well.dart`
