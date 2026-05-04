@@ -218,7 +218,7 @@ flutter:
 #  and `DecorationImagePainter` in `/painting/decoration_image.dart`
 #
 #  `_RenderSliverKnownExtentBoxAdaptor` in `/widgets/common/grid/sliver.dart`
-#  adapts from Flutter v3.10.0 `RenderSliverFixedExtentBoxAdaptor` in `/rendering/sliver_fixed_extent_list.dart`
+#  adapts from Flutter v3.41.9 `RenderSliverFixedExtentBoxAdaptor` in `/rendering/sliver_fixed_extent_list.dart`
 #
 #  `AvesSearchDelegate`, `SearchPageRoute` in `/widgets/common/search/*.dart`
 #  adapts from Flutter v3.16.0 `SearchDelegate`, `_SearchPageRoute` in `/material/search.dart`
