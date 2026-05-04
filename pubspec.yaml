@@ -199,7 +199,7 @@ flutter:
 #  and `_PackageLicensePage` in `/material/about.dart`
 #
 #  `OverlaySnackBar` in `/widgets/common/action_mixins/overlay_snack_bar.dart`
-#  adapts from Flutter v3.23.0 `SnackBar` in `/material/snack_bar.dart`
+#  adapts from Flutter v3.41.9 `SnackBar` in `/material/snack_bar.dart`
 #
 #  `AGestureDetector` in `/widgets/common/basic/gestures/gesture_detector.dart`
 #  adapts from Flutter v3.41.9 `GestureDetector` in `/widgets/gesture_detector.dart`
