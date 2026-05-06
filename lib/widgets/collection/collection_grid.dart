@@ -182,8 +182,8 @@ class _CollectionGridContentState extends State<_CollectionGridContent> {
                               tileExtent: thumbnailExtent,
                               tileBuilder: (entry, tileSize) {
                                 final extent = tileSize.shortestSide;
-                                return AnimatedBuilder(
-                                  animation: favourites,
+                                return ListenableBuilder(
+                                  listenable: favourites,
                                   builder: (context, child) {
                                     Widget tile = InteractiveTile(
                                       key: ValueKey(entry.id),

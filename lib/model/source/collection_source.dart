@@ -87,7 +87,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
         _onFilterVisibilityChanged(newlyVisibleFilters);
       }
     });
-    vaults.addListener(_onVaultsChanged);
+    vaults.lockStateChangeNotifier.addListener(_onVaultsChanged);
   }
 
   @mustCallSuper
@@ -95,7 +95,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     if (kFlutterMemoryAllocationsEnabled) {
       LeakTracking.dispatchObjectDisposed(object: this);
     }
-    vaults.removeListener(_onVaultsChanged);
+    vaults.lockStateChangeNotifier.removeListener(_onVaultsChanged);
     _disposeAllEntries();
   }
 

@@ -541,8 +541,8 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
         // when orientation change, the `PageController` offset is not updated right away
         // and it does not trigger its listeners when it does, so we force a refresh in the next frame
         WidgetsBinding.instance.addPostFrameCallback((_) => _onVerticalPageControllerChanged());
-        return AnimatedBuilder(
-          animation: _verticalScrollNotifier,
+        return ListenableBuilder(
+          listenable: _verticalScrollNotifier,
           builder: (context, child) => Positioned(
             bottom: (_verticalPager.hasClients && _verticalPager.position.hasPixels ? _verticalPager.offset : 0) - availableSize.height,
             child: child!,
