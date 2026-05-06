@@ -34,19 +34,33 @@ class AndroidFileUtils {
   late final String dcimPath, downloadPath, moviesPath, picturesPath, avesVideoCapturesPath;
   late final Set<String> videoCapturesPaths;
   Set<StorageVolume> storageVolumes = {};
-  Future<void>? _loader;
+
+  final Map<String, AlbumType> _albumTypeCache = {};
 
   AndroidFileUtils._private();
 
   Future<void> init() async {
-    _loader ??= _doInit();
-    await _loader;
-  }
-
-  Future<void> _doInit() async {
     separator = pContext.separator;
     await _initStorageVolumes();
     vaultRoot = await storageService.getVaultRoot();
+    _initPaths();
+
+    appInventory.areAppNamesReadyNotifier.addListener(_invalidateAlbumTypeCache);
+    vaults.contentChangeNotifier.addListener(_invalidateAlbumTypeCache);
+    _invalidateAlbumTypeCache();
+  }
+
+  Future<void> _initStorageVolumes() async {
+    storageVolumes = await storageService.getStorageVolumes();
+    if (storageVolumes.isEmpty) {
+      // this can happen when the device is booting up
+      debugPrint('Storage volume list is empty. Retrying in a second...');
+      await Future.delayed(const Duration(seconds: 1));
+      await _initStorageVolumes();
+    }
+  }
+
+  void _initPaths() {
     primaryStorage = storageVolumes.firstWhereOrNull((volume) => volume.isPrimary)?.path ?? separator;
     // standard dirs
     dcimPath = pContext.join(primaryStorage, standardDirDcim);
@@ -62,16 +76,6 @@ class AndroidFileUtils {
       // from Aves
       avesVideoCapturesPath,
     };
-  }
-
-  Future<void> _initStorageVolumes() async {
-    storageVolumes = await storageService.getStorageVolumes();
-    if (storageVolumes.isEmpty) {
-      // this can happen when the device is booting up
-      debugPrint('Storage volume list is empty. Retrying in a second...');
-      await Future.delayed(const Duration(seconds: 1));
-      await _initStorageVolumes();
-    }
   }
 
   bool isCameraPath(String path) => path.startsWith(dcimPath) && (path.endsWith('${separator}Camera') || path.endsWith('${separator}100ANDRO'));
@@ -107,18 +111,23 @@ class AndroidFileUtils {
 
   bool isOnRemovableStorage(String path) => getStorageVolume(path)?.isRemovable ?? false;
 
+  void _invalidateAlbumTypeCache() => _albumTypeCache.clear();
+
   AlbumType getAlbumType(String dirPath) {
-    if (vaults.isVault(dirPath)) return AlbumType.vault;
+    final result = _albumTypeCache.putIfAbsent(dirPath, () {
+      if (vaults.isVault(dirPath)) return AlbumType.vault;
 
-    if (isCameraPath(dirPath)) return AlbumType.camera;
-    if (isDownloadPath(dirPath)) return AlbumType.download;
-    if (isScreenRecordingsPath(dirPath)) return AlbumType.screenRecordings;
-    if (isScreenshotsPath(dirPath)) return AlbumType.screenshots;
-    if (isVideoCapturesPath(dirPath)) return AlbumType.videoCaptures;
+      if (isCameraPath(dirPath)) return AlbumType.camera;
+      if (isDownloadPath(dirPath)) return AlbumType.download;
+      if (isScreenRecordingsPath(dirPath)) return AlbumType.screenRecordings;
+      if (isScreenshotsPath(dirPath)) return AlbumType.screenshots;
+      if (isVideoCapturesPath(dirPath)) return AlbumType.videoCaptures;
 
-    final dir = pContext.split(dirPath).lastOrNull;
-    if (dir != null && dirPath.startsWith(primaryStorage) && appInventory.isPotentialAppDir(dir)) return AlbumType.app;
+      final dir = pContext.split(dirPath).lastOrNull;
+      if (dir != null && dirPath.startsWith(primaryStorage) && appInventory.isPotentialAppDir(dir)) return AlbumType.app;
 
-    return AlbumType.regular;
+      return AlbumType.regular;
+    });
+    return result;
   }
 }

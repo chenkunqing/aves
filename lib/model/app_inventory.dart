@@ -25,6 +25,7 @@ class AppInventory {
       _launcherPackages = _packages.where((v) => v.categoryLauncher).toSet();
       _potentialAppDirs = _launcherPackages.expand((v) => v.potentialDirs).toList();
 
+      _invalidateCaches();
       areAppNamesReadyNotifier.value = true;
     }
   }
@@ -32,15 +33,18 @@ class AppInventory {
   Future<void> resetAppNames() async {
     debugPrint('Reset installed app inventory');
 
-    _isPotentialAppDirCache.clear();
-    _albumAppPackageNameCache.clear();
-    _currentAppNameCache.clear();
-
     _packages.clear();
     _launcherPackages.clear();
     _potentialAppDirs.clear();
 
+    _invalidateCaches();
     areAppNamesReadyNotifier.value = false;
+  }
+
+  void _invalidateCaches() {
+    _isPotentialAppDirCache.clear();
+    _albumAppPackageNameCache.clear();
+    _currentAppNameCache.clear();
   }
 
   bool isPotentialAppDir(String dir) {

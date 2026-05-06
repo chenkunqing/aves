@@ -305,9 +305,9 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     final existingCover = covers.of(oldFilter);
     await covers.set(
       filter: newFilter,
-      entryId: existingCover?.$1,
-      packageName: existingCover?.$2,
-      color: existingCover?.$3,
+      entryId: existingCover?.entryId,
+      packageName: existingCover?.packageName,
+      color: existingCover?.color,
     );
 
     renameNewAlbum(sourceAlbum, destinationAlbum);
@@ -610,7 +610,7 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
   }
 
   AvesEntry? coverEntry(CollectionFilter filter) {
-    final id = covers.of(filter)?.$1;
+    final id = covers.of(filter)?.entryId;
     if (id != null) {
       final entry = visibleEntries.firstWhereOrNull((entry) => entry.id == id);
       if (entry != null) return entry;
