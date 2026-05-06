@@ -39,6 +39,9 @@ class Covers {
 
   Set<CoverRow> _rows = {};
 
+  final Map<String, AlbumType> _effectiveAlbumTypeCache = {};
+  final Map<String, String?> _effectiveAlbumPackageCache = {};
+
   // do not subscribe to events from other modules in constructor
   // so that modules can subscribe to each other
   Covers._private();
@@ -48,6 +51,11 @@ class Covers {
     _subscriptions.add(dynamicAlbums.eventBus.on<DynamicAlbumChangedEvent>().listen((e) => _updateCoveredDynamicAlbums(e.changes)));
     _subscriptions.add(albumGrouping.eventBus.on<GroupUriChangedEvent>().listen((e) => _updateCoveredGroup(e.oldGroupUri, e.newGroupUri)));
     _subscriptions.add(tagGrouping.eventBus.on<GroupUriChangedEvent>().listen((e) => _updateCoveredGroup(e.oldGroupUri, e.newGroupUri)));
+
+    androidFileUtils.albumTypesChangeNotifier.addListener(_invalidateEffectiveAlbumPropCache);
+    appInventory.areAppNamesReadyNotifier.addListener(_invalidateEffectiveAlbumPropCache);
+    vaults.lockStateChangeNotifier.addListener(_invalidateEffectiveAlbumPropCache);
+    _invalidateEffectiveAlbumPropCache();
   }
 
   int get count => _rows.length;
@@ -135,6 +143,7 @@ class Covers {
       await localMediaDb.addCovers({row});
     }
 
+    _invalidateEffectiveAlbumPropCache();
     if (notify) {
       if (oldEntry != entryId) _entryChangeStreamController.add({filter});
       if (oldPackage != packageName) _packageChangeStreamController.add({filter});
@@ -167,23 +176,33 @@ class Covers {
     await localMediaDb.clearCovers();
     _rows.clear();
 
+    _invalidateEffectiveAlbumPropCache();
     _entryChangeStreamController.add(null);
     _packageChangeStreamController.add(null);
     _colorChangeStreamController.add(null);
   }
 
+  void _invalidateEffectiveAlbumPropCache() {
+    _effectiveAlbumTypeCache.clear();
+    _effectiveAlbumPackageCache.clear();
+  }
+
   AlbumType effectiveAlbumType(String albumPath) {
-    final filterPackage = of(StoredAlbumFilter(albumPath, null))?.packageName;
-    if (filterPackage != null) {
-      return filterPackage.isEmpty ? AlbumType.regular : AlbumType.app;
-    } else {
-      return androidFileUtils.getAlbumType(albumPath);
-    }
+    return _effectiveAlbumTypeCache.putIfAbsent(albumPath, () {
+      final filterPackage = of(StoredAlbumFilter(albumPath, null))?.packageName;
+      if (filterPackage != null) {
+        return filterPackage.isEmpty ? AlbumType.regular : AlbumType.app;
+      } else {
+        return androidFileUtils.getAlbumType(albumPath);
+      }
+    });
   }
 
   String? effectiveAlbumPackage(String albumPath) {
-    final filterPackage = of(StoredAlbumFilter(albumPath, null))?.packageName;
-    return filterPackage ?? appInventory.getAlbumAppPackageName(albumPath);
+    return _effectiveAlbumPackageCache.putIfAbsent(albumPath, () {
+      final filterPackage = of(StoredAlbumFilter(albumPath, null))?.packageName;
+      return filterPackage ?? appInventory.getAlbumAppPackageName(albumPath);
+    });
   }
 
   Future<void> _updateCoveredDynamicAlbums(Map<DynamicAlbumFilter, DynamicAlbumFilter?> changes) async {

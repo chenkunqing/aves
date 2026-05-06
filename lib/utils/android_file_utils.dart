@@ -4,6 +4,7 @@ import 'package:aves/model/app_inventory.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -36,6 +37,7 @@ class AndroidFileUtils {
   Set<StorageVolume> storageVolumes = {};
 
   final Map<String, AlbumType> _albumTypeCache = {};
+  final AChangeNotifier albumTypesChangeNotifier = AChangeNotifier();
 
   AndroidFileUtils._private();
 
@@ -111,7 +113,10 @@ class AndroidFileUtils {
 
   bool isOnRemovableStorage(String path) => getStorageVolume(path)?.isRemovable ?? false;
 
-  void _invalidateAlbumTypeCache() => _albumTypeCache.clear();
+  void _invalidateAlbumTypeCache() {
+    _albumTypeCache.clear();
+    albumTypesChangeNotifier.notify();
+  }
 
   AlbumType getAlbumType(String dirPath) {
     final result = _albumTypeCache.putIfAbsent(dirPath, () {
