@@ -69,7 +69,7 @@ class PlatformAppService implements AppService {
       _knownAppDirs.forEach((packageName, dirs) {
         final package = packages.firstWhereOrNull((package) => package.packageName == packageName);
         if (package != null) {
-          package.ownedDirs.addAll(dirs);
+          package.addOwnedDirs(dirs);
         }
       });
       return packages;
