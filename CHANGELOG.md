@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+## <a id="v1.14.4"></a>[v1.14.4] - 2026-05-09
+
 ### Added
 
 - Albums/Tags: filter collection with current group from crumb line
