@@ -433,7 +433,6 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
   Future<void> _group(BuildContext context) async {
     final filters = getSelectedFilters(context);
     final childrenUris = filters.map(GroupingConversion.filterToUri).nonNulls.toSet();
-    final childrenPaths = childrenUris.map(FilterGrouping.getGroupPath).nonNulls.toSet();
 
     final initialGroup = albumGrouping.getFilterParent(filters.first);
     final filter = await pickAlbum(
@@ -442,9 +441,7 @@ class AlbumChipSetActionDelegate extends ChipSetActionDelegate<AlbumBaseFilter> 
       chipTypes: {AlbumChipType.group},
       initialGroup: initialGroup,
       isValidGroupPick: (destinationGroupUri) {
-        final destinationPath = FilterGrouping.getGroupPath(destinationGroupUri);
-        if (destinationPath == null) return true;
-        return childrenPaths.none(destinationPath.startsWith);
+        return FilterGrouping.isValidParent(destinationGroupUri, childrenUris);
       },
     );
     if (filter == null) return;

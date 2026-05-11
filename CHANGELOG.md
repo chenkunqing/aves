@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Fixed
+
+- cyclic group cleanup
+
 ## <a id="v1.14.4"></a>[v1.14.4] - 2026-05-09
 
 ### Added

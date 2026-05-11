@@ -99,7 +99,7 @@ class AnalysisHandler<T>(private val activity: T, private val onAnalysisComplete
             attached = true
             WorkManager.getInstance(activity).getWorkInfosForUniqueWorkLiveData(ANALYSIS_WORK_NAME).observe(activity) { list ->
                 if (list.any { it.state == WorkInfo.State.SUCCEEDED }) {
-                    Log.i(LOG_TAG, "Analysis work succeeded for list=$list")
+                    Log.i(LOG_TAG, "Analysis work succeeded for IDs=${list.map { it.id }}")
                     runBlocking {
                         FlutterUtils.runOnUiThread {
                             onAnalysisCompleted()

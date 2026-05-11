@@ -1,3 +1,4 @@
+import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/identity/aves_expansion_tile.dart';
 import 'package:aves/widgets/common/identity/highlight_title.dart';
@@ -27,7 +28,11 @@ class _DebugGroupsSectionState extends State<DebugGroupsSection> with AutomaticK
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HighlightTitle(title: 'Albums'),
+                  const HighlightTitle(title: 'Albums (Grouping)'),
+                  InfoRowGroup(
+                    info: Map.fromEntries(albumGrouping.allGroups.entries.map((kv) => MapEntry(kv.key.toString(), kv.value.toString()))),
+                  ),
+                  const HighlightTitle(title: 'Albums (Settings)'),
                   InfoRowGroup(
                     info: Map.fromEntries(settings.albumGroups.entries.map((kv) => MapEntry(kv.key.toString(), kv.value.toString()))),
                   ),
@@ -39,7 +44,11 @@ class _DebugGroupsSectionState extends State<DebugGroupsSection> with AutomaticK
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HighlightTitle(title: 'Tags'),
+                  const HighlightTitle(title: 'Tags (Grouping)'),
+                  InfoRowGroup(
+                    info: Map.fromEntries(tagGrouping.allGroups.entries.map((kv) => MapEntry(kv.key.toString(), kv.value.toString()))),
+                  ),
+                  const HighlightTitle(title: 'Tags (Settings)'),
                   InfoRowGroup(
                     info: Map.fromEntries(settings.tagGroups.entries.map((kv) => MapEntry(kv.key.toString(), kv.value.toString()))),
                   ),
