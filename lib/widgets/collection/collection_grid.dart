@@ -256,14 +256,14 @@ class _CollectionGridContentState extends State<_CollectionGridContent> {
     if (viewerEntryNotifier.value == entry) return;
     WidgetsBinding.instance.addPostFrameCallback((_) => viewerEntryNotifier.value = entry);
 
+    final viewerCollection = collection.copyWith(
+      listenToSource: false,
+    );
     final selection = context.read<Selection<AvesEntry>>();
     await Navigator.maybeOf(context)?.push(
       TransparentMaterialPageRoute(
         settings: const RouteSettings(name: EntryViewerPage.routeName),
         pageBuilder: (context, a, sa) {
-          final viewerCollection = collection.copyWith(
-            listenToSource: false,
-          );
           Widget child = EntryViewerPage(
             collection: viewerCollection,
             initialEntry: entry,
