@@ -23,6 +23,8 @@ import 'package:flutter/foundation.dart';
 final FilterGrouping albumGrouping = FilterGrouping._private(FilterGrouping.hostAlbums, AlbumGroupFilter.new);
 final FilterGrouping tagGrouping = FilterGrouping._private(FilterGrouping.hostTags, TagGroupFilter.new);
 
+typedef GroupUriPredicate = bool Function(Uri? groupUri);
+
 // album group URI: "aves://albums/group?path=/group12/subgroup34"
 // stored album URI: "aves://albums/stored?path=/volume/dir/path12"
 // dynamic album URI: "aves://albums/dynamic?name=dynalbum12"

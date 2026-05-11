@@ -16,6 +16,7 @@ import 'package:aves/widgets/filter_grids/common/action_delegates/chip_set.dart'
 import 'package:aves/widgets/filter_grids/common/enums.dart';
 import 'package:aves/widgets/filter_grids/tags_page.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -134,12 +135,18 @@ class TagChipSetActionDelegate extends ChipSetActionDelegate<TagBaseFilter> {
   Future<void> _group(BuildContext context) async {
     final filters = getSelectedFilters(context);
     final childrenUris = filters.map(GroupingConversion.filterToUri).nonNulls.toSet();
+    final childrenPaths = childrenUris.map(FilterGrouping.getGroupPath).nonNulls.toSet();
 
     final initialGroup = tagGrouping.getFilterParent(filters.first);
     final filter = await pickTag(
       context: context,
       chipTypes: {ChipType.group},
       initialGroup: initialGroup,
+      isValidGroupPick: (destinationGroupUri) {
+        final destinationPath = FilterGrouping.getGroupPath(destinationGroupUri);
+        if (destinationPath == null) return true;
+        return childrenPaths.none(destinationPath.startsWith);
+      },
     );
     if (filter == null) return;
 
