@@ -227,9 +227,9 @@ class Dependencies {
       sourceUrl: 'https://github.com/material-foundation/material-color-utilities/tree/main/dart',
     ),
     Dependency(
-      name: 'Material Design Icons Flutter',
+      name: 'Flutter Material Design Icons',
       license: mit,
-      sourceUrl: 'https://github.com/ziofat/material_design_icons_flutter',
+      sourceUrl: 'https://github.com/FaFre/flutter_material_design_icons',
     ),
     Dependency(
       name: 'Material Symbols Icons for Flutter',

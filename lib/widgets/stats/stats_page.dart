@@ -225,7 +225,7 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
             title: Text(l10n.statsPageTitle),
             actions: [
               IconButton(
-                icon: Icon(AIcons.fileExport),
+                icon: const Icon(AIcons.fileExport),
                 onPressed: () => _export(context),
                 tooltip: context.l10n.settingsActionExport,
               ),

@@ -104,7 +104,7 @@ dependencies:
   leak_tracker:
   local_auth:
   material_color_utilities:
-  material_design_icons_flutter:
+  flutter_material_design_icons:
   material_symbols_icons:
   network_info_plus:
   overlay_support:

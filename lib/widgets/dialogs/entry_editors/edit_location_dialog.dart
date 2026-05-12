@@ -324,7 +324,7 @@ class _EditEntryLocationDialogState extends State<EditEntryLocationDialog> with 
               Expanded(child: _gpxDateRangeText(context, _gpx)),
               const SizedBox(width: 8),
               IconButton(
-                icon: Icon(AIcons.fileImport),
+                icon: const Icon(AIcons.fileImport),
                 onPressed: _pickGpx,
                 tooltip: l10n.pickTooltip,
               ),

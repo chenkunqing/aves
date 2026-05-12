@@ -49,7 +49,7 @@ class StatsTopPage<T extends Comparable> extends StatelessWidget with FeedbackMi
         title: Text(title),
         actions: [
           IconButton(
-            icon: Icon(AIcons.fileExport),
+            icon: const Icon(AIcons.fileExport),
             onPressed: () => _export(context),
             tooltip: context.l10n.settingsActionExport,
           ),
