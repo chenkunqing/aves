@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- cyclic group cleanup
+- Albums/Tags: cyclic group cleanup
+- Map: inconsistent viewer collection when changing orientation
 
 ## <a id="v1.14.4"></a>[v1.14.4] - 2026-05-09
 

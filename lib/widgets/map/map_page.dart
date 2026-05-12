@@ -431,14 +431,14 @@ class _ContentState extends State<_Content> with SingleTickerProviderStateMixin 
   void _goToViewer(AvesEntry? initialEntry) {
     if (initialEntry == null) return;
 
+    final viewerCollection = regionCollection?.copyWith(
+      listenToSource: false,
+    );
     final appModeNotifier = context.read<ValueNotifier<AppMode>>();
     Navigator.maybeOf(context)?.push(
       TransparentMaterialPageRoute(
         settings: const RouteSettings(name: EntryViewerPage.routeName),
         pageBuilder: (context, a, sa) {
-          final viewerCollection = regionCollection?.copyWith(
-            listenToSource: false,
-          );
           // propagate app mode from the map page, as it could be locally overridden
           // and differ from the real app mode above the `Navigator`
           return ListenableProvider<ValueNotifier<AppMode>>.value(
