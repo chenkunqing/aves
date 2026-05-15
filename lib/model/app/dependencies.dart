@@ -204,7 +204,7 @@ class Dependencies {
     Dependency(
       name: 'Flutter Highlight',
       license: mit,
-      sourceUrl: 'https://github.com/git-touch/highlight',
+      sourceUrl: 'https://github.com/pd4d10/highlight',
     ),
     Dependency(
       name: 'Flutter Map',

@@ -405,8 +405,12 @@ class _GeoMapState extends State<GeoMap> {
       points: markers,
       // use lambda instead of tear-off because of runtime exception when using
       // `T Function(BaseCluster, double, double)` for `T Function(BaseCluster?, double?, double?)`
-      // ignore: unnecessary_lambdas
-      createCluster: (base, lng, lat) => GeoEntry<AvesEntry>.createCluster(base, lng, lat),
+      createCluster: (BaseCluster? base, double? lng, double? lat) {
+        if (base != null && lng != null && lat != null) {
+          return GeoEntry<AvesEntry>.createCluster(base, lng, lat);
+        }
+        throw Exception('Cluster creation arguments should not be null: base=$base lng=$lng, lat=$lat');
+      },
     );
   }
 

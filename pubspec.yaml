@@ -98,6 +98,7 @@ dependencies:
       ref: aves
   get_it:
   gpx:
+  highlight:
   http:
   intl:
   latlong2:
