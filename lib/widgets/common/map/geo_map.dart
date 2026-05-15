@@ -117,6 +117,7 @@ class _GeoMapState extends State<GeoMap> {
 
   @override
   void dispose() {
+    _boundsNotifier.dispose();
     _clusterChangeNotifier.dispose();
     _unregisterWidget(widget);
     super.dispose();

@@ -28,6 +28,7 @@ class MapEntryScroller extends StatefulWidget {
 }
 
 class _MapEntryScrollerState extends State<MapEntryScroller> {
+  final ChangeNotifier _defaultRegionCollection = ChangeNotifier();
   final ValueNotifier<AvesEntry?> _infoEntryNotifier = ValueNotifier(null);
   final Debouncer _infoDebouncer = Debouncer(delay: ADurations.mapInfoDebounceDelay);
 
@@ -47,6 +48,8 @@ class _MapEntryScrollerState extends State<MapEntryScroller> {
 
   @override
   void dispose() {
+    _defaultRegionCollection.dispose();
+    _infoEntryNotifier.dispose();
     _unregisterWidget(widget);
     super.dispose();
   }
@@ -77,7 +80,7 @@ class _MapEntryScrollerState extends State<MapEntryScroller> {
               builder: (context, regionCollection, child) {
                 return ListenableBuilder(
                   // update when entries are added/removed
-                  listenable: regionCollection ?? ChangeNotifier(),
+                  listenable: regionCollection ?? _defaultRegionCollection,
                   builder: (context, child) {
                     final regionEntries = regionCollection?.sortedEntries ?? [];
                     return ThumbnailScroller(
