@@ -33,7 +33,8 @@ class CollectionLens with ChangeNotifier {
   EntrySectionFactor sectionFactor;
   EntrySortFactor sortFactor;
   bool sortReverse;
-  final AChangeNotifier filterChangeNotifier = AChangeNotifier(), sortSectionChangeNotifier = AChangeNotifier();
+  final AChangeNotifier filterChangeNotifier = .new();
+  final AChangeNotifier layoutChangeNotifier = .new();
   final Set<StreamSubscription> _subscriptions = {};
   int? id;
   bool listenToSource, stackBursts, stackDevelopedRaws, fixedSort;
@@ -113,7 +114,7 @@ class CollectionLens with ChangeNotifier {
       ..clear();
     favourites.removeListener(_onFavouritesChanged);
     filterChangeNotifier.dispose();
-    sortSectionChangeNotifier.dispose();
+    layoutChangeNotifier.dispose();
     _disposeSyntheticEntries();
     super.dispose();
   }
@@ -199,7 +200,7 @@ class CollectionLens with ChangeNotifier {
 
   void _onFilterChanged() {
     refresh();
-    filterChangeNotifier.notifyListeners();
+    filterChangeNotifier.notify();
   }
 
   void _applyFilters() {
@@ -364,10 +365,10 @@ class CollectionLens with ChangeNotifier {
     }
 
     if (needFilter) {
-      filterChangeNotifier.notifyListeners();
+      filterChangeNotifier.notify();
     }
     if (needSort || needSection) {
-      sortSectionChangeNotifier.notifyListeners();
+      layoutChangeNotifier.notify();
     }
   }
 

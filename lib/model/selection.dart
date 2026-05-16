@@ -7,7 +7,9 @@ class Selection<T> extends ChangeNotifier {
 
   final Set<T> _selectedItems = {};
 
-  Set<T> get selectedItems => _selectedItems;
+  int get selectedItemCount => _selectedItems.length;
+
+  Set<T> get selectedItems => Set.unmodifiable(_selectedItems);
 
   Selection() {
     if (kFlutterMemoryAllocationsEnabled) ChangeNotifier.maybeDispatchObjectCreation(this);
@@ -29,7 +31,7 @@ class Selection<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isSelected(Iterable<T> items) => items.every(selectedItems.contains);
+  bool isSelected(Iterable<T> items) => items.every(_selectedItems.contains);
 
   void addToSelection(Iterable<T> items) {
     if (items.isEmpty) return;

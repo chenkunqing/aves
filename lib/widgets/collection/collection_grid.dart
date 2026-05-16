@@ -487,14 +487,16 @@ class _CollectionScrollViewState extends State<_CollectionScrollView> with Widge
   }
 
   void _registerWidget(_CollectionScrollView widget) {
+    widget.collection.addListener(_onCollectionChanged);
     widget.collection.filterChangeNotifier.addListener(_scrollToTop);
-    widget.collection.sortSectionChangeNotifier.addListener(_scrollToTop);
+    widget.collection.layoutChangeNotifier.addListener(_scrollToTop);
     widget.scrollController.addListener(_onScrollChanged);
   }
 
   void _unregisterWidget(_CollectionScrollView widget) {
+    widget.collection.removeListener(_onCollectionChanged);
     widget.collection.filterChangeNotifier.removeListener(_scrollToTop);
-    widget.collection.sortSectionChangeNotifier.removeListener(_scrollToTop);
+    widget.collection.layoutChangeNotifier.removeListener(_scrollToTop);
     widget.scrollController.removeListener(_onScrollChanged);
   }
 
@@ -659,6 +661,25 @@ class _CollectionScrollViewState extends State<_CollectionScrollView> with Widge
         );
       },
     );
+  }
+
+  void _onCollectionChanged() {
+    _sanitizeSelection(context);
+  }
+
+  void _sanitizeSelection(BuildContext context) {
+    final selection = context.read<Selection<AvesEntry>?>();
+    if (selection == null || !selection.isSelecting) return;
+
+    // check whether selection items are still within the filtered collection
+    final collectionEntries = widget.collection.sortedEntries;
+    final toRemove = selection.selectedItems.whereNot(collectionEntries.contains).toSet();
+    if (toRemove.isNotEmpty) {
+      selection.removeFromSelection(toRemove);
+      if (selection.selectedItemCount == 0) {
+        selection.browse();
+      }
+    }
   }
 
   void _scrollToTop() => widget.scrollController.jumpTo(0);

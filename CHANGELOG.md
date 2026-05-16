@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Changed
+
+- Collection: keep selection after running operations
+
 ### Fixed
 
 - Albums/Tags: cyclic group cleanup

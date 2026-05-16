@@ -229,8 +229,7 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
   ) {
     final itemCount = actionDelegate.allItems.length;
     final isSelecting = selection.isSelecting;
-    final selectedItems = selection.selectedItems;
-    final selectedFilters = selectedItems.map((v) => v.filter).toSet();
+    final selectedFilters = selection.selectedItems.map((v) => v.filter).toSet();
 
     bool isVisible(ChipSetAction action) => actionDelegate.isVisible(
       action,

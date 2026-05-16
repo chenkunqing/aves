@@ -41,7 +41,7 @@ class SelectionButton extends StatelessWidget {
               scale: scale,
               onPressed: () => selection.toggleSelection(mainEntry),
               child: Selector<Selection<AvesEntry>?, int>(
-                selector: (context, selection) => selection?.selectedItems.length ?? 0,
+                selector: (context, selection) => selection?.selectedItemCount ?? 0,
                 builder: (context, count, child) {
                   return Row(
                     mainAxisSize: MainAxisSize.min,

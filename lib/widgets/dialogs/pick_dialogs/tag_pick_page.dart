@@ -211,8 +211,7 @@ class _TagPickPageState extends State<_TagPickPage> with FeedbackMixin {
   ) {
     final itemCount = actionDelegate.allItems.length;
     final isSelecting = selection.isSelecting;
-    final selectedItems = selection.selectedItems;
-    final selectedFilters = selectedItems.map((v) => v.filter).toSet();
+    final selectedFilters = selection.selectedItems.map((v) => v.filter).toSet();
 
     bool isVisible(ChipSetAction action) => actionDelegate.isVisible(
       action,
