@@ -7,6 +7,7 @@ import 'package:aves/widgets/common/identity/empty.dart';
 import 'package:aves/widgets/common/thumbnail/scroller.dart';
 import 'package:aves/widgets/map/info_row.dart';
 import 'package:aves/widgets/viewer/hero.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/material.dart';
 
 class MapEntryScroller extends StatefulWidget {
@@ -28,7 +29,6 @@ class MapEntryScroller extends StatefulWidget {
 }
 
 class _MapEntryScrollerState extends State<MapEntryScroller> {
-  final ChangeNotifier _defaultRegionCollection = ChangeNotifier();
   final ValueNotifier<AvesEntry?> _infoEntryNotifier = ValueNotifier(null);
   final Debouncer _infoDebouncer = Debouncer(delay: ADurations.mapInfoDebounceDelay);
 
@@ -48,7 +48,6 @@ class _MapEntryScrollerState extends State<MapEntryScroller> {
 
   @override
   void dispose() {
-    _defaultRegionCollection.dispose();
     _infoEntryNotifier.dispose();
     _unregisterWidget(widget);
     super.dispose();
@@ -75,25 +74,20 @@ class _MapEntryScrollerState extends State<MapEntryScroller> {
               child: MapInfoRow(entryNotifier: _infoEntryNotifier),
             ),
             const SizedBox(height: 8),
-            ValueListenableBuilder<CollectionLens?>(
+            NullableValueListenableBuilder<CollectionLens?>(
               valueListenable: widget.regionCollectionNotifier,
               builder: (context, regionCollection, child) {
-                return ListenableBuilder(
-                  // update when entries are added/removed
-                  listenable: regionCollection ?? _defaultRegionCollection,
-                  builder: (context, child) {
-                    final regionEntries = regionCollection?.sortedEntries ?? [];
-                    return ThumbnailScroller(
-                      availableWidth: MediaQuery.sizeOf(context).width,
-                      entryCount: regionEntries.length,
-                      entryBuilder: (index) => index < regionEntries.length ? regionEntries[index] : null,
-                      indexNotifier: widget.selectedIndexNotifier,
-                      onTap: widget.onTap,
-                      heroTagger: (entry) => EntryHeroInfo(regionCollection, entry).tag,
-                      highlightable: true,
-                      showLocation: false,
-                    );
-                  },
+                // update when entries are added/removed
+                final regionEntries = regionCollection?.sortedEntries ?? [];
+                return ThumbnailScroller(
+                  availableWidth: MediaQuery.sizeOf(context).width,
+                  entryCount: regionEntries.length,
+                  entryBuilder: (index) => index < regionEntries.length ? regionEntries[index] : null,
+                  indexNotifier: widget.selectedIndexNotifier,
+                  onTap: widget.onTap,
+                  heroTagger: (entry) => EntryHeroInfo(regionCollection, entry).tag,
+                  highlightable: true,
+                  showLocation: false,
                 );
               },
             ),
