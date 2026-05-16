@@ -91,7 +91,7 @@ class _DebugLeakingSectionState extends State<DebugLeakingSection> with Automati
                   ),
                 );
               }),
-              child: const Text('Track GC w/ stacks'),
+              child: const Text('Track w/ stacks'),
             ),
             ElevatedButton(
               onPressed: () => LeakTracking.collectLeaks().then((leaks) {
@@ -104,7 +104,7 @@ class _DebugLeakingSectionState extends State<DebugLeakingSection> with Automati
                   ),
                 );
               }),
-              child: const Text('Track GC w/o stacks'),
+              child: const Text('Track w/o stacks'),
             ),
           ],
         ),
