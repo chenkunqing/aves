@@ -118,7 +118,7 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
                               ClipRRect(
                                 borderRadius: const BorderRadius.all(Radius.circular(4)),
                                 child: Directionality(
-                                  textDirection: videoPlaybackDirection,
+                                  textDirection: kVideoPlaybackDirection,
                                   child: StreamBuilder<int>(
                                     stream: positionStream,
                                     builder: (context, snapshot) {

@@ -164,8 +164,8 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
                     StreamBuilder(
                       stream: Stream.periodic(const Duration(seconds: 1)),
                       builder: (context, snapshot) {
-                        final currentRss = formatFileSize(asciiLocale, ProcessInfo.currentRss);
-                        final maxRss = formatFileSize(asciiLocale, ProcessInfo.maxRss);
+                        final currentRss = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
+                        final maxRss = formatFileSize(kAsciiLocale, ProcessInfo.maxRss);
                         return Text('RSS: $currentRss / $maxRss');
                       },
                     ),
@@ -177,8 +177,8 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
                     StreamBuilder(
                       stream: Stream.periodic(const Duration(seconds: 1)),
                       builder: (context, snapshot) {
-                        final currentImageCache = formatFileSize(asciiLocale, imageCache.currentSizeBytes);
-                        final maxImageCache = formatFileSize(asciiLocale, imageCache.maximumSizeBytes);
+                        final currentImageCache = formatFileSize(kAsciiLocale, imageCache.currentSizeBytes);
+                        final maxImageCache = formatFileSize(kAsciiLocale, imageCache.maximumSizeBytes);
                         return Text('imageCache: $currentImageCache / $maxImageCache');
                       },
                     ),

@@ -496,7 +496,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     final body = GpxWriter().asString(gpx);
     const mimeType = MimeTypes.gpx;
     final success = await storageService.createFile(
-      'aves-gpx-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(dateTime)}${MimeTypes.extensionFor(mimeType)}',
+      'aves-gpx-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(dateTime)}${MimeTypes.extensionFor(mimeType)}',
       mimeType,
       Uint8List.fromList(utf8.encode(body)),
     );

@@ -120,7 +120,7 @@ class _SettingsMobilePageState extends State<SettingsMobilePage> with FeedbackMi
 
         const mimeType = MimeTypes.json;
         final success = await storageService.createFile(
-          'aves-settings-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
+          'aves-settings-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
           mimeType,
           Uint8List.fromList(utf8.encode(allJsonString)),
         );

@@ -211,7 +211,7 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
     ].join('\n--------------------------------------------------------------------------------\n');
 
     final success = await storageService.createFile(
-      'aves-logs-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}.txt',
+      'aves-logs-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now())}.txt',
       MimeTypes.plainText,
       Uint8List.fromList(utf8.encode(logs)),
     );

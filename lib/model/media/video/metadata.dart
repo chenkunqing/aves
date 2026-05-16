@@ -512,7 +512,7 @@ class VideoMetadataFormatter {
     } else if (value is String) {
       size = int.tryParse(value);
     }
-    return size != null ? formatFileSize(asciiLocale, size) : '$value';
+    return size != null ? formatFileSize(kAsciiLocale, size) : '$value';
   }
 
   static String _formatLanguage(String value) {

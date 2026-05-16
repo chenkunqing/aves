@@ -429,7 +429,7 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
         success = await appService.copyToClipboard(text: body);
       case .file:
         success = await storageService.createFile(
-          'aves-stats-${DateFormat('yyyyMMdd_HHmmss', asciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
+          'aves-stats-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
           mimeType,
           Uint8List.fromList(utf8.encode(body)),
         );
