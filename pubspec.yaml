@@ -121,6 +121,9 @@ dependencies:
   pattern_lock:
   pdf:
   percent_indicator:
+    git:
+      url: https://github.com/deckerst/flutter_percent_indicator.git
+      ref: aves
   permission_handler:
   pin_code_fields:
   printing:

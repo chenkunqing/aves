@@ -237,9 +237,9 @@ class Dependencies {
       sourceUrl: 'https://github.com/timmaffett/material_symbols_icons',
     ),
     Dependency(
-      name: 'Overlay Support',
+      name: 'Overlay Support (Aves fork)',
       license: apache2,
-      sourceUrl: 'https://github.com/boyan01/overlay_support',
+      sourceUrl: 'https://github.com/deckerst/overlay_support',
     ),
     Dependency(
       name: 'Panorama (Aves fork)',
@@ -252,9 +252,9 @@ class Dependencies {
       sourceUrl: 'https://github.com/qwert2603/pattern_lock',
     ),
     Dependency(
-      name: 'Percent Indicator',
+      name: 'Percent Indicator (Aves fork)',
       license: bsd2,
-      sourceUrl: 'https://github.com/diegoveloper/flutter_percent_indicator',
+      sourceUrl: 'https://github.com/deckerst/flutter_percent_indicator',
     ),
     Dependency(
       name: 'Pin Code Fields',

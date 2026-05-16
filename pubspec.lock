@@ -1091,10 +1091,11 @@ packages:
   percent_indicator:
     dependency: "direct main"
     description:
-      name: percent_indicator
-      sha256: "157d29133bbc6ecb11f923d36e7960a96a3f28837549a20b65e5135729f0f9fd"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: aves
+      resolved-ref: bfc6db3dcf2f9b2b6812fe5f00c0883919f8de28
+      url: "https://github.com/deckerst/flutter_percent_indicator.git"
+    source: git
     version: "4.2.5"
   permission_handler:
     dependency: "direct main"

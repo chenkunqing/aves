@@ -522,7 +522,6 @@ class _LocationIndicator extends StatelessWidget {
                   // are centered even when the center child has larger height
                   alignment: Alignment.center,
                   children: [
-                    // TODO TLAD [memory] `LinearPercentIndicator` should dispose its internally created `CurvedAnimation`
                     LinearPercentIndicator(
                       percent: withGpsPercent,
                       lineHeight: lineHeight,
