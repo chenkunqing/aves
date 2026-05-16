@@ -109,6 +109,9 @@ dependencies:
   material_symbols_icons:
   network_info_plus:
   overlay_support:
+    git:
+      url: https://github.com/deckerst/overlay_support.git
+      ref: aves
   package_info_plus:
   panorama:
     git:
