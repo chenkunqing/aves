@@ -40,8 +40,14 @@ class CollectionLens with ChangeNotifier {
   bool listenToSource, stackBursts, stackDevelopedRaws, fixedSort;
   List<AvesEntry>? fixedSelection;
 
+  // temporary entries created for stacks of original entries
   final Set<AvesEntry> _syntheticEntries = {};
+
+  // entries and synthetic stacks sorted without sections
   List<AvesEntry> _filteredSortedEntries = [];
+
+  // entries as displayed to the user (i.e. as ordered by sections, not an absolute order on all entries)
+  List<AvesEntry>? _sectionedEntries;
 
   Map<SectionKey, List<AvesEntry>> sections = Map.unmodifiable({});
 
@@ -141,12 +147,9 @@ class CollectionLens with ChangeNotifier {
 
   int get entryCount => _filteredSortedEntries.length;
 
-  // sorted as displayed to the user, i.e. sorted then sectioned, not an absolute order on all entries
-  List<AvesEntry>? _sortedEntries;
-
   List<AvesEntry> get sortedEntries {
-    _sortedEntries ??= List.of(sections.entries.expand((kv) => kv.value));
-    return _sortedEntries!;
+    _sectionedEntries ??= List.of(sections.entries.expand((kv) => kv.value));
+    return _sectionedEntries!;
   }
 
   bool get showHeaders {
@@ -218,19 +221,17 @@ class CollectionLens with ChangeNotifier {
 
   void _stackBursts() {
     final byBurstKey = groupBy<AvesEntry, String?>(_filteredSortedEntries, (entry) => entry.getBurstKey(burstPatterns)).whereNotNullKey();
-    byBurstKey.forEach((burstKey, entries) {
-      if (entries.length > 1) {
-        entries.sort(AvesEntrySort.compareByName);
-        final mainEntry = entries.first;
-        final stackEntry = mainEntry.copyWith(stackedEntries: entries);
+    byBurstKey.forEach((burstKey, stackedEntries) {
+      if (stackedEntries.length > 1) {
+        stackedEntries.sort(AvesEntrySort.compareByName);
+        final mainEntry = stackedEntries.first;
+        final subEntries = stackedEntries.skip(1).toList();
+
+        final stackEntry = mainEntry.copyWith(stackedEntries: stackedEntries);
         _syntheticEntries.add(stackEntry);
 
-        entries.skip(1).forEach((subEntry) {
-          _filteredSortedEntries.remove(subEntry);
-        });
-        final index = _filteredSortedEntries.indexOf(mainEntry);
-        _filteredSortedEntries.removeAt(index);
-        _filteredSortedEntries.insert(index, stackEntry);
+        subEntries.forEach(_filteredSortedEntries.remove);
+        _filteredSortedEntries.replace(mainEntry, stackEntry);
       }
     });
   }
@@ -249,13 +250,12 @@ class CollectionLens with ChangeNotifier {
             final mainEntry = developedEntry;
             final subEntry = rawEntry;
 
-            final stackEntry = mainEntry.copyWith(stackedEntries: [mainEntry, subEntry]);
+            final stackedEntries = [mainEntry, subEntry];
+            final stackEntry = mainEntry.copyWith(stackedEntries: stackedEntries);
             _syntheticEntries.add(stackEntry);
 
             _filteredSortedEntries.remove(subEntry);
-            final index = _filteredSortedEntries.indexOf(mainEntry);
-            _filteredSortedEntries.removeAt(index);
-            _filteredSortedEntries.insert(0, stackEntry);
+            _filteredSortedEntries.replace(mainEntry, stackEntry);
           }
         }
       });
@@ -322,7 +322,7 @@ class CollectionLens with ChangeNotifier {
       }
     }
     sections = Map.unmodifiable(sections);
-    _sortedEntries = null;
+    _sectionedEntries = null;
     notifyListeners();
   }
 
@@ -385,7 +385,7 @@ class CollectionLens with ChangeNotifier {
         obsoleteStacks.add(stackEntry);
         fixedSelection?.replace(stackEntry, entry);
         _filteredSortedEntries.replace(stackEntry, entry);
-        _sortedEntries?.replace(stackEntry, entry);
+        _sectionedEntries?.replace(stackEntry, entry);
         sections.forEach((key, sectionEntries) => sectionEntries.replace(stackEntry, entry));
       }
 
@@ -430,7 +430,7 @@ class CollectionLens with ChangeNotifier {
     // as section order change would surprise the user while browsing
     fixedSelection?.removeWhere(entries.contains);
     _filteredSortedEntries.removeWhere(entries.contains);
-    _sortedEntries?.removeWhere(entries.contains);
+    _sectionedEntries?.removeWhere(entries.contains);
     sections.forEach((key, sectionEntries) => sectionEntries.removeWhere(entries.contains));
     sections = Map.unmodifiable(Map.fromEntries(sections.entries.where((kv) => kv.value.isNotEmpty)));
     notifyListeners();

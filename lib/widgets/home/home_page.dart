@@ -338,10 +338,11 @@ class _HomePageState extends State<HomePage> {
             source: source,
             filters: {StoredAlbumFilter(album, source.getStoredAlbumDisplayName(context, album))},
             listenToSource: false,
-            // if we group bursts, opening a burst sub-entry should:
+            // if we group bursts/RAWs, opening a sub-entry should:
             // - identify and select the containing main entry,
             // - select the sub-entry in the Viewer page.
             stackBursts: false,
+            stackDevelopedRaws: false,
           );
           final viewerEntryPath = viewerEntry.path;
           final collectionEntry = collection.sortedEntries.firstWhereOrNull((entry) => entry.path == viewerEntryPath);

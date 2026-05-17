@@ -431,6 +431,9 @@ class _ContentState extends State<_Content> with SingleTickerProviderStateMixin 
   void _goToViewer(AvesEntry? initialEntry) {
     if (initialEntry == null) return;
 
+    // derive a stable collection out of the route builder,
+    // as the region collection may change on rebuild,
+    // when the map view size updates on device rotation
     final viewerCollection = regionCollection?.copyWith(
       listenToSource: false,
     );
