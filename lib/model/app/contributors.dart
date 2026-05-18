@@ -174,6 +174,7 @@ class Contributors {
     Contributor('kheno', 'kheno@go9.be'),
     Contributor('Francisco Serrador', 'fserrador@gmail.com'),
     Contributor('Remy Rose', 'rem.klajis@gmail.com'),
+    Contributor('Lorenzio', 'translator.1oh72@silomails.com'),
     // Contributor('Femini', 'nizamismidov4@gmail.com'), // Azerbaijani
     // Contributor('Jamil Farajov', 'jamilfarajov@gmail.com'), // Azerbaijani
     // Contributor('Alvi Khan', 'aveenalvi@gmail.com'), // Bengali
