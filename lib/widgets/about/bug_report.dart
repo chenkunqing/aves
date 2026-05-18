@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:aves/app_flavor.dart';
 import 'package:aves/model/device.dart';
@@ -12,12 +11,10 @@ import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/styles.dart';
-import 'package:aves/theme/themes.dart';
 import 'package:aves/widgets/about/app_ref.dart';
 import 'package:aves/widgets/aves_app.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:aves/widgets/common/fx/borders.dart';
 import 'package:aves/widgets/common/identity/aves_filter_chip.dart';
 import 'package:aves/widgets/common/identity/buttons/outlined_button.dart';
 import 'package:aves/widgets/settings/app_export/items.dart';
@@ -96,40 +93,7 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStep(1, l10n.aboutBugSaveLogInstruction, l10n.saveTooltip, _saveLogs),
-          _buildStep(2, l10n.aboutBugCopyInfoInstruction, l10n.aboutBugCopyInfoButton, _copySystemInfo),
-          FutureBuilder<String>(
-            future: _infoLoader,
-            builder: (context, snapshot) {
-              final info = snapshot.data;
-              if (info == null) return const SizedBox();
-
-              return Container(
-                decoration: BoxDecoration(
-                  color: Themes.secondLayerColor(context),
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                    width: AvesBorder.curvedBorderWidth(context),
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                ),
-                constraints: const BoxConstraints(maxHeight: 100),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                clipBehavior: Clip.antiAlias,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(8),
-                  // to show a scroll bar, we would need to provide a scroll controller
-                  // to both the `Scrollable` and the `Scrollbar`, but
-                  // as of Flutter v3.0.0, `SelectableText` does not allow passing the `scrollController`
-                  child: SelectableText(
-                    info,
-                    textDirection: ui.TextDirection.ltr,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              );
-            },
-          ),
-          _buildStep(3, l10n.aboutBugReportInstruction, l10n.aboutBugReportButton, _goToGithub),
+          _buildStep(2, l10n.aboutBugReportInstruction, l10n.aboutBugReportButton, _goToGithub),
           const SizedBox(height: 8),
         ],
       ),
@@ -222,11 +186,6 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
         showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
       }
     }
-  }
-
-  Future<void> _copySystemInfo() async {
-    await Clipboard.setData(ClipboardData(text: await _infoLoader));
-    showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
   }
 
   Future<void> _goToGithub() => AvesApp.launchUrl(bugReportUrl);
