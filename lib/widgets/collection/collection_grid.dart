@@ -50,6 +50,7 @@ import 'package:aves/widgets/viewer/entry_viewer_page.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
@@ -595,7 +596,7 @@ class _CollectionScrollViewState extends State<_CollectionScrollView> with Widge
               gestureSettings: MediaQuery.gestureSettingsOf(context),
               parent: const AlwaysScrollableScrollPhysics(),
             ),
-      cacheExtent: context.select<TileExtentController, double>((controller) => controller.effectiveExtentMax),
+      scrollCacheExtent: ScrollCacheExtent.pixels(context.select<TileExtentController, double>((controller) => controller.effectiveExtentMax)),
       slivers: [
         appBar,
         collection.isEmpty
