@@ -403,7 +403,7 @@ class _HomePageState extends State<HomePage> {
             source: source,
             filters: {
               LocationFilter.located,
-              if (filters != null) ...filters,
+              ...?filters,
             },
           );
           return MapPage(

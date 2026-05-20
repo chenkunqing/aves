@@ -237,8 +237,9 @@ class _ContentState extends State<_Content> with SingleTickerProviderStateMixin 
             scroller = FadeTransition(
               opacity: _scrollerSize,
               child: SizeTransition(
+                axis: Axis.vertical,
                 sizeFactor: _scrollerSize,
-                axisAlignment: 1.0,
+                alignment: const Alignment(-1, 1),
                 child: child,
               ),
             );

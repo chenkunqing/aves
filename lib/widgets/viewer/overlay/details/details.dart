@@ -325,8 +325,9 @@ class ViewerDetailOverlayContent extends StatelessWidget {
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
         child: SizeTransition(
+          axis: Axis.vertical,
           sizeFactor: animation,
-          axisAlignment: 1,
+          alignment: const Alignment(-1, 1),
           child: child,
         ),
       ),
