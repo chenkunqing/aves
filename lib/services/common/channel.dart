@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:streams_channel/streams_channel.dart';
 
-const bool kDebugAvesPlatformChannels = kDebugMode;
+bool kDebugAvesPlatformChannels = false;
 
 class AvesMethodChannel extends MethodChannel {
   const AvesMethodChannel(super.name);

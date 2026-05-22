@@ -148,6 +148,7 @@ dependencies:
   xml:
 
 dependency_overrides:
+  hooks: ^2.0.0 # without this override, `*_plus` packages downgrade because they depend on `win32` which depends on `hooks` v1
   media_kit_video:
     git:
       url: https://github.com/deckerst/media-kit.git
