@@ -81,7 +81,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _setup();
-    imageCache.maximumSizeBytes = 512 * (1 << 20);
+    imageCache.maximumSize = 1000;
+    imageCache.maximumSizeBytes = 100 * (1 << 20); // MiB
   }
 
   @override
