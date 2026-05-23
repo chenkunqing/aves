@@ -20,7 +20,7 @@ enum EntryAction {
   // video
   lockViewer,
   videoCaptureFrame,
-  videoSelectStreams,
+  videoSelectTracks,
   videoSetSpeed,
   videoABRepeat,
   videoToggleMute,
@@ -94,7 +94,7 @@ class EntryActions {
     .videoToggleMute,
     .videoSetSpeed,
     .videoABRepeat,
-    .videoSelectStreams,
+    .videoSelectTracks,
     .videoSettings,
     ...videoPlayback,
     ...orientationActions,
@@ -117,7 +117,7 @@ class EntryActions {
     .videoToggleMute,
     .videoSetSpeed,
     .videoABRepeat,
-    .videoSelectStreams,
+    .videoSelectTracks,
     .videoSettings,
     .lockViewer,
   ];

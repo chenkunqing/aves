@@ -34,7 +34,7 @@ extension ExtraEntryActionView on EntryAction {
       .videoToggleMute =>
         // different data depending on toggle state
         l10n.videoActionMute,
-      .videoSelectStreams => l10n.videoActionSelectStreams,
+      .videoSelectTracks => l10n.videoActionSelectStreams,
       .videoSetSpeed => l10n.videoActionSetSpeed,
       .videoABRepeat => l10n.videoActionABRepeat,
       .videoSettings => l10n.viewerActionSettings,
@@ -112,7 +112,7 @@ extension ExtraEntryActionView on EntryAction {
       .videoToggleMute =>
         // different data depending on toggle state
         AIcons.mute,
-      .videoSelectStreams => AIcons.selectStreams,
+      .videoSelectTracks => AIcons.selectTracks,
       .videoSetSpeed => AIcons.setSpeed,
       .videoABRepeat => AIcons.repeat,
       .videoSettings => AIcons.videoSettings,

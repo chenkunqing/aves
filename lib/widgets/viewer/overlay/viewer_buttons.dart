@@ -365,8 +365,8 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
         enabled &= videoController?.canCaptureFrameNotifier.value ?? false;
       case .videoToggleMute:
         enabled &= videoController?.canMuteNotifier.value ?? false;
-      case .videoSelectStreams:
-        enabled &= videoController?.canSelectStreamNotifier.value ?? false;
+      case .videoSelectTracks:
+        enabled &= videoController?.canSelectTrackNotifier.value ?? false;
       case .videoSetSpeed:
         enabled &= videoController?.canSetSpeedNotifier.value ?? false;
       default:
@@ -514,8 +514,8 @@ class _ViewerButtonRowContentState extends State<ViewerButtonRowContent> {
         );
       case .videoCaptureFrame:
         return _buildFromListenable(videoController?.canCaptureFrameNotifier);
-      case .videoSelectStreams:
-        return _buildFromListenable(videoController?.canSelectStreamNotifier);
+      case .videoSelectTracks:
+        return _buildFromListenable(videoController?.canSelectTrackNotifier);
       case .videoSetSpeed:
         return _buildFromListenable(videoController?.canSetSpeedNotifier);
       case .editRating:

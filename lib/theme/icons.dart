@@ -60,9 +60,9 @@ class AIcons {
   static const size = Symbols.data_usage;
   static const storageCard = Symbols.sd_storage;
   static const storageMain = Symbols.smartphone;
-  static const streamVideo = Symbols.movie;
-  static const streamAudio = Symbols.audiotrack;
-  static const streamText = Symbols.closed_caption;
+  static const trackVideo = Symbols.movie;
+  static const trackAudio = Symbols.audiotrack;
+  static const trackText = Symbols.closed_caption;
   static const tag = Symbols.sell;
   static const tagUntagged = MdiIcons.tagOffOutline;
   static const text = Symbols.format_quote;
@@ -184,7 +184,7 @@ class AIcons {
   static const captureFrame = Symbols.screenshot;
   static const repeat = Symbols.repeat;
   static const repeatOff = MdiIcons.repeatOff;
-  static const selectStreams = Symbols.translate;
+  static const selectTracks = Symbols.translate;
   static const setSpeed = Symbols.speed;
   static const videoSettings = Symbols.video_settings;
 

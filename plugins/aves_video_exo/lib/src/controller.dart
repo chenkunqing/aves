@@ -32,7 +32,7 @@ class ExoVideoController extends AvesVideoController {
   final ValueNotifier<bool> canSetSpeedNotifier = ValueNotifier(true);
 
   @override
-  final ValueNotifier<bool> canSelectStreamNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> canSelectTrackNotifier = ValueNotifier(false);
 
   @override
   final ValueNotifier<double?> sarNotifier = ValueNotifier(null);
@@ -62,7 +62,7 @@ class ExoVideoController extends AvesVideoController {
     canCaptureFrameNotifier.dispose();
     canMuteNotifier.dispose();
     canSetSpeedNotifier.dispose();
-    canSelectStreamNotifier.dispose();
+    canSelectTrackNotifier.dispose();
     sarNotifier.dispose();
 
     await super.dispose();
@@ -217,16 +217,16 @@ class ExoVideoController extends AvesVideoController {
 
   @override
   // TODO TLAD
-  List<MediaStreamSummary> get streams => [];
+  List<MediaTrackSummary> get tracks => [];
 
   @override
-  Future<MediaStreamSummary?> getSelectedStream(MediaStreamType type) async {
+  Future<MediaTrackSummary?> getSelectedTrack(MediaTrackType type) async {
     // TODO TLAD
     return null;
   }
 
   @override
-  Future<void> selectStream(MediaStreamType type, MediaStreamSummary? selected) async {
+  Future<void> selectTrack(MediaTrackType type, MediaTrackSummary? selected) async {
     // TODO TLAD
   }
 }
