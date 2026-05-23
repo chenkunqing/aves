@@ -43,9 +43,7 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
             "isLocked" -> safe(call, result, ::isLocked)
             "isSystemFilePickerEnabled" -> safe(call, result, ::isSystemFilePickerEnabled)
             "requestMediaManagePermission" -> safe(call, result, ::requestMediaManagePermission)
-            "getAvailableHeapSize" -> safe(call, result, ::getAvailableHeapSize)
-            "getUsedHeapSize" -> safe(call, result, ::getUsedHeapSize)
-            "getMaximumHeapSize" -> safe(call, result, ::getMaximumHeapSize)
+            "getHeapSizes" -> safe(call, result, ::getHeapSizes)
             "requestGarbageCollection" -> safe(call, result, ::requestGarbageCollection)
             else -> result.notImplemented()
         }
@@ -124,7 +122,7 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
         result.success(Build.VERSION.SDK_INT)
     }
 
-    private fun getWidgetCornerRadiusPx(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
+    private fun getWidgetCornerRadiusPx(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             result.success(context.resources.getDimension(android.R.dimen.system_app_widget_background_radius))
         } else {
@@ -154,16 +152,14 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
         result.success(true)
     }
 
-    private fun getAvailableHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
-        result.success(MemoryUtils.getAvailableHeapSize())
-    }
+    private fun getHeapSizes(call: MethodCall, result: MethodChannel.Result) {
+        val types = call.argument<List<String>>("types")
+        if (types.isNullOrEmpty()) {
+            result.error("getHeapSizes-args", "missing arguments", null)
+            return
+        }
 
-    private fun getUsedHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
-        result.success(MemoryUtils.getUsedHeapSize())
-    }
-
-    private fun getMaximumHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
-        result.success(MemoryUtils.getMaximumHeapSize())
+        result.success(MemoryUtils.getHeapSizes(types))
     }
 
     private fun requestGarbageCollection(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {

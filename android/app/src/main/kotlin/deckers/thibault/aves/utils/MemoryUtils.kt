@@ -4,6 +4,10 @@ import android.util.Log
 
 object MemoryUtils {
     private val LOG_TAG = LogUtils.createTag<MemoryUtils>()
+    private const val HEAP_TYPE_AVAILABLE = "available"
+    private const val HEAP_TYPE_USED = "used"
+    private const val HEAP_TYPE_TOTAL = "total"
+    private const val HEAP_TYPE_MAX = "max"
 
     fun canAllocate(byteSize: Number?): Boolean {
         byteSize ?: return true
@@ -15,9 +19,24 @@ object MemoryUtils {
         return !danger
     }
 
-    fun getAvailableHeapSize() = Runtime.getRuntime().let { it.maxMemory() - (it.totalMemory() - it.freeMemory()) }
+    fun getAvailableHeapSize() = getHeapSizes(listOf(HEAP_TYPE_AVAILABLE))[HEAP_TYPE_AVAILABLE] ?: 0
 
-    fun getUsedHeapSize() = Runtime.getRuntime().let { it.totalMemory() - it.freeMemory() }
-
-    fun getMaximumHeapSize() = Runtime.getRuntime().let { it.maxMemory() }
+    fun getHeapSizes(types: List<String>): Map<String, Long?> {
+        val result = HashMap<String, Long?>()
+        val runtime = Runtime.getRuntime()
+        val max = runtime.maxMemory()
+        val total = runtime.totalMemory()
+        val free = runtime.freeMemory()
+        val used = total - free
+        for (type in types) {
+            result[type] = when (type) {
+                HEAP_TYPE_AVAILABLE -> max - used
+                HEAP_TYPE_USED -> used
+                HEAP_TYPE_TOTAL -> total
+                HEAP_TYPE_MAX -> max
+                else -> null
+            }
+        }
+        return result
+    }
 }

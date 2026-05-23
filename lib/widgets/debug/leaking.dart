@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:aves/ref/locales.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/device_service.dart';
 import 'package:aves/utils/file_utils.dart';
 import 'package:aves/widgets/common/identity/aves_expansion_tile.dart';
 import 'package:collection/collection.dart';
@@ -137,21 +138,19 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
   void initState() {
     super.initState();
     _subscription = Stream.periodic(const Duration(seconds: 1)).listen((_) async {
-      final results = await Future.wait([
-        deviceService.getUsedHeapSize(),
-        deviceService.getMaximumHeapSize(),
-      ]);
-      final usedHeap = formatFileSize(kAsciiLocale, results[0]);
-      final maxHeap = formatFileSize(kAsciiLocale, results[1]);
-      _heapNotifier.value = 'Heap: $usedHeap / $maxHeap';
+      final results = await deviceService.getHeapSizes(<HeapSizeType>{.used, .total, .max});
+      final heapUsed = formatFileSize(kAsciiLocale, results[HeapSizeType.used] ?? 0);
+      final heapTotal = formatFileSize(kAsciiLocale, results[HeapSizeType.total] ?? 0);
+      final heapMax = formatFileSize(kAsciiLocale, results[HeapSizeType.max] ?? 0);
+      _heapNotifier.value = 'Heap: $heapUsed / $heapTotal / $heapMax';
 
-      final currentRss = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
-      final maxRss = formatFileSize(kAsciiLocale, ProcessInfo.maxRss);
-      _rssNotifier.value = 'RSS: $currentRss / $maxRss';
+      final rssCurrent = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
+      final rssMax = formatFileSize(kAsciiLocale, ProcessInfo.maxRss);
+      _rssNotifier.value = 'RSS: $rssCurrent / $rssMax';
 
-      final currentImageCache = formatFileSize(kAsciiLocale, imageCache.currentSizeBytes);
-      final maxImageCache = formatFileSize(kAsciiLocale, imageCache.maximumSizeBytes);
-      _imageCacheNotifier.value = 'imageCache: $currentImageCache / $maxImageCache';
+      final imageCacheCurrent = formatFileSize(kAsciiLocale, imageCache.currentSizeBytes);
+      final imageCacheMax = formatFileSize(kAsciiLocale, imageCache.maximumSizeBytes);
+      _imageCacheNotifier.value = 'imageCache: $imageCacheCurrent / $imageCacheMax';
     });
   }
 
