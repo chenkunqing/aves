@@ -16,4 +16,8 @@ object MemoryUtils {
     }
 
     fun getAvailableHeapSize() = Runtime.getRuntime().let { it.maxMemory() - (it.totalMemory() - it.freeMemory()) }
+
+    fun getUsedHeapSize() = Runtime.getRuntime().let { it.totalMemory() - it.freeMemory() }
+
+    fun getMaximumHeapSize() = Runtime.getRuntime().let { it.maxMemory() }
 }

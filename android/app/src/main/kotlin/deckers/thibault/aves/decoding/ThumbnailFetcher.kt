@@ -177,6 +177,6 @@ class ThumbnailFetcher internal constructor(
 
     companion object {
         private val LOG_TAG = LogUtils.createTag<ThumbnailFetcher>()
-        private const val BITMAP_SIZE_DANGER_THRESHOLD = 20 * (1 shl 20) // MB
+        private const val BITMAP_SIZE_DANGER_THRESHOLD = 20 * (1 shl 20) // MiB
     }
 }

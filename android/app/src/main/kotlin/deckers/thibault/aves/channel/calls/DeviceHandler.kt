@@ -44,6 +44,8 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
             "isSystemFilePickerEnabled" -> safe(call, result, ::isSystemFilePickerEnabled)
             "requestMediaManagePermission" -> safe(call, result, ::requestMediaManagePermission)
             "getAvailableHeapSize" -> safe(call, result, ::getAvailableHeapSize)
+            "getUsedHeapSize" -> safe(call, result, ::getUsedHeapSize)
+            "getMaximumHeapSize" -> safe(call, result, ::getMaximumHeapSize)
             "requestGarbageCollection" -> safe(call, result, ::requestGarbageCollection)
             else -> result.notImplemented()
         }
@@ -154,6 +156,14 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
 
     private fun getAvailableHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
         result.success(MemoryUtils.getAvailableHeapSize())
+    }
+
+    private fun getUsedHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
+        result.success(MemoryUtils.getUsedHeapSize())
+    }
+
+    private fun getMaximumHeapSize(@Suppress("unused_parameter") methodCall: MethodCall, result: MethodChannel.Result) {
+        result.success(MemoryUtils.getMaximumHeapSize())
     }
 
     private fun requestGarbageCollection(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {

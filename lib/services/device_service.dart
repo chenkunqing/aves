@@ -28,6 +28,10 @@ abstract class DeviceService {
 
   Future<int> getAvailableHeapSize();
 
+  Future<int> getUsedHeapSize();
+
+  Future<int> getMaximumHeapSize();
+
   Future<void> requestGarbageCollection();
 }
 
@@ -161,6 +165,28 @@ class PlatformDeviceService implements DeviceService {
   Future<int> getAvailableHeapSize() async {
     try {
       final result = await _platform.invokeMethod('getAvailableHeapSize');
+      if (result != null) return result as int;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return 0;
+  }
+
+  @override
+  Future<int> getUsedHeapSize() async {
+    try {
+      final result = await _platform.invokeMethod('getUsedHeapSize');
+      if (result != null) return result as int;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return 0;
+  }
+
+  @override
+  Future<int> getMaximumHeapSize() async {
+    try {
+      final result = await _platform.invokeMethod('getMaximumHeapSize');
       if (result != null) return result as int;
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);

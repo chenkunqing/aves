@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:aves/ref/locales.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:aves/utils/file_utils.dart';
 import 'package:aves/widgets/common/identity/aves_expansion_tile.dart';
 import 'package:collection/collection.dart';
@@ -124,7 +126,43 @@ class _CollectorOverlay extends StatefulWidget {
 }
 
 class _CollectorOverlayState extends State<_CollectorOverlay> {
+  late StreamSubscription _subscription;
+  final ValueNotifier<String> _heapNotifier = ValueNotifier('');
+  final ValueNotifier<String> _rssNotifier = ValueNotifier('');
+  final ValueNotifier<String> _imageCacheNotifier = ValueNotifier('');
+
   AlignmentGeometry _alignment = AlignmentDirectional.bottomStart;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = Stream.periodic(const Duration(seconds: 1)).listen((_) async {
+      final results = await Future.wait([
+        deviceService.getUsedHeapSize(),
+        deviceService.getMaximumHeapSize(),
+      ]);
+      final usedHeap = formatFileSize(kAsciiLocale, results[0]);
+      final maxHeap = formatFileSize(kAsciiLocale, results[1]);
+      _heapNotifier.value = 'Heap: $usedHeap / $maxHeap';
+
+      final currentRss = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
+      final maxRss = formatFileSize(kAsciiLocale, ProcessInfo.maxRss);
+      _rssNotifier.value = 'RSS: $currentRss / $maxRss';
+
+      final currentImageCache = formatFileSize(kAsciiLocale, imageCache.currentSizeBytes);
+      final maxImageCache = formatFileSize(kAsciiLocale, imageCache.maximumSizeBytes);
+      _imageCacheNotifier.value = 'imageCache: $currentImageCache / $maxImageCache';
+    });
+  }
+
+  @override
+  void dispose() {
+    _heapNotifier.dispose();
+    _rssNotifier.dispose();
+    _imageCacheNotifier.dispose();
+    _subscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,31 +196,17 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
                     }),
                   ],
                 ),
-                Wrap(
-                  crossAxisAlignment: .center,
-                  children: [
-                    StreamBuilder(
-                      stream: Stream.periodic(const Duration(seconds: 1)),
-                      builder: (context, snapshot) {
-                        final currentRss = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
-                        final maxRss = formatFileSize(kAsciiLocale, ProcessInfo.maxRss);
-                        return Text('RSS: $currentRss / $maxRss');
-                      },
-                    ),
-                  ],
+                ValueListenableBuilder<String>(
+                  valueListenable: _heapNotifier,
+                  builder: (context, v, child) => Text(v),
                 ),
-                Wrap(
-                  crossAxisAlignment: .center,
-                  children: [
-                    StreamBuilder(
-                      stream: Stream.periodic(const Duration(seconds: 1)),
-                      builder: (context, snapshot) {
-                        final currentImageCache = formatFileSize(kAsciiLocale, imageCache.currentSizeBytes);
-                        final maxImageCache = formatFileSize(kAsciiLocale, imageCache.maximumSizeBytes);
-                        return Text('imageCache: $currentImageCache / $maxImageCache');
-                      },
-                    ),
-                  ],
+                ValueListenableBuilder<String>(
+                  valueListenable: _rssNotifier,
+                  builder: (context, v, child) => Text(v),
+                ),
+                ValueListenableBuilder<String>(
+                  valueListenable: _imageCacheNotifier,
+                  builder: (context, v, child) => Text(v),
                 ),
               ],
             ),

@@ -657,7 +657,9 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
           ? 'release'
           : kProfileMode
           ? 'profile'
-          : 'debug',
+          : kDebugMode
+          ? 'debug'
+          : 'unknown',
       'has_mobile_services': mobileServices.isServiceAvailable,
       'is_television': device.isTelevision,
       'locales': WidgetsBinding.instance.platformDispatcher.locales.join(', '),
