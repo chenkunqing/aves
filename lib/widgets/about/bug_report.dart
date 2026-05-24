@@ -8,9 +8,11 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/ref/locales.dart';
 import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/device_service.dart';
 import 'package:aves/theme/colors.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/styles.dart';
+import 'package:aves/utils/file_utils.dart';
 import 'package:aves/widgets/about/app_ref.dart';
 import 'package:aves/widgets/aves_app.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
@@ -137,29 +139,39 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final mediaQuery = MediaQuery.of(context);
     final view = View.of(context);
+
+    final ram = await deviceService.getRamSizes(<MemorySizeType>{.total});
+    final heap = await deviceService.getHeapSizes(<MemorySizeType>{.max});
+    final ramTotal = formatFileSize(kAsciiLocale, ram[MemorySizeType.total] ?? 0);
+    final heapMax = formatFileSize(kAsciiLocale, heap[MemorySizeType.max] ?? 0);
+
     final supportsHdr = await windowService.supportsHdr();
     final supportsWideGamut = await windowService.supportsWideGamut();
+
     final connections = await Connectivity().checkConnectivity();
     final storageVolumes = await storageService.getStorageVolumes();
     final storageGrants = await storageService.getGrantedDirectories();
+
     final source = context.read<CollectionSource>();
+    final entryCount = source.allEntries.length;
+    final albumCount = source.rawAlbums.length;
+    final tagCount = source.sortedTags.length;
+
     return [
-      'Package: ${device.packageName}',
-      'Installer: ${packageInfo.installerStore}',
-      'Aves version: ${device.packageVersion}-$flavor, build ${packageInfo.buildNumber}',
+      'Aves: ${device.packageVersion}-$flavor, build ${packageInfo.buildNumber}, package=${device.packageName}, installer=${packageInfo.installerStore}',
       'Flutter: ${FlutterVersion.channel} ${FlutterVersion.version}',
-      'Android version: ${androidInfo.version.release}, API ${androidInfo.version.sdkInt}',
-      'Android build: ${androidInfo.display}',
+      'Android: ${androidInfo.version.release}, API ${androidInfo.version.sdkInt}, build: ${androidInfo.display}',
       'Device: ${androidInfo.manufacturer} ${androidInfo.model}',
-      'Display: pixel ratio=${view.devicePixelRatio}, logical=${mediaQuery.size.width}x${mediaQuery.size.height}, physical=${view.physicalSize.width}x${view.physicalSize.height}',
-      'Support: dynamic colors=${device.isDynamicColorAvailable}, geocoder=${device.hasGeocoder}, HDR=$supportsHdr, wide gamut=$supportsWideGamut',
-      'Mobile services: ${mobileServices.isServiceAvailable ? 'ready' : 'not available'}',
+      'Memory: ram.total=$ramTotal, heap.max=$heapMax',
+      'Screen: size.physical=${view.physicalSize.width.round()}x${view.physicalSize.height.round()}, HDR=$supportsHdr, wide gamut=$supportsWideGamut',
+      'Display: size.logical=${mediaQuery.size.width}x${mediaQuery.size.height}, pixel ratio=${view.devicePixelRatio}',
+      'Mobile services: ${mobileServices.isServiceAvailable ? 'ready' : 'not available'}, geocoder=${device.hasGeocoder}',
       'Connectivity: ${connections.map((v) => v.name).join(', ')}',
       'System locales: ${WidgetsBinding.instance.platformDispatcher.locales.join(', ')}',
       'Storage volumes: ${storageVolumes.map((v) => v.path).join(', ')}',
       'Storage grants: ${storageGrants.join(', ')}',
       'Error reporting: ${settings.isErrorReportingAllowed}',
-      'Collection: ${source.allEntries.length} items, ${source.rawAlbums.length} albums, ${source.sortedTags.length} tags',
+      'Collection: $entryCount items, $albumCount albums, $tagCount tags',
     ].join('\n');
   }
 

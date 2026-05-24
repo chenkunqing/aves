@@ -128,6 +128,7 @@ class _CollectorOverlay extends StatefulWidget {
 
 class _CollectorOverlayState extends State<_CollectorOverlay> {
   late StreamSubscription _subscription;
+  final ValueNotifier<String> _ramNotifier = ValueNotifier('');
   final ValueNotifier<String> _heapNotifier = ValueNotifier('');
   final ValueNotifier<String> _rssNotifier = ValueNotifier('');
   final ValueNotifier<String> _imageCacheNotifier = ValueNotifier('');
@@ -138,10 +139,20 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
   void initState() {
     super.initState();
     _subscription = Stream.periodic(const Duration(seconds: 1)).listen((_) async {
-      final results = await deviceService.getHeapSizes(<HeapSizeType>{.used, .total, .max});
-      final heapUsed = formatFileSize(kAsciiLocale, results[HeapSizeType.used] ?? 0);
-      final heapTotal = formatFileSize(kAsciiLocale, results[HeapSizeType.total] ?? 0);
-      final heapMax = formatFileSize(kAsciiLocale, results[HeapSizeType.max] ?? 0);
+      final results = await Future.wait([
+        deviceService.getRamSizes(<MemorySizeType>{.available, .total, .advertised}),
+        deviceService.getHeapSizes(<MemorySizeType>{.used, .total, .max}),
+      ]);
+      final [ram, heap] = results;
+
+      final ramAvailable = formatFileSize(kAsciiLocale, ram[MemorySizeType.available] ?? 0);
+      final ramTotal = formatFileSize(kAsciiLocale, ram[MemorySizeType.total] ?? 0);
+      final ramAdvertised = formatFileSize(kAsciiLocale, ram[MemorySizeType.advertised] ?? 0);
+      _ramNotifier.value = 'RAM: $ramAvailable / $ramTotal / $ramAdvertised';
+
+      final heapUsed = formatFileSize(kAsciiLocale, heap[MemorySizeType.used] ?? 0);
+      final heapTotal = formatFileSize(kAsciiLocale, heap[MemorySizeType.total] ?? 0);
+      final heapMax = formatFileSize(kAsciiLocale, heap[MemorySizeType.max] ?? 0);
       _heapNotifier.value = 'Heap: $heapUsed / $heapTotal / $heapMax';
 
       final rssCurrent = formatFileSize(kAsciiLocale, ProcessInfo.currentRss);
@@ -156,6 +167,7 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
 
   @override
   void dispose() {
+    _ramNotifier.dispose();
     _heapNotifier.dispose();
     _rssNotifier.dispose();
     _imageCacheNotifier.dispose();
@@ -201,6 +213,10 @@ class _CollectorOverlayState extends State<_CollectorOverlay> {
                 ),
                 ValueListenableBuilder<String>(
                   valueListenable: _rssNotifier,
+                  builder: (context, v, child) => Text(v),
+                ),
+                ValueListenableBuilder<String>(
+                  valueListenable: _ramNotifier,
                   builder: (context, v, child) => Text(v),
                 ),
                 ValueListenableBuilder<String>(

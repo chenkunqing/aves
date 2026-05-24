@@ -44,6 +44,7 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
             "isSystemFilePickerEnabled" -> safe(call, result, ::isSystemFilePickerEnabled)
             "requestMediaManagePermission" -> safe(call, result, ::requestMediaManagePermission)
             "getHeapSizes" -> safe(call, result, ::getHeapSizes)
+            "getRamSizes" -> safe(call, result, ::getRamSizes)
             "requestGarbageCollection" -> safe(call, result, ::requestGarbageCollection)
             else -> result.notImplemented()
         }
@@ -160,6 +161,16 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
         }
 
         result.success(MemoryUtils.getHeapSizes(types))
+    }
+
+    private fun getRamSizes(call: MethodCall, result: MethodChannel.Result) {
+        val types = call.argument<List<String>>("types")
+        if (types.isNullOrEmpty()) {
+            result.error("getRamSizes-args", "missing arguments", null)
+            return
+        }
+
+        result.success(MemoryUtils.getRamSizes(context, types))
     }
 
     private fun requestGarbageCollection(@Suppress("unused_parameter") call: MethodCall, result: MethodChannel.Result) {
