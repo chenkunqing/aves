@@ -208,18 +208,16 @@ internal class VideoThumbnailFetcher(private val model: VideoThumbnail, val widt
     @RequiresApi(Build.VERSION_CODES.P)
     private fun getBitmapParams(): MediaMetadataRetriever.BitmapParams {
         val params = MediaMetadataRetriever.BitmapParams()
+        // `RGBA_1010102` has improved precision with the same memory cost as `ARGB_8888` (4 bytes per pixel)
+        // but specifying as preferred makes the native call block and fail on Android 17 (API 37)
         params.preferredConfig = getPreferredConfig()
         return params
     }
 
     private fun getPreferredConfig(): Bitmap.Config {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // improved precision with the same memory cost as `ARGB_8888` (4 bytes per pixel)
-            // for wide-gamut and HDR content which does not require alpha blending
-            Bitmap.Config.RGBA_1010102
-        } else {
-            Bitmap.Config.ARGB_8888
-        }
+        // `RGBA_1010102` has improved precision with the same memory cost as `ARGB_8888` (4 bytes per pixel)
+        // but specifying it as preferred makes `getScaledFrameAtTime` block and fail on Android 17 (API 37)
+        return Bitmap.Config.ARGB_8888
     }
 
     // already cleaned up in loadData and ByteArrayInputStream will be GC'd
