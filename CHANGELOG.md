@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+## <a id="v1.14.5"></a>[v1.14.5] - 2026-05-30
+
 ### Changed
 
 - Collection: keep selection after running operations
