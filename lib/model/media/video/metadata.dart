@@ -93,7 +93,7 @@ class VideoMetadataFormatter {
       final duration = _parseDuration(mediaInfo[Keys.duration] as String?);
       if (duration == null || duration == Duration.zero) return null;
 
-      catalogMetadata = catalogMetadata.copyWith(isAnimated: true);
+      catalogMetadata = catalogMetadata.copyWith(isAnimated: true, isMultiPage: false);
     }
 
     // only consider values with at least 8 characters (yyyymmdd),
