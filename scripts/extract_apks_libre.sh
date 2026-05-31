@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ ! -d "scripts" ]; then
-  cd ..
+    cd ..
 fi
 
 BUNDLE="/home/tibo/Downloads/app-libre-release.aab"
@@ -26,3 +26,5 @@ bundletool build-apks --bundle="$BUNDLE" --output="$OUTPUT" \
   --ks-key-alias="$KEY_ALIAS" --key-pass="pass:$KEY_PW"
 
 ../apkstripper "$APKS_FULL" "$APKS_STRIPPED"
+
+rm "$APKS_FULL"
