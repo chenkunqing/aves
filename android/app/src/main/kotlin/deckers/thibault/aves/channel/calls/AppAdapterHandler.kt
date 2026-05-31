@@ -235,7 +235,11 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
                     result.success(false)
                 }
             } catch (e: Exception) {
-                result.error("copyToClipboard-exception", "failed to set clip", e.message)
+                if (e.anyCauseIs<TransactionTooLargeException>()) {
+                    result.error("copyToClipboard-large", "transaction too large with text=${text?.length} chars", e)
+                } else {
+                    result.error("copyToClipboard-exception", "failed to set clip", e.message)
+                }
             }
         }
     }

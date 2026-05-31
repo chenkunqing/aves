@@ -107,7 +107,11 @@ class PlatformAppService implements AppService {
       });
       if (result != null) return result as bool;
     } on PlatformException catch (e, stack) {
-      await reportService.recordError(e, stack);
+      if (e.code == 'copyToClipboard-large') {
+        throw TooManyItemsException();
+      } else {
+        await reportService.recordError(e, stack);
+      }
     }
     return false;
   }
