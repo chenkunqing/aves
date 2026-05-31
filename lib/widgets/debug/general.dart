@@ -1,6 +1,7 @@
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/services/analysis_service.dart';
+import 'package:aves/services/common/channel.dart';
 import 'package:aves/services/common/service_policy.dart';
 import 'package:aves/widgets/common/identity/aves_expansion_tile.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
@@ -44,6 +45,11 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
           max: 10.0,
           divisions: 9,
           label: '$timeDilation',
+        ),
+        SwitchListTile(
+          value: AvesMethodChannel.kDebug,
+          onChanged: (v) => setState(() => AvesMethodChannel.kDebug = v),
+          title: const Text('Trace Aves platform channels'),
         ),
         SwitchListTile(
           value: _taskQueueOverlayEntry != null,
