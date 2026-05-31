@@ -54,8 +54,7 @@ class _MapButtonPanelState extends State<MapButtonPanel> {
   @override
   Widget build(BuildContext context) {
     final showCoordinateFilter = context.select<MapThemeData, bool>((v) => v.showCoordinateFilter);
-    final visualDensity = context.select<MapThemeData, VisualDensity>((v) => v.visualDensity);
-    final double padding = 8 + visualDensity.horizontal * 2;
+    final double padding = context.select<MapThemeData, double>((v) => v.buttonPadding);
 
     Widget? topLeftButton = _buildNavigationButton(context);
     Widget? topRightButton = _buildTopRightButton(context);

@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 class MapDecorator extends StatelessWidget {
   final Widget child;
 
-  static const mapBorderRadius = BorderRadius.all(Radius.circular(24)); // to match button circles
   static const mapBackground = Color(0xFFDBD5D3);
   static const mapLoadingGrid = Color(0xFFC4BEBB);
 
@@ -19,6 +18,14 @@ class MapDecorator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // derive matching optical radius as follow: outer radius - padding = inner radius
+    // i.e. map corner radius = button corner radius + padding
+    final visualDensity = context.select<MapThemeData, VisualDensity>((v) => v.visualDensity);
+    final buttonPadding = context.select<MapThemeData, double>((v) => v.buttonPadding);
+    final innerRadius = (kMinInteractiveDimension + visualDensity.horizontal * 4) / 2; // from `IconButton` and `VisualDensity`
+    final outerRadius = innerRadius + buttonPadding;
+    final mapBorderRadius = BorderRadius.all(Radius.circular(outerRadius));
+
     Widget _child = ClipRRect(
       borderRadius: mapBorderRadius,
       child: Container(
