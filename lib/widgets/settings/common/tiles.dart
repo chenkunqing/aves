@@ -225,12 +225,12 @@ class SettingsDurationListTile extends StatelessWidget {
           title: Text(title),
           subtitle: AvesCaption(subtitle),
           onTap: () async {
-            final v = await showDialog<int>(
+            final seconds = await showDialog<int>(
               context: context,
               builder: (context) => DurationDialog(initialSeconds: current),
             );
-            if (v != null) {
-              onChanged(v);
+            if (seconds != null) {
+              onChanged(seconds);
             }
           },
         );

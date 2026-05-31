@@ -44,8 +44,8 @@ Future<TagBaseFilter?> pickTag({
     source.canAnalyze = true;
     await source.init(scope: CollectionSource.fullScope);
   }
-  return await Navigator.maybeOf(context)?.push(
-    MaterialPageRoute<TagBaseFilter>(
+  return await Navigator.maybeOf(context)?.push<TagBaseFilter>(
+    MaterialPageRoute(
       settings: const RouteSettings(name: _TagPickPage.routeName),
       builder: (context) => _TagPickPage(
         source: source,

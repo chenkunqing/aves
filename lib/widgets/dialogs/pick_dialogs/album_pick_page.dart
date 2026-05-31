@@ -52,8 +52,8 @@ Future<AlbumBaseFilter?> pickAlbum({
     source.canAnalyze = true;
     await source.init(scope: CollectionSource.fullScope);
   }
-  return await Navigator.maybeOf(context)?.push(
-    MaterialPageRoute<AlbumBaseFilter>(
+  return await Navigator.maybeOf(context)?.push<AlbumBaseFilter>(
+    MaterialPageRoute(
       settings: const RouteSettings(name: _AlbumPickPage.routeName),
       builder: (context) => _AlbumPickPage(
         source: source,
@@ -212,7 +212,7 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
                         }
                       }
                     : null,
-                backgroundColor: isValid ? null: Theme.of(context).disabledColor,
+                backgroundColor: isValid ? null : Theme.of(context).disabledColor,
                 icon: const Icon(AIcons.apply),
                 label: Text(context.l10n.groupPickerUseThisGroupButton),
               );

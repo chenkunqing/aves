@@ -168,7 +168,7 @@ class _ConvertEntryDialogState extends State<ConvertEntryDialog> {
                         settings.convertWriteMetadata = options.writeMetadata;
                       }
 
-                      Navigator.maybeOf(context)?.pop(options);
+                      Navigator.maybeOf(context)?.pop<EntryConvertOptions>(options);
                     }
                   : null,
               child: Text(context.l10n.applyButtonLabel),

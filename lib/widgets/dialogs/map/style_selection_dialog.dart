@@ -56,7 +56,7 @@ class _MapStyleSelectionDialogState extends State<MapStyleSelectionDialog> {
               // as well as the regular return value from navigation
               _setGroupValue(v);
               // validate without confirmation
-              Navigator.maybeOf(context)?.pop(v);
+              Navigator.maybeOf(context)?.pop<EntryMapStyle>(v);
             },
             child: ListView(
               children: [

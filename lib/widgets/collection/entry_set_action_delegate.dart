@@ -656,7 +656,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
     final todoEntries = await _getEditableItems(context, entries, canEdit: (entry) => entry.canEditLocation);
     if (todoEntries == null || todoEntries.isEmpty) return null;
 
-    final location = await Navigator.maybeOf(context)?.push(
+    final location = await Navigator.maybeOf(context)?.push<LatLng>(
       MaterialPageRoute(
         settings: const RouteSettings(name: LocationPickPage.routeName),
         builder: (context) => LocationPickPage(

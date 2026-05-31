@@ -219,7 +219,7 @@ class _EditEntryLocationDialogState extends State<EditEntryLocationDialog> with 
 
   Future<void> _pickLocation() async {
     final pickCollection = _createPickCollection();
-    final latLng = await Navigator.maybeOf(context)?.push(
+    final latLng = await Navigator.maybeOf(context)?.push<LatLng>(
       MaterialPageRoute(
         settings: const RouteSettings(name: LocationPickPage.routeName),
         builder: (context) => LocationPickPage(
