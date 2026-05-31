@@ -26,6 +26,13 @@ class MpvVideoController extends AvesVideoController {
 
   static final _pContext = p.Context();
 
+  static final protocolWhitelist = [
+    ...const PlayerConfiguration().protocolWhitelist,
+    // Android `content` URIs are considered unsafe by default,
+    // as they are transferred via a custom `fd` protocol
+    'fd',
+  ];
+
   @override
   double get minSpeed => .25;
 
@@ -60,12 +67,7 @@ class MpvVideoController extends AvesVideoController {
         title: entry.bestTitle ?? entry.uri,
         libass: false,
         logLevel: MPVLogLevel.warn,
-        protocolWhitelist: [
-          ...const PlayerConfiguration().protocolWhitelist,
-          // Android `content` URIs are considered unsafe by default,
-          // as they are transferred via a custom `fd` protocol
-          'fd',
-        ],
+        protocolWhitelist: protocolWhitelist,
       ),
     );
     _initController();
@@ -203,24 +205,12 @@ class MpvVideoController extends AvesVideoController {
 
   void _initController() {
     _firstFrameRendered = false;
-    final hardwareAcceleration = settings.videoHardwareAcceleration;
-    String hwdec;
-    switch (settings.videoHardwareAcceleration) {
-      case .disabled:
-        hwdec = 'no';
-      case .enabled:
-        hwdec = 'auto-safe';
-      case .forced:
-        hwdec = 'mediacodec';
-    }
+
     final oldController = _mkControllerNotifier.value;
     final newController =
         VideoController(
             _mkPlayer,
-            configuration: VideoControllerConfiguration(
-              hwdec: hwdec,
-              enableHardwareAcceleration: hardwareAcceleration != VideoHardwareAcceleration.disabled,
-            ),
+            configuration: _toControllerConfiguration(settings.videoHardwareAcceleration),
           )
           ..waitUntilFirstFrameRendered.then((v) {
             _firstFrameRendered = true;
@@ -228,6 +218,23 @@ class MpvVideoController extends AvesVideoController {
           });
     _mkControllerNotifier.value = newController;
     oldController?.dispose();
+  }
+
+  static VideoControllerConfiguration _toControllerConfiguration(VideoHardwareAcceleration hardwareAcceleration) {
+    String hwdec;
+    switch (hardwareAcceleration) {
+      case .disabled:
+        hwdec = 'no';
+      case .enabled:
+        hwdec = 'auto-safe';
+      case .forced:
+        hwdec = 'mediacodec';
+    }
+    var videoControllerConfiguration = VideoControllerConfiguration(
+      hwdec: hwdec,
+      enableHardwareAcceleration: hardwareAcceleration != VideoHardwareAcceleration.disabled,
+    );
+    return videoControllerConfiguration;
   }
 
   @override
@@ -292,7 +299,7 @@ class MpvVideoController extends AvesVideoController {
 
   @override
   Stream<VideoEvent> get eventStream => _eventStreamController.stream;
-  
+
   @override
   Stream<double> get volumeStream => _mkPlayer.stream.volume;
 
@@ -338,7 +345,10 @@ class MpvVideoController extends AvesVideoController {
   set speed(double speed) => _mkPlayer.setRate(speed);
 
   @override
-  Future<Uint8List?> captureFrame() => _mkPlayer.screenshot();
+  Future<Uint8List?> captureFrame() {
+    // TODO TLAD rotate screenshot according to video rotation
+    return _mkPlayer.screenshot();
+  }
 
   @override
   Widget buildPlayerWidget(BuildContext context) {

@@ -137,8 +137,7 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
     final flavor = context.read<AppFlavor>().toString().split('.')[1];
     final packageInfo = await PackageInfo.fromPlatform();
     final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final mediaQuery = MediaQuery.of(context);
-    final view = View.of(context);
+    final viewPhysicalSize = View.of(context).physicalSize;
 
     final ram = await deviceService.getRamSizes(<MemorySizeType>{.total});
     final heap = await deviceService.getHeapSizes(<MemorySizeType>{.max});
@@ -163,8 +162,8 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
       'Android: ${androidInfo.version.release}, API ${androidInfo.version.sdkInt}, build: ${androidInfo.display}',
       'Device: ${androidInfo.manufacturer} ${androidInfo.model}',
       'Memory: ram.total=$ramTotal, heap.max=$heapMax',
-      'Screen: size.physical=${view.physicalSize.width.round()}x${view.physicalSize.height.round()}, HDR=$supportsHdr, wide gamut=$supportsWideGamut',
-      'Display: size.logical=${mediaQuery.size.width}x${mediaQuery.size.height}, pixel ratio=${view.devicePixelRatio}',
+      'Screen: size.physical=${viewPhysicalSize.width.round()}x${viewPhysicalSize.height.round()}, HDR=$supportsHdr, wide gamut=$supportsWideGamut',
+      'Display: size.logical=${MediaQuery.widthOf(context)}x${MediaQuery.heightOf(context)}, pixel ratio=${MediaQuery.devicePixelRatioOf(context)}',
       'Mobile services: ${mobileServices.isServiceAvailable ? 'ready' : 'not available'}, geocoder=${device.hasGeocoder}',
       'Connectivity: ${connections.map((v) => v.name).join(', ')}',
       'System locales: ${WidgetsBinding.instance.platformDispatcher.locales.join(', ')}',
