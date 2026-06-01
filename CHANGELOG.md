@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Changed
+
+- Map : increased max zoom level for HOT/Watercolor layers
+- Map : removed max zoom limit for custom layers
+
 ### Fixed
 
 - Collection: video thumbnail generation fallback when the Android codecs fail

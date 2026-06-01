@@ -189,8 +189,6 @@ class _GeoMapState extends State<GeoMap> {
               controller: widget.controller,
               clusterListenable: _clusterChangeNotifier,
               boundsNotifier: _boundsNotifier,
-              minZoom: 2,
-              maxZoom: 16,
               style: mapStyle,
               decoratorBuilder: _decorateMap,
               buttonPanelBuilder: _buildButtonPanel,

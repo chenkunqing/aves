@@ -68,8 +68,9 @@ class PlatformMobileServices extends MobileServices {
       controller: controller,
       clusterListenable: clusterListenable,
       boundsNotifier: boundsNotifier,
-      minZoom: 0,
-      maxZoom: 20,
+      // in practice on a Sony Xperia 5 V,
+      // `minZoom` is capped at 3 even when specified lower
+      minZoom: 2,
       style: style,
       decoratorBuilder: decoratorBuilder,
       buttonPanelBuilder: buttonPanelBuilder,

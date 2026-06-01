@@ -21,7 +21,6 @@ class EntryLeafletMap<T> extends StatefulWidget {
   final AvesMapController controller;
   final Listenable clusterListenable;
   final ValueNotifier<ZoomedBounds> boundsNotifier;
-  final double minZoom, maxZoom;
   final EntryMapStyle style;
   final TransitionBuilder decoratorBuilder;
   final WidgetBuilder buttonPanelBuilder;
@@ -42,8 +41,6 @@ class EntryLeafletMap<T> extends StatefulWidget {
     required this.controller,
     required this.clusterListenable,
     required this.boundsNotifier,
-    this.minZoom = 0,
-    this.maxZoom = 22,
     required this.style,
     required this.decoratorBuilder,
     required this.buttonPanelBuilder,
@@ -130,6 +127,7 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
   Widget _buildMap() {
     final markerSize = widget.markerSize;
     final dotMarkerSize = widget.dotMarkerSize;
+    final style = widget.style;
 
     final interactive = context.select<MapThemeData, bool>((v) => v.interactive);
 
@@ -163,8 +161,8 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
         initialCenter: bounds.projectedCenter,
         initialZoom: bounds.zoom,
         initialRotation: bounds.rotation,
-        minZoom: widget.minZoom,
-        maxZoom: widget.maxZoom,
+        minZoom: style.minZoom,
+        maxZoom: style.maxZoom,
         backgroundColor: Colors.transparent,
         interactionOptions: InteractionOptions(
           // TODO TLAD [map] as of flutter_map v0.14.0, `doubleTapZoom` does not move when zoom is already maximal
@@ -177,7 +175,7 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
       ),
       mapController: _leafletMapController,
       children: [
-        _buildMapLayer(),
+        _buildMapLayer(style),
         if (widget.overlayEntry != null) _buildOverlayImageLayer(),
         if (widget.tracks != null) _buildTracksLayer(),
         MarkerLayer(
@@ -208,8 +206,7 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
     );
   }
 
-  Widget _buildMapLayer() {
-    final style = widget.style;
+  Widget _buildMapLayer(EntryMapStyle style) {
     if (style == EntryMapStyles.osmLiberty) {
       return const OsmLibertyLayer();
     }
@@ -309,7 +306,8 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
 
   Future<void> _zoomBy(double amount, {LatLng? focalPoint}) async {
     final camera = _leafletMapController.camera;
-    final endZoom = (camera.zoom + amount).clamp(widget.minZoom, widget.maxZoom);
+    final style = widget.style;
+    final endZoom = (camera.zoom + amount).clamp(style.minZoom, style.maxZoom);
     widget.onUserZoomChange?.call(endZoom);
 
     final center = camera.center;
