@@ -180,13 +180,47 @@ class _EntryGoogleMapState<T> extends State<EntryGoogleMap<T>> {
                 return LayoutBuilder(
                   builder: (context, constraints) {
                     _sizeNotifier.value = constraints.biggest;
-                    return _GoogleMap(
-                      dotLocationNotifier: widget.dotLocationNotifier,
-                      initialCameraPosition: CameraPosition(
-                        bearing: -bounds.rotation,
-                        target: _toServiceLatLng(bounds.projectedCenter),
-                        zoom: bounds.zoom,
-                      ),
+                    final initialCameraPosition = CameraPosition(
+                      bearing: -bounds.rotation,
+                      target: _toServiceLatLng(bounds.projectedCenter),
+                      zoom: bounds.zoom,
+                    );
+                    final markers = {
+                      ...mediaMarkers,
+                      if (dotLocation != null && _dotMarkerBitmap != null)
+                        Marker(
+                          markerId: const MarkerId('dot'),
+                          anchor: const Offset(.5, .5),
+                          consumeTapEvents: true,
+                          icon: BytesMapBitmap(
+                            _dotMarkerBitmap!,
+                            bitmapScaling: MapBitmapScaling.none,
+                          ),
+                          position: _toServiceLatLng(dotLocation),
+                          zIndexInt: 1,
+                        ),
+                    };
+                    final polylines = {
+                      if (tracks != null)
+                        for (final track in tracks)
+                          Polyline(
+                            polylineId: PolylineId(track.hashCode.toString()),
+                            points: track.map(_toServiceLatLng).toList(),
+                            width: MapThemeData.trackWidth,
+                            color: trackColor,
+                          ),
+                    };
+                    final tileOverlays = {
+                      // TODO TLAD [geotiff] may use ground overlay instead
+                      if (overlayEntry != null && overlayEntry.canOverlay)
+                        TileOverlay(
+                          tileOverlayId: TileOverlayId(overlayEntry.id),
+                          tileProvider: GmsGeoTiffTileProvider(overlayEntry),
+                          transparency: 1 - overlayOpacity,
+                        ),
+                    };
+                    return GoogleMap(
+                      initialCameraPosition: initialCameraPosition,
                       onMapCreated: (controller) async {
                         _serviceMapController = controller;
                         final zoom = await controller.getZoomLevel();
@@ -196,43 +230,25 @@ class _EntryGoogleMapState<T> extends State<EntryGoogleMap<T>> {
                         // `onCameraIdle` is not always automatically triggered following map creation
                         _onIdle();
                       },
+                      // compass disabled to use provider agnostic controls
+                      compassEnabled: false,
+                      mapToolbarEnabled: false,
                       mapType: _toMapType(widget.style),
                       minMaxZoomPreference: MinMaxZoomPreference(widget.minZoom, widget.maxZoom),
-                      interactive: interactive,
-                      markers: {
-                        ...mediaMarkers,
-                        if (dotLocation != null && _dotMarkerBitmap != null)
-                          Marker(
-                            markerId: const MarkerId('dot'),
-                            anchor: const Offset(.5, .5),
-                            consumeTapEvents: true,
-                            icon: BytesMapBitmap(
-                              _dotMarkerBitmap!,
-                              bitmapScaling: MapBitmapScaling.none,
-                            ),
-                            position: _toServiceLatLng(dotLocation),
-                            zIndexInt: 1,
-                          ),
-                      },
-                      polylines: {
-                        if (tracks != null)
-                          for (final track in tracks)
-                            Polyline(
-                              polylineId: PolylineId(track.hashCode.toString()),
-                              points: track.map(_toServiceLatLng).toList(),
-                              width: MapThemeData.trackWidth,
-                              color: trackColor,
-                            ),
-                      },
-                      // TODO TLAD [geotiff] may use ground overlay instead when this is fixed: https://github.com/flutter/flutter/issues/26479
-                      tileOverlays: {
-                        if (overlayEntry != null && overlayEntry.canOverlay)
-                          TileOverlay(
-                            tileOverlayId: TileOverlayId(overlayEntry.id),
-                            tileProvider: GmsGeoTiffTileProvider(overlayEntry),
-                            transparency: 1 - overlayOpacity,
-                          ),
-                      },
+                      rotateGesturesEnabled: true,
+                      scrollGesturesEnabled: interactive,
+                      // zoom controls disabled to use provider agnostic controls
+                      zoomControlsEnabled: false,
+                      zoomGesturesEnabled: interactive,
+                      // lite mode disabled because it lacks camera animation
+                      liteModeEnabled: false,
+                      // tilt disabled to match leaflet
+                      tiltGesturesEnabled: false,
+                      myLocationEnabled: false,
+                      myLocationButtonEnabled: false,
+                      markers: markers,
+                      polylines: polylines,
+                      tileOverlays: tileOverlays,
                       onCameraMove: (position) => _updateVisibleRegion(zoom: position.zoom, rotation: -position.bearing),
                       onCameraIdle: _onIdle,
                       onTap: (v) => widget.onMapTap?.call(_fromServiceLatLng(v)),
@@ -334,107 +350,5 @@ class GmsGeoTiffTileProvider extends TileProvider {
       return Tile(tile.width, tile.height, tile.data);
     }
     return TileProvider.noTile;
-  }
-}
-
-class _GoogleMap extends StatefulWidget {
-  final ValueNotifier<ll.LatLng?>? dotLocationNotifier;
-  final CameraPosition initialCameraPosition;
-  final MapCreatedCallback? onMapCreated;
-  final MapType mapType;
-  final MinMaxZoomPreference minMaxZoomPreference;
-  final bool interactive;
-  final Set<Marker> markers;
-  final Set<Polyline> polylines;
-  final Set<TileOverlay> tileOverlays;
-  final CameraPositionCallback? onCameraMove;
-  final VoidCallback? onCameraIdle;
-  final ArgumentCallback<LatLng>? onTap;
-
-  const _GoogleMap({
-    required this.dotLocationNotifier,
-    required this.initialCameraPosition,
-    required this.onMapCreated,
-    required this.mapType,
-    required this.minMaxZoomPreference,
-    required this.interactive,
-    required this.markers,
-    required this.polylines,
-    required this.tileOverlays,
-    required this.onCameraMove,
-    required this.onCameraIdle,
-    required this.onTap,
-  });
-
-  @override
-  State<_GoogleMap> createState() => _GoogleMapState();
-}
-
-class _GoogleMapState extends State<_GoogleMap> {
-  @override
-  void initState() {
-    super.initState();
-    _registerWidget(widget);
-  }
-
-  @override
-  void didUpdateWidget(covariant _GoogleMap oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _unregisterWidget(oldWidget);
-    _registerWidget(widget);
-  }
-
-  @override
-  void dispose() {
-    _unregisterWidget(widget);
-    super.dispose();
-  }
-
-  void _registerWidget(_GoogleMap widget) {
-    widget.dotLocationNotifier?.addListener(_onDotLocationChanged);
-  }
-
-  void _unregisterWidget(_GoogleMap widget) {
-    widget.dotLocationNotifier?.removeListener(_onDotLocationChanged);
-  }
-
-  // TODO TLAD [map] remove when this is fixed: https://github.com/flutter/flutter/issues/103686
-  Future<void> _onDotLocationChanged() async {
-    // workaround for dot location marker not always reflecting the current location,
-    // despite `ValueListenableBuilder` on `widget.dotLocationNotifier`
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: widget.initialCameraPosition,
-      onMapCreated: widget.onMapCreated,
-      // compass disabled to use provider agnostic controls
-      compassEnabled: false,
-      mapToolbarEnabled: false,
-      mapType: widget.mapType,
-      minMaxZoomPreference: widget.minMaxZoomPreference,
-      rotateGesturesEnabled: true,
-      scrollGesturesEnabled: widget.interactive,
-      // zoom controls disabled to use provider agnostic controls
-      zoomControlsEnabled: false,
-      zoomGesturesEnabled: widget.interactive,
-      // lite mode disabled because it lacks camera animation
-      liteModeEnabled: false,
-      // tilt disabled to match leaflet
-      tiltGesturesEnabled: false,
-      myLocationEnabled: false,
-      myLocationButtonEnabled: false,
-      markers: widget.markers,
-      polylines: widget.polylines,
-      tileOverlays: widget.tileOverlays,
-      onCameraMove: widget.onCameraMove,
-      onCameraIdle: widget.onCameraIdle,
-      onTap: widget.onTap,
-    );
   }
 }
