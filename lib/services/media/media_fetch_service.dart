@@ -265,17 +265,20 @@ class PlatformMediaFetchService implements MediaFetchService {
     Object? taskKey,
     int? priority,
   }) {
+    final uri = request.uri;
+    final mimeType = request.mimeType;
+    final extentDip = request.extent;
     final args = <String, Object?>{
       'op': 'getThumbnail',
       'decoded': decoded,
-      'uri': request.uri,
+      'uri': uri,
       'pageId': request.pageId,
-      'mimeType': request.mimeType,
+      'mimeType': mimeType,
       'dateModifiedMillis': request.dateModifiedMillis,
       'rotationDegrees': request.rotationDegrees,
       'isFlipped': request.isFlipped,
-      'widthDip': request.extent,
-      'heightDip': request.extent,
+      'widthDip': extentDip,
+      'heightDip': extentDip,
     };
     return servicePolicy.call(
       () async {
@@ -283,9 +286,26 @@ class PlatformMediaFetchService implements MediaFetchService {
           mimeType: request.mimeType,
           arguments: args,
         );
-        return await _bytesToCodec(args, bytes, decode);
+
+        if (bytes.isEmpty && (MimeTypes.isVideo(mimeType) || mimeType == MimeTypes.avif)) {
+          final descriptor = await videoMetadataFetcher.getThumbnailDescriptor(
+            uri: uri,
+            mimeType: mimeType,
+            targetExtentDip: extentDip,
+          );
+          final codec = await descriptor?.instantiateCodec(
+            targetWidth: descriptor.width,
+            targetHeight: descriptor.height,
+          );
+          if (codec == null) {
+            throw UnreportedStateError('failed to get codec from video screenshot bytes for args=$args');
+          }
+          return codec;
+        } else {
+          return await _bytesToCodec(args, bytes, decode);
+        }
       },
-      priority: priority ?? (request.extent == 0 ? ServiceCallPriority.getFastThumbnail : ServiceCallPriority.getSizedThumbnail),
+      priority: priority ?? (extentDip == 0 ? ServiceCallPriority.getFastThumbnail : ServiceCallPriority.getSizedThumbnail),
       key: taskKey,
     );
   }

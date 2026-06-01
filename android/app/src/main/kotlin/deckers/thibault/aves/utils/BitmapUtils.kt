@@ -74,11 +74,19 @@ object BitmapUtils {
         return pixelCount * getBytePerPixel(config)
     }
 
+    const val BYTE_TRAILER_LENGTH = 1
+
     suspend fun getBytes(bitmap: Bitmap?, recycle: Boolean, decoded: Boolean, mimeType: String?): ByteArray? {
         return if (decoded) {
             getRawBytes(bitmap, recycle = recycle)
         } else {
-            getEncodedBytes(bitmap, canHaveAlpha = MimeTypes.canHaveAlpha(mimeType), recycle = recycle)
+            val encodedBytes = getEncodedBytes(bitmap, canHaveAlpha = MimeTypes.canHaveAlpha(mimeType), recycle = recycle)
+            if ((encodedBytes?.size ?: 0) <= BYTE_TRAILER_LENGTH) {
+                // fallback when the bitmap cannot directly be compressed to JPEG/PNG
+                getRawBytes(bitmap, recycle = recycle)
+            } else {
+                encodedBytes
+            }
         }
     }
 

@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_video/aves_video.dart';
-import 'package:flutter/widgets.dart';
+import 'package:aves_video_mpv/aves_video_mpv.dart';
+import 'package:flutter/foundation.dart';
+import 'package:image/image.dart' as img;
 import 'package:media_kit/media_kit.dart';
 
 class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
@@ -17,17 +21,11 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
   @override
   void init() => MediaKit.ensureInitialized();
 
-  @override
-  Future<Map<String, Object?>> getMetadata(AvesEntryBase entry) async {
+  Future<Player?> _openBackgroundPlayer({required String uri, required String mimeType}) async {
     final player = Player(
       configuration: PlayerConfiguration(
         logLevel: MPVLogLevel.warn,
-        protocolWhitelist: [
-          ...const PlayerConfiguration().protocolWhitelist,
-          // Android `content` URIs are considered unsafe by default,
-          // as they are transferred via a custom `fd` protocol
-          'fd',
-        ],
+        protocolWhitelist: MpvVideoController.protocolWhitelist,
       ),
     );
     final platform = player.platform;
@@ -54,69 +52,95 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
       }
     });
 
-    await player.open(Media(entry.uri), play: false);
+    await player.open(Media(uri), play: false);
 
-    final timeoutMillis = entry.mimeType.startsWith('image') ? probeTimeoutImage : probeTimeoutVideo;
+    final timeoutMillis = mimeType.startsWith('image') ? probeTimeoutImage : probeTimeoutVideo;
     await Future.any([videoDecodedCompleter.future, Future.delayed(Duration(milliseconds: timeoutMillis))]);
-
-    final fields = <String, Object?>{};
 
     final videoParams = player.state.videoParams;
     if (videoParams.par == null) {
-      debugPrint('failed to probe video metadata within $timeoutMillis ms for entry=$entry');
-    } else {
-      // mpv properties: https://mpv.io/manual/stable/#property-list
+      debugPrint('failed to probe video metadata within $timeoutMillis ms for uri=$uri, mimeType=$mimeType');
+      await player.dispose();
+      return null;
+    }
 
-      // mpv doc: "duration with milliseconds"
-      final durationMs = await platform.getProperty('duration/full');
-      if (durationMs.isNotEmpty) {
-        fields[Keys.duration] = durationMs;
-      }
+    return player;
+  }
 
-      // mpv doc: "metadata key/value pairs"
-      // note: seems to match FFprobe "format" > "tags" fields
-      final metadata = await platform.getProperty('metadata');
-      if (metadata.isNotEmpty) {
-        try {
-          jsonDecode(metadata).forEach((key, value) {
-            fields[key] = value;
-          });
-        } catch (error) {
-          debugPrint('failed to parse metadata=$metadata with error=$error');
-        }
-      }
+  @override
+  Future<Map<String, Object?>> getMetadata({required String uri, required String mimeType}) async {
+    final player = await _openBackgroundPlayer(uri: uri, mimeType: mimeType);
+    if (player == null) return {};
 
-      final tracks = await platform.getProperty('track-list');
-      if (tracks.isNotEmpty) {
-        try {
-          final tracksJson = jsonDecode(tracks);
-          if (tracksJson is List && tracksJson.isNotEmpty) {
-            fields[Keys.streams] = tracksJson.whereType<Map>().map((stream) {
-              return _normalizeStream(stream.cast<String, Object?>(), videoParams);
-            }).toList();
-          }
-        } catch (error) {
-          debugPrint('failed to parse tracks=$tracks with error=$error');
-        }
-      }
+    final fields = await _getMetadataFields(player);
 
-      final chapters = await platform.getProperty('chapter-list');
-      if (chapters.isNotEmpty) {
-        try {
-          final chaptersJson = jsonDecode(chapters);
-          if (chaptersJson is List && chaptersJson.isNotEmpty) {
-            final chapterMaps = chaptersJson.whereType<Map>().toList();
-            if (chapterMaps.isNotEmpty) {
-              fields[Keys.chapters] = chapterMaps;
-            }
-          }
-        } catch (error) {
-          debugPrint('failed to parse chapters=$chapters with error=$error');
-        }
+    await player.dispose();
+    return fields;
+  }
+
+  // mpv properties: https://mpv.io/manual/stable/#property-list
+  static const _propertyChapterList = 'chapter-list';
+  static const _propertyDurationFull = 'duration/full';
+  static const _propertyMetadata = 'metadata';
+  static const _propertyTrackList = 'track-list';
+
+  Future<Map<String, Object?>> _getMetadataFields(Player player) async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) {
+      throw Exception('Platform player ${platform.runtimeType} does not support property retrieval');
+    }
+
+    final fields = <String, Object?>{};
+
+    // mpv doc: "duration with milliseconds"
+    final durationMs = await platform.getProperty(_propertyDurationFull);
+    if (durationMs.isNotEmpty) {
+      fields[Keys.duration] = durationMs;
+    }
+
+    // mpv doc: "metadata key/value pairs"
+    // note: seems to match FFprobe "format" > "tags" fields
+    final metadata = await platform.getProperty(_propertyMetadata);
+    if (metadata.isNotEmpty) {
+      try {
+        jsonDecode(metadata).forEach((key, value) {
+          fields[key] = value;
+        });
+      } catch (error) {
+        debugPrint('failed to parse metadata=$metadata with error=$error');
       }
     }
 
-    await player.dispose();
+    final tracks = await platform.getProperty(_propertyTrackList);
+    if (tracks.isNotEmpty) {
+      try {
+        final tracksJson = jsonDecode(tracks);
+        if (tracksJson is List && tracksJson.isNotEmpty) {
+          final videoParams = player.state.videoParams;
+          fields[Keys.streams] = tracksJson.whereType<Map>().map((stream) {
+            return _normalizeStream(stream.cast<String, Object?>(), videoParams);
+          }).toList();
+        }
+      } catch (error) {
+        debugPrint('failed to parse tracks=$tracks with error=$error');
+      }
+    }
+
+    final chapters = await platform.getProperty(_propertyChapterList);
+    if (chapters.isNotEmpty) {
+      try {
+        final chaptersJson = jsonDecode(chapters);
+        if (chaptersJson is List && chaptersJson.isNotEmpty) {
+          final chapterMaps = chaptersJson.whereType<Map>().toList();
+          if (chapterMaps.isNotEmpty) {
+            fields[Keys.chapters] = chapterMaps;
+          }
+        }
+      } catch (error) {
+        debugPrint('failed to parse chapters=$chapters with error=$error');
+      }
+    }
+
     return fields;
   }
 
@@ -196,4 +220,146 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     }
     return stream;
   }
+
+  @override
+  Future<ui.ImageDescriptor?> getThumbnailDescriptor({required String uri, required String mimeType, required double targetExtentDip}) async {
+    if (targetExtentDip == 0) return null;
+
+    final player = await _openBackgroundPlayer(uri: uri, mimeType: mimeType);
+    if (player == null) return null;
+
+    final thumbnailTime = getBestThumbnailTime(player.state.duration);
+    if (thumbnailTime > Duration.zero) {
+      await player.seek(thumbnailTime);
+    }
+
+    final bgra = await player.screenshot(format: null);
+    final videoParams = player.state.videoParams;
+    await player.dispose();
+
+    final videoWidth = videoParams.dw;
+    final videoHeight = videoParams.dh;
+    if (videoWidth == null || videoHeight == null || bgra == null) {
+      return null;
+    }
+
+    final devicePixelRatio = PlatformDispatcher.instance.implicitView?.devicePixelRatio ?? 1;
+
+    final input = _ThumbnailByteInput(
+      bytes: bgra,
+      videoWidth: videoWidth,
+      videoHeight: videoHeight,
+      videoRotationDegrees: videoParams.rotate ?? 0,
+      targetWidth: (targetExtentDip * devicePixelRatio).round(),
+      targetHeight: (targetExtentDip * devicePixelRatio).round(),
+    );
+    final output = await compute(_getThumbnailBytes, input);
+    if (output == null) return null;
+
+    final buffer = await ui.ImmutableBuffer.fromUint8List(output.bytes);
+    return ui.ImageDescriptor.raw(
+      buffer,
+      width: output.width,
+      height: output.height,
+      pixelFormat: ui.PixelFormat.rgba8888,
+    );
+  }
+}
+
+@immutable
+class _ThumbnailByteInput {
+  final Uint8List bytes;
+  final int videoWidth;
+  final int videoHeight;
+  final int videoRotationDegrees;
+  final int targetWidth;
+  final int targetHeight;
+
+  const _ThumbnailByteInput({
+    required this.bytes,
+    required this.videoWidth,
+    required this.videoHeight,
+    required this.videoRotationDegrees,
+    required this.targetWidth,
+    required this.targetHeight,
+  });
+}
+
+@immutable
+class _ThumbnailByteOutput {
+  final Uint8List bytes;
+  final int width;
+  final int height;
+
+  const _ThumbnailByteOutput({
+    required this.bytes,
+    required this.width,
+    required this.height,
+  });
+}
+
+_ThumbnailByteOutput? _getThumbnailBytes(_ThumbnailByteInput input) {
+  final bgra = input.bytes;
+  final videoWidth = input.videoWidth;
+  final videoHeight = input.videoHeight;
+  final videoRotationDegrees = input.videoRotationDegrees;
+  final targetWidth = input.targetWidth;
+  final targetHeight = input.targetHeight;
+
+  var sampleSize = 1;
+  if (videoWidth > targetWidth || videoHeight > targetHeight) {
+    while (videoHeight / (sampleSize * 2) >= targetHeight && videoWidth / (sampleSize * 2) >= targetWidth) {
+      sampleSize *= 2;
+    }
+  }
+
+  // normally, `stride = videoWidth * bpp`, but it can differ,
+  // so we use the more reliable `stride = byte count / videoHeight` instead
+  // cf https://mpv.io/manual/stable/#command-interface-screenshot-raw
+  final stride = (bgra.lengthInBytes / videoHeight).round();
+
+  final sampledWidth = (videoWidth / sampleSize).ceil();
+  final sampledHeight = (videoHeight / sampleSize).ceil();
+  var targetImage = img.Image(
+    width: sampledWidth,
+    height: sampledHeight,
+    format: img.Format.uint8,
+    // only 3 channels are necessary to store an opaque image,
+    // but 4 allows usage as `ImageDescriptor` raw format
+    numChannels: 4,
+  );
+
+  const bpp = 4;
+  final xFactor = bpp * sampleSize;
+  final yFactor = stride * sampleSize;
+  for (var x = 0; x < sampledWidth; x++) {
+    final ix = x * xFactor;
+    for (var y = 0; y < sampledHeight; y++) {
+      final i = y * yFactor + ix;
+      targetImage.setPixelRgba(x, y, bgra[i + 2], bgra[i + 1], bgra[i], bgra[i + 3]);
+    }
+  }
+
+  if (sampledWidth > targetWidth && sampledHeight > targetHeight) {
+    // rescale when the resulting image is larger than requested
+    final scalingFactor = min(sampledWidth / targetWidth, sampledHeight / targetHeight);
+    final dstWidth = (sampledWidth / scalingFactor).round();
+    final dstHeight = (sampledHeight / scalingFactor).round();
+    debugPrint(
+      'rescale thumbnail for width=$targetWidth height=$targetHeight'
+      ', with bitmap byteCount=${targetImage.lengthInBytes} size=${sampledWidth}x$sampledHeight'
+      ', to target=${dstWidth}x$dstHeight',
+    );
+    targetImage = img.copyResize(targetImage, width: dstWidth, height: dstHeight);
+  }
+
+  if (videoRotationDegrees > 0) {
+    targetImage = img.copyRotate(targetImage, angle: videoRotationDegrees);
+  }
+
+  return _ThumbnailByteOutput(
+    bytes: targetImage.toUint8List(),
+    width: targetImage.width,
+    height: targetImage.height,
+  );
 }

@@ -49,7 +49,7 @@ class VideoMetadataFormatter {
 
   // fetch size, rotation and duration
   static Future<Map<String, int>> getLoadingMetadata(AvesEntry entry) async {
-    final mediaInfo = await videoMetadataFetcher.getMetadata(entry);
+    final mediaInfo = await videoMetadataFetcher.getMetadata(uri: entry.uri, mimeType: entry.mimeType);
     final fields = <String, int>{};
 
     final streams = mediaInfo[Keys.streams];
@@ -87,7 +87,7 @@ class VideoMetadataFormatter {
   static Future<CatalogMetadata?> completeCatalogMetadata(AvesEntry entry) async {
     var catalogMetadata = entry.catalogMetadata ?? CatalogMetadata(id: entry.id);
 
-    final mediaInfo = await videoMetadataFetcher.getMetadata(entry);
+    final mediaInfo = await videoMetadataFetcher.getMetadata(uri: entry.uri, mimeType: entry.mimeType);
 
     if (entry.mimeType == MimeTypes.avif) {
       final duration = _parseDuration(mediaInfo[Keys.duration] as String?);

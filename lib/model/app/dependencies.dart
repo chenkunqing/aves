@@ -340,6 +340,11 @@ class Dependencies {
       sourceUrl: 'https://github.com/dart-lang/http',
     ),
     Dependency(
+      name: 'Image',
+      license: mit,
+      sourceUrl: 'https://github.com/brendan-duncan/image',
+    ),
+    Dependency(
       name: 'Intl',
       license: bsd3,
       sourceUrl: 'https://github.com/dart-lang/intl',
