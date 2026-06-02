@@ -21,10 +21,11 @@ class ThumbnailOverlayPage extends StatelessWidget {
     final iconSize = SettingSwitchTrailingIcon.getIconSize(context);
     final iconColor = SettingSwitchTrailingIcon.getIconColor(context);
 
+    final l10n = context.l10n;
     return AvesScaffold(
       appBar: AppBar(
         automaticallyImplyLeading: !settings.useTvLayout,
-        title: Text(context.l10n.settingsThumbnailOverlayPageTitle),
+        title: Text(l10n.settingsThumbnailOverlayPageTitle),
       ),
       body: SafeArea(
         child: ListView(
@@ -32,7 +33,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailFavourite,
               onChanged: (v) => settings.showThumbnailFavourite = v,
-              title: context.l10n.settingsThumbnailShowFavouriteIcon,
+              title: (_) => l10n.settingsThumbnailShowFavouriteIcon,
               trailing: Padding(
                 padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - FavouriteIcon.scale) / 2),
                 child: Icon(
@@ -45,7 +46,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailMotionPhoto,
               onChanged: (v) => settings.showThumbnailMotionPhoto = v,
-              title: context.l10n.settingsThumbnailShowMotionPhotoIcon,
+              title: (_) => l10n.settingsThumbnailShowMotionPhotoIcon,
               trailing: Padding(
                 padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - MotionPhotoIcon.scale) / 2),
                 child: Icon(
@@ -58,7 +59,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailRating,
               onChanged: (v) => settings.showThumbnailRating = v,
-              title: context.l10n.settingsThumbnailShowRating,
+              title: (_) => l10n.settingsThumbnailShowRating,
               trailing: Icon(
                 AIcons.rating,
                 size: iconSize,
@@ -68,7 +69,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailHdr,
               onChanged: (v) => settings.showThumbnailHdr = v,
-              title: context.l10n.settingsThumbnailShowHdrIcon,
+              title: (_) => l10n.settingsThumbnailShowHdrIcon,
               trailing: Icon(
                 AIcons.hdr,
                 size: iconSize,
@@ -78,7 +79,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailRaw,
               onChanged: (v) => settings.showThumbnailRaw = v,
-              title: context.l10n.settingsThumbnailShowRawIcon,
+              title: (_) => l10n.settingsThumbnailShowRawIcon,
               trailing: Icon(
                 AIcons.raw,
                 size: iconSize,
@@ -88,7 +89,7 @@ class ThumbnailOverlayPage extends StatelessWidget {
             SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailVideoDuration,
               onChanged: (v) => settings.showThumbnailVideoDuration = v,
-              title: context.l10n.settingsThumbnailShowVideoDuration,
+              title: (_) => l10n.settingsThumbnailShowVideoDuration,
             ),
             SettingsTileThumbnailLocationIcon().build(context),
             SettingsTileThumbnailTagIcon().build(context),
@@ -109,7 +110,7 @@ class SettingsTileThumbnailLocationIcon extends SettingsTile {
     getName: (context, v) => v.getName(context),
     selector: (context, s) => s.thumbnailLocationIcon,
     onSelection: (v) => settings.thumbnailLocationIcon = v,
-    tileTitle: title(context),
+    tileTitle: title,
     trailingBuilder: _buildTrailing,
   );
 
@@ -133,7 +134,7 @@ class SettingsTileThumbnailTagIcon extends SettingsTile {
     getName: (context, v) => v.getName(context),
     selector: (context, s) => s.thumbnailTagIcon,
     onSelection: (v) => settings.thumbnailTagIcon = v,
-    tileTitle: title(context),
+    tileTitle: title,
     trailingBuilder: _buildTrailing,
   );
 

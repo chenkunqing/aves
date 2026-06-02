@@ -14,9 +14,10 @@ class VideoPlaybackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AvesScaffold(
       appBar: AppBar(
-        title: Text(context.l10n.settingsVideoPlaybackPageTitle),
+        title: Text(l10n.settingsVideoPlaybackPageTitle),
       ),
       body: SafeArea(
         child: ListView(
@@ -26,30 +27,30 @@ class VideoPlaybackPage extends StatelessWidget {
               getName: (context, v) => v.getName(context),
               selector: (context, s) => s.videoHardwareAcceleration,
               onSelection: (v) => settings.videoHardwareAcceleration = v,
-              tileTitle: context.l10n.settingsVideoEnableHardwareAcceleration,
+              tileTitle: (_) => l10n.settingsVideoEnableHardwareAcceleration,
             ),
             SettingsSelectionListTile<VideoAutoPlayMode>(
               values: VideoAutoPlayMode.values,
               getName: (context, v) => v.getName(context),
               selector: (context, s) => s.videoAutoPlayMode,
               onSelection: (v) => settings.videoAutoPlayMode = v,
-              tileTitle: context.l10n.settingsVideoAutoPlay,
+              tileTitle: (_) => l10n.settingsVideoAutoPlay,
             ),
             SettingsSelectionListTile<VideoLoopMode>(
               values: VideoLoopMode.values,
               getName: (context, v) => v.getName(context),
               selector: (context, s) => s.videoLoopMode,
               onSelection: (v) => settings.videoLoopMode = v,
-              tileTitle: context.l10n.settingsVideoLoopModeTile,
-              dialogTitle: context.l10n.settingsVideoLoopModeDialogTitle,
+              tileTitle: (_) => l10n.settingsVideoLoopModeTile,
+              dialogTitle: l10n.settingsVideoLoopModeDialogTitle,
             ),
             SettingsSelectionListTile<VideoResumptionMode>(
               values: VideoResumptionMode.values,
               getName: (context, v) => v.getName(context),
               selector: (context, s) => s.videoResumptionMode,
               onSelection: (v) => settings.videoResumptionMode = v,
-              tileTitle: context.l10n.settingsVideoResumptionModeTile,
-              dialogTitle: context.l10n.settingsVideoResumptionModeDialogTitle,
+              tileTitle: (_) => l10n.settingsVideoResumptionModeTile,
+              dialogTitle: l10n.settingsVideoResumptionModeDialogTitle,
             ),
             if (!settings.useTvLayout && device.supportPictureInPicture)
               SettingsSelectionListTile<VideoBackgroundMode>(
@@ -57,8 +58,8 @@ class VideoPlaybackPage extends StatelessWidget {
                 getName: (context, v) => v.getName(context),
                 selector: (context, s) => s.videoBackgroundMode,
                 onSelection: (v) => settings.videoBackgroundMode = v,
-                tileTitle: context.l10n.settingsVideoBackgroundMode,
-                dialogTitle: context.l10n.settingsVideoBackgroundModeDialogTitle,
+                tileTitle: (_) => l10n.settingsVideoBackgroundMode,
+                dialogTitle: l10n.settingsVideoBackgroundModeDialogTitle,
               ),
           ],
         ),

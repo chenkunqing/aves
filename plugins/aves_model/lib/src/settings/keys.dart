@@ -20,6 +20,7 @@ class SettingKeys {
   static const canUseAnalysisServiceKey = 'can_use_analysis_service';
   static const isInstalledAppAccessAllowedKey = 'is_installed_app_access_allowed';
   static const isErrorReportingAllowedKey = 'is_crashlytics_enabled';
+  static const autoExportPathKey = 'auto_export_path';
   static const localeKey = 'locale';
   static const forceWesternArabicNumeralsKey = 'force_western_arabic_numerals';
   static const catalogTimeZoneOffsetMillisKey = 'catalog_time_zone_raw_offset_millis';

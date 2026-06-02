@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:aves/model/entry/entry.dart';
 import 'package:aves/model/entry/extensions/location.dart';
@@ -184,10 +183,11 @@ class _ExportCollectionStatsPageState extends State<ExportCollectionStatsPage> w
           return;
         }
       case .file:
+        final date = DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now());
         success = await storageService.createFile(
-          'aves-stats-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now())}${MimeTypes.extensionFor(mimeType)}',
-          mimeType,
-          Uint8List.fromList(utf8.encode(body)),
+          basename: 'aves-stats-$date',
+          mimeType: mimeType,
+          bytes: utf8.encode(body),
         );
     }
     if (success != null) {

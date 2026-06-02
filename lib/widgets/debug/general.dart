@@ -71,7 +71,7 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
         SettingsSwitchListTile(
           selector: (context, s) => s.debugShowViewerTiles,
           onChanged: (v) => settings.debugShowViewerTiles = v,
-          title: 'Show viewer tiles',
+          title: (_) => 'Show viewer tiles',
         ),
         ElevatedButton(
           onPressed: () => AnalysisService.startService(force: false),

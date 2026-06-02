@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/text.dart';
@@ -10,8 +12,11 @@ import 'package:aves/widgets/dialogs/selection_dialogs/single_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+typedef TitleBuilder = String? Function(BuildContext context);
+
 class SettingsSubPageTile extends StatelessWidget {
-  final String title, routeName;
+  final TitleBuilder title;
+  final String routeName;
   final WidgetBuilder builder;
 
   const SettingsSubPageTile({
@@ -24,7 +29,7 @@ class SettingsSubPageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(title),
+      title: Text(title(context) ?? '?'),
       onTap: () {
         Navigator.maybeOf(context)?.push(
           MaterialPageRoute(
@@ -37,11 +42,12 @@ class SettingsSubPageTile extends StatelessWidget {
   }
 }
 
-class SettingsSwitchListTile extends StatelessWidget {
+class SettingsSwitchListTile extends StatefulWidget {
   final bool Function(BuildContext, Settings) selector;
-  final ValueChanged<bool>? onChanged;
-  final String title;
-  final String? subtitle;
+  final FutureOr<void> Function(bool value)? onChanged;
+  final Widget? leading;
+  final TitleBuilder title;
+  final TitleBuilder? subtitle;
   final Widget? trailing;
 
   static const disabledOpacity = .2;
@@ -50,34 +56,61 @@ class SettingsSwitchListTile extends StatelessWidget {
     super.key,
     required this.selector,
     required this.onChanged,
+    this.leading,
     required this.title,
     this.subtitle,
     this.trailing,
   });
 
   @override
+  State<SettingsSwitchListTile> createState() => _SettingsSwitchListTileState();
+}
+
+class _SettingsSwitchListTileState extends State<SettingsSwitchListTile> {
+  @override
   Widget build(BuildContext context) {
     return Selector<Settings, bool>(
-      selector: selector,
+      selector: widget.selector,
       builder: (context, current, child) {
-        Widget titleWidget = Text(title);
+        Widget? leading = widget.leading;
+        Widget titleWidget = Text(widget.title(context) ?? '?');
+        final subtitle = widget.subtitle?.call(context);
+        final trailing = widget.trailing;
+        final onChanged = widget.onChanged;
+
+        if (leading != null) {
+          leading = AnimatedOpacity(
+            opacity: current && onChanged != null ? 1 : SettingsSwitchListTile.disabledOpacity,
+            duration: ADurations.toggleableTransitionLoose,
+            child: leading,
+          );
+        }
+
         if (trailing != null) {
           titleWidget = Row(
             children: [
               Expanded(child: titleWidget),
               AnimatedOpacity(
-                opacity: current && onChanged != null ? 1 : disabledOpacity,
+                opacity: current && onChanged != null ? 1 : SettingsSwitchListTile.disabledOpacity,
                 duration: ADurations.toggleableTransitionLoose,
                 child: trailing,
               ),
             ],
           );
         }
+
         return SwitchListTile(
           value: current,
-          onChanged: onChanged,
+          onChanged: onChanged != null
+              ? (v) async {
+                  await onChanged(v);
+                  // update in case other props (e.g. subtitle) changed as a consequence
+                  setState(() {});
+                }
+              : null,
           title: titleWidget,
-          subtitle: subtitle != null ? Text(subtitle!) : null,
+          subtitle: subtitle != null ? Text(subtitle) : null,
+          secondary: leading,
         );
       },
     );
@@ -89,7 +122,7 @@ class SettingsSelectionListTile<T> extends StatelessWidget {
   final String Function(BuildContext, T) getName;
   final T Function(BuildContext, Settings) selector;
   final ValueChanged<T> onSelection;
-  final String tileTitle;
+  final TitleBuilder tileTitle;
   final WidgetBuilder? trailingBuilder;
   final String? dialogTitle;
   final TextBuilder<T>? optionSubtitleBuilder;
@@ -111,7 +144,7 @@ class SettingsSelectionListTile<T> extends StatelessWidget {
     return Selector<Settings, T>(
       selector: selector,
       builder: (context, current, child) {
-        Widget titleWidget = Text(tileTitle);
+        Widget titleWidget = Text(tileTitle(context) ?? '?');
         if (trailingBuilder != null) {
           titleWidget = Row(
             children: [
@@ -198,7 +231,7 @@ class SettingsMultiSelectionListTile<T> extends StatelessWidget {
 class SettingsDurationListTile extends StatelessWidget {
   final int Function(BuildContext, Settings) selector;
   final ValueChanged<int> onChanged;
-  final String title;
+  final TitleBuilder title;
 
   const SettingsDurationListTile({
     super.key,
@@ -222,7 +255,7 @@ class SettingsDurationListTile extends StatelessWidget {
         ].join(' ');
 
         return ListTile(
-          title: Text(title),
+          title: Text(title(context) ?? '?'),
           subtitle: AvesCaption(subtitle),
           onTap: () async {
             final seconds = await showDialog<int>(

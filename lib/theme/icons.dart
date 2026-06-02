@@ -17,6 +17,7 @@ class AIcons {
   static const broken = Symbols.broken_image;
   static const brightnessMin = Symbols.brightness_low;
   static const brightnessMax = Symbols.brightness_high;
+  static const bugReport = Symbols.bug_report;
   static const checked = Symbols.done;
   static const circle = Symbols.fiber_manual_record;
   static const count = MdiIcons.counter;
@@ -55,6 +56,7 @@ class AIcons {
   static const raw = Symbols.raw_on;
   static const sensorControlEnabled = Symbols.explore;
   static const sensorControlDisabled = Symbols.explore_off;
+  static const searchHistory = Symbols.youtube_searched_for;
   static const settings = Symbols.settings;
   static const shooting = Symbols.camera;
   static const size = Symbols.data_usage;

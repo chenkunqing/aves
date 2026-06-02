@@ -30,6 +30,10 @@ mixin AppSettings on SettingsAccess {
 
   set isErrorReportingAllowed(bool newValue) => set(SettingKeys.isErrorReportingAllowedKey, newValue);
 
+  String? get autoExportPath => getString(SettingKeys.autoExportPathKey);
+
+  set autoExportPath(String? newValue) => set(SettingKeys.autoExportPathKey, newValue);
+
   static const localeSeparator = '-';
 
   Locale? get locale {

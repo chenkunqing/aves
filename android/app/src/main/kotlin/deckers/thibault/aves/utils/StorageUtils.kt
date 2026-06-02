@@ -397,11 +397,11 @@ object StorageUtils {
      * Document files
      */
 
-    fun getDocumentFile(context: Context, anyPath: String, mediaUri: Uri): DocumentFileCompat? {
+    fun getDocumentFile(context: Context, anyPath: String, mediaUri: Uri?): DocumentFileCompat? {
         try {
             if (requireAccessPermission(context, anyPath)) {
                 // need a document URI (not a media content URI) to open a `DocumentFile` output stream
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && isMediaStoreContentUri(mediaUri)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mediaUri != null && isMediaStoreContentUri(mediaUri)) {
                     // cleanest API to get it
                     PermissionManager.sanitizePersistedUriPermissions(context)
                     try {
@@ -419,7 +419,7 @@ object StorageUtils {
                 if (df != null) return df
 
                 // try to strip user info, if any
-                if (mediaUri.userInfo != null) {
+                if (mediaUri?.userInfo != null) {
                     val genericMediaUri = stripMediaUriUserInfo(mediaUri)
                     Log.d(LOG_TAG, "retry getDocumentFile for mediaUri=$mediaUri without userInfo: $genericMediaUri")
                     return getDocumentFile(context, anyPath, genericMediaUri)

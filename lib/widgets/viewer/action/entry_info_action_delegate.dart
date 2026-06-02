@@ -220,9 +220,9 @@ class EntryInfoActionDelegate with FeedbackMixin, PermissionAwareMixin, EntryEdi
     final metadataString = lines.join('\n');
 
     final success = await storageService.createFile(
-      '${targetEntry.filenameWithoutExtension}-metadata.txt',
-      MimeTypes.plainText,
-      Uint8List.fromList(utf8.encode(metadataString)),
+      basename: '${targetEntry.filenameWithoutExtension}-metadata',
+      mimeType: MimeTypes.plainText,
+      bytes: utf8.encode(metadataString),
     );
     if (success != null) {
       if (success) {

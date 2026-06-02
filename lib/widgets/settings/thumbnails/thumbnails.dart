@@ -39,7 +39,7 @@ class SettingsTileCollectionQuickActions extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
+    title: title,
     routeName: CollectionActionEditorPage.routeName,
     builder: (context) => const CollectionActionEditorPage(),
   );
@@ -51,7 +51,7 @@ class SettingsTileThumbnailOverlay extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
+    title: title,
     routeName: ThumbnailOverlayPage.routeName,
     builder: (context) => const ThumbnailOverlayPage(),
   );

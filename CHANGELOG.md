@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## <a id="unreleased"></a>[Unreleased]
 
+### Added
+
+- Settings: automatic export option
+
 ### Changed
 
 - Map : increased max zoom level for HOT/Watercolor layers
@@ -14,6 +18,10 @@ All notable changes to this project will be documented in this file.
 - Collection: video thumbnail generation fallback when the Android codecs fail
 
 ## <a id="v1.14.5"></a>[v1.14.5] - 2026-05-30
+
+### Added
+
+- predictive back gesture support (external and intra-app)
 
 ### Changed
 
@@ -100,7 +108,7 @@ All notable changes to this project will be documented in this file.
 - Video: allow forcing hardware acceleration
 - Search: allow regex (wrapped in `/.../`) in query filter
 - Stats: export to CSV/JSON fields of filtered collection
-- predictive back gesture support (external only, intra-app support pending Flutter v3.42)
+- predictive back gesture support (external only)
 
 ### Changed
 

@@ -95,6 +95,8 @@ abstract class CollectionSource with SourceBase, AlbumMixin, CountryMixin, Place
     if (kFlutterMemoryAllocationsEnabled) {
       LeakTracking.dispatchObjectDisposed(object: this);
     }
+    stateNotifier.dispose();
+    progressNotifier.dispose();
     vaults.lockStateChangeNotifier.removeListener(_onVaultsChanged);
     _disposeAllEntries();
   }

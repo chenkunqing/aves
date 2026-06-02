@@ -185,10 +185,11 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
       contentLog,
     ].join('\n--------------------------------------------------------------------------------\n');
 
+    final date = DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now());
     final success = await storageService.createFile(
-      'aves-logs-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(DateTime.now())}.txt',
-      MimeTypes.plainText,
-      Uint8List.fromList(utf8.encode(logs)),
+      basename: 'aves-logs-$date',
+      mimeType: MimeTypes.plainText,
+      bytes: utf8.encode(logs),
     );
     if (success != null) {
       if (success) {

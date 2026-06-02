@@ -36,7 +36,7 @@ class _TimeToTakeActionTileState extends State<TimeToTakeActionTile> {
           getName: (context, v) => v.getName(context),
           selector: (context, s) => s.timeToTakeAction,
           onSelection: (v) => settings.timeToTakeAction = v,
-          tileTitle: context.l10n.settingsTimeToTakeActionTile,
+          tileTitle: (context) => context.l10n.settingsTimeToTakeActionTile,
         );
       },
     );

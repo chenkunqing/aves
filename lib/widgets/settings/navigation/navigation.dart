@@ -110,7 +110,7 @@ class SettingsTileNavigationHomePage extends SettingsTile {
       customCollection: v.customCollection,
       customExplorerPath: v.customExplorerPath,
     ),
-    tileTitle: title(context),
+    tileTitle: title,
     dialogTitle: context.l10n.settingsHomeDialogTitle,
     optionSubtitleBuilder: (v) => v.getDetails(context),
   );
@@ -122,7 +122,7 @@ class SettingsTileNavigationDrawer extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
+    title: title,
     routeName: NavigationDrawerEditorPage.routeName,
     builder: (context) => const NavigationDrawerEditorPage(),
   );
@@ -134,7 +134,7 @@ class SettingsTileNavigationBottomActions extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
+    title: title,
     routeName: BottomNavigationActionEditorPage.routeName,
     builder: (context) => const BottomNavigationActionEditorPage(),
   );
@@ -146,7 +146,7 @@ class SettingsTileNavigationConfirmationDialog extends SettingsTile {
 
   @override
   Widget build(BuildContext context) => SettingsSubPageTile(
-    title: title(context),
+    title: title,
     routeName: ConfirmationDialogPage.routeName,
     builder: (context) => const ConfirmationDialogPage(),
   );
@@ -162,7 +162,7 @@ class SettingsTileNavigationKeepScreenOn extends SettingsTile {
     getName: (context, v) => v.getName(context),
     selector: (context, s) => s.keepScreenOn,
     onSelection: (v) => settings.keepScreenOn = v,
-    tileTitle: title(context),
+    tileTitle: title,
     dialogTitle: context.l10n.settingsKeepScreenOnDialogTitle,
   );
 }
@@ -175,6 +175,6 @@ class SettingsTileNavigationDoubleBackExit extends SettingsTile {
   Widget build(BuildContext context) => SettingsSwitchListTile(
     selector: (context, s) => s.mustBackTwiceToExit,
     onChanged: (v) => settings.mustBackTwiceToExit = v,
-    title: title(context),
+    title: title,
   );
 }

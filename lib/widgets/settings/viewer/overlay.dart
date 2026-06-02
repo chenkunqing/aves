@@ -37,15 +37,15 @@ class ViewerOverlayPage extends StatelessWidget {
               SettingsSwitchListTile(
                 selector: (context, s) => s.showOverlayOnOpening,
                 onChanged: (v) => settings.showOverlayOnOpening = v,
-                title: l10n.settingsViewerShowOverlayOnOpening,
+                title: (_) => l10n.settingsViewerShowOverlayOnOpening,
               ),
               const Divider(height: 32),
             ],
             SettingsSwitchListTile(
               selector: (context, s) => s.showOverlayInfo,
               onChanged: (v) => settings.showOverlayInfo = v,
-              title: l10n.settingsViewerShowInformation,
-              subtitle: l10n.settingsViewerShowInformationSubtitle,
+              title: (_) => l10n.settingsViewerShowInformation,
+              subtitle: (_) => l10n.settingsViewerShowInformationSubtitle,
             ),
             Selector<Settings, bool>(
               selector: (context, s) => s.showOverlayInfo,
@@ -53,7 +53,7 @@ class ViewerOverlayPage extends StatelessWidget {
                 return SettingsSwitchListTile(
                   selector: (context, s) => s.showOverlayShootingDetails,
                   onChanged: showInfo ? (v) => settings.showOverlayShootingDetails = v : null,
-                  title: l10n.settingsViewerShowShootingDetails,
+                  title: (_) => l10n.settingsViewerShowShootingDetails,
                   trailing: _trailingIcon(context, AIcons.shooting),
                 );
               },
@@ -64,7 +64,7 @@ class ViewerOverlayPage extends StatelessWidget {
                 return SettingsSwitchListTile(
                   selector: (context, s) => s.showOverlayRatingTags,
                   onChanged: showInfo ? (v) => settings.showOverlayRatingTags = v : null,
-                  title: l10n.settingsViewerShowRatingTags,
+                  title: (_) => l10n.settingsViewerShowRatingTags,
                   trailing: _trailingIcon(context, AIcons.tag),
                 );
               },
@@ -75,7 +75,7 @@ class ViewerOverlayPage extends StatelessWidget {
                 return SettingsSwitchListTile(
                   selector: (context, s) => s.showOverlayDescription,
                   onChanged: showInfo ? (v) => settings.showOverlayDescription = v : null,
-                  title: l10n.settingsViewerShowDescription,
+                  title: (_) => l10n.settingsViewerShowDescription,
                   trailing: _trailingIcon(context, AIcons.description),
                 );
               },
@@ -85,13 +85,13 @@ class ViewerOverlayPage extends StatelessWidget {
               SettingsSwitchListTile(
                 selector: (context, s) => s.showOverlayZoomLevel,
                 onChanged: (v) => settings.showOverlayZoomLevel = v,
-                title: l10n.settingsViewerShowZoomLevel,
+                title: (_) => l10n.settingsViewerShowZoomLevel,
                 trailing: _trailingIcon(context, AIcons.zoomLevel),
               ),
               SettingsSwitchListTile(
                 selector: (context, s) => s.showOverlayMinimap,
                 onChanged: (v) => settings.showOverlayMinimap = v,
-                title: l10n.settingsViewerShowMinimap,
+                title: (_) => l10n.settingsViewerShowMinimap,
                 trailing: _trailingIcon(context, AIcons.minimap),
               ),
               SettingsSelectionListTile<OverlayHistogramStyle>(
@@ -99,7 +99,7 @@ class ViewerOverlayPage extends StatelessWidget {
                 getName: (context, v) => v.getName(context),
                 selector: (context, s) => s.overlayHistogramStyle,
                 onSelection: (v) => settings.overlayHistogramStyle = v,
-                tileTitle: l10n.settingsViewerShowHistogram,
+                tileTitle: (_) => l10n.settingsViewerShowHistogram,
                 trailingBuilder: (context) {
                   final style = context.select<Settings, OverlayHistogramStyle>((v) => v.overlayHistogramStyle);
                   return SettingSwitchTrailingIcon(
@@ -113,7 +113,7 @@ class ViewerOverlayPage extends StatelessWidget {
               SettingsSwitchListTile(
                 selector: (context, s) => s.showOverlayThumbnailPreview,
                 onChanged: (v) => settings.showOverlayThumbnailPreview = v,
-                title: l10n.settingsViewerShowOverlayThumbnails,
+                title: (_) => l10n.settingsViewerShowOverlayThumbnails,
                 trailing: _trailingIcon(context, AIcons.thumbnailBar),
               ),
             ],

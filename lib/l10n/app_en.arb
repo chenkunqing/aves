@@ -986,9 +986,10 @@
   "settingsSubtitleThemeTextAlignmentRight": "Right",
 
   "settingsPrivacySectionTitle": "Privacy",
-  "settingsAllowInstalledAppAccess": "Allow access to app inventory",
+  "settingsAllowInstalledAppAccess": "Access to app inventory",
   "settingsAllowInstalledAppAccessSubtitle": "Used to improve album display",
-  "settingsAllowErrorReporting": "Allow anonymous error reporting",
+  "settingsAllowErrorReporting": "Anonymous error reporting",
+  "settingsAutoExportSettings": "Auto settings export",
   "settingsSaveSearchHistory": "Save search history",
   "settingsEnableBin": "Use recycle bin",
   "settingsEnableBinSubtitle": "Keep deleted items for 30 days",

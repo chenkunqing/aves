@@ -440,6 +440,7 @@ class Settings
             } else {
               debugPrint('failed to import key=$key, value=$newValue is not a bool');
             }
+          case SettingKeys.autoExportPathKey:
           case SettingKeys.localeKey:
           case SettingKeys.displayRefreshRateModeKey:
           case SettingKeys.themeBrightnessKey:

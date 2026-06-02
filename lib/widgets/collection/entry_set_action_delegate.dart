@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:aves/app_mode.dart';
 import 'package:aves/model/device.dart';
@@ -439,7 +438,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         .toList();
     final bounds = ZoomedBounds.fromPoints(points: waypoints.map((v) => LatLng(v.lat!, v.lon!)).toSet());
 
-    final dateTime = DateTime.now();
+    final gpxDate = DateTime.now();
     final gpx = Gpx()
       ..creator = device.userAgent
       ..metadata = Metadata(
@@ -447,7 +446,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
           name: device.userAgent,
           link: Link(href: AppReference.avesGithub),
         ),
-        time: dateTime,
+        time: gpxDate,
         bounds: Bounds(
           minlat: bounds.sw.latitude,
           minlon: bounds.sw.longitude,
@@ -469,10 +468,11 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
 
     final body = GpxWriter().asString(gpx);
     const mimeType = MimeTypes.gpx;
+    final date = DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(gpxDate);
     final success = await storageService.createFile(
-      'aves-gpx-${DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(dateTime)}${MimeTypes.extensionFor(mimeType)}',
-      mimeType,
-      Uint8List.fromList(utf8.encode(body)),
+      basename: 'aves-gpx-$date',
+      mimeType: mimeType,
+      bytes: utf8.encode(body),
     );
     if (success != null) {
       if (success) {
