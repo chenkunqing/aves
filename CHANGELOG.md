@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 - Map : increased max zoom level for HOT/Watercolor layers
 - Map : removed max zoom limit for custom layers
+- upgraded Flutter to stable v3.44.1
 
 ### Fixed
 
