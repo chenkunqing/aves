@@ -742,20 +742,23 @@ class _AvesAppContentDecoratorState extends State<AvesAppContentDecorator> with 
       if (source.isReady) {
         final dirPath = settings.autoExportPath;
         if (dirPath != null) {
-          await reportService.log('Auto export settings to dirPath=$dirPath');
-
           final content = SettingsActionDelegate.getExportContent(
             source: source,
             toExport: AppExportItem.values.toSet(),
           );
           const mimeType = MimeTypes.json;
-
+          const suffix = kProfileMode
+              ? '-profile'
+              : kDebugMode
+              ? '-debug'
+              : '';
           final success = await storageService.createFile(
             dirPath: dirPath,
-            basename: 'aves-settings-auto',
+            basename: 'aves$suffix-settings-auto',
             mimeType: mimeType,
             bytes: content,
           );
+
           if (success != null) {
             if (success) {
               await reportService.log('Exported settings to dirPath=$dirPath');

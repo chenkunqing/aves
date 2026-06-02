@@ -466,13 +466,13 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         ),
       ];
 
-    final body = GpxWriter().asString(gpx);
+    final gpxContent = GpxWriter().asString(gpx);
     const mimeType = MimeTypes.gpx;
     final date = DateFormat('yyyyMMdd_HHmmss', kAsciiLocale).format(gpxDate);
     final success = await storageService.createFile(
       basename: 'aves-gpx-$date',
       mimeType: mimeType,
-      bytes: utf8.encode(body),
+      bytes: utf8.encode(gpxContent),
     );
     if (success != null) {
       if (success) {

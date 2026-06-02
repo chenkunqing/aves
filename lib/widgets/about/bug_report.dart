@@ -179,7 +179,7 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
     final contentSettings = const JsonEncoder.withIndent('  ').convert(AppExportItem.settings.export(context.read<CollectionSource>()));
     final contentLog = (await Process.run('logcat', ['-d'])).stdout as String;
 
-    final logs = [
+    final mixedContent = [
       contentInfo,
       contentSettings,
       contentLog,
@@ -189,7 +189,7 @@ class _BugReportContentState extends State<BugReportContent> with FeedbackMixin 
     final success = await storageService.createFile(
       basename: 'aves-logs-$date',
       mimeType: MimeTypes.plainText,
-      bytes: utf8.encode(logs),
+      bytes: utf8.encode(mixedContent),
     );
     if (success != null) {
       if (success) {

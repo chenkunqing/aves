@@ -162,19 +162,19 @@ class _ExportCollectionStatsPageState extends State<ExportCollectionStatsPage> w
     final index = ExportableEntryField.values.indexOf;
     final fieldList = fieldSet.sorted((a, b) => index(a).compareTo(index(b)));
 
-    String body = '';
+    String content = '';
     switch (mimeType) {
       case MimeTypes.csv:
-        body = _exportToCsv(fieldList, context);
+        content = _exportToCsv(fieldList, context);
       case MimeTypes.json:
-        body = _exportToJson(fieldList);
+        content = _exportToJson(fieldList);
     }
 
     final bool? success;
     switch (target) {
       case .clipboard:
         try {
-          success = await appService.copyToClipboard(text: body);
+          success = await appService.copyToClipboard(text: content);
         } on TooManyItemsException catch (_) {
           await showWarningDialog(
             context: context,
@@ -187,7 +187,7 @@ class _ExportCollectionStatsPageState extends State<ExportCollectionStatsPage> w
         success = await storageService.createFile(
           basename: 'aves-stats-$date',
           mimeType: mimeType,
-          bytes: utf8.encode(body),
+          bytes: utf8.encode(content),
         );
     }
     if (success != null) {

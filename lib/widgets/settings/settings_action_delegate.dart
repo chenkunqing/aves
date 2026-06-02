@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/ref/locales.dart';
@@ -10,6 +9,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/app_export/items.dart';
 import 'package:aves/widgets/settings/app_export/selection_dialog.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +38,8 @@ class SettingsActionDelegate with FeedbackMixin {
       }).nonNulls,
     );
     allMap[_exportVersionKey] = _exportVersion;
-    final allJsonString = jsonEncode(allMap);
-    return utf8.encode(allJsonString);
+    final jsonContent = const JsonEncoder.withIndent('  ').convert(allMap);
+    return utf8.encode(jsonContent);
   }
 
   Future<void> _export(BuildContext context) async {
