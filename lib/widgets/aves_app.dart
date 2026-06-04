@@ -294,6 +294,10 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                               child: MaterialApp(
                                 navigatorKey: navigatorKey,
                                 home: home,
+                                onUnknownRoute: (settings) {
+                                  reportService.recordError(Exception('Could not find a generator for route $settings in the $runtimeType.'));
+                                  return null;
+                                },
                                 navigatorObservers: _navigatorObservers,
                                 builder: (context, child) => AvesAppContentDecorator(
                                   initialized: initialized,
