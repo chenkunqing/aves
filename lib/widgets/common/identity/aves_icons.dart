@@ -43,7 +43,7 @@ class VideoIcon extends StatelessWidget {
 class AnimatedImageIcon extends StatelessWidget {
   const AnimatedImageIcon({super.key});
 
-  static const scale = .8;
+  static const scale = .75;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class HdrIcon extends StatelessWidget {
 class PanoramaIcon extends StatelessWidget {
   const PanoramaIcon({super.key});
 
-  static const scale = .85;
+  static const scale = .8;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +100,7 @@ class FavouriteIcon extends StatelessWidget {
     return const OverlayIcon(
       icon: AIcons.favourite,
       iconScale: scale,
+      relativeOffset: Offset(0, .05),
     );
   }
 }
@@ -156,7 +157,7 @@ class RawIcon extends StatelessWidget {
 class MotionPhotoIcon extends StatelessWidget {
   const MotionPhotoIcon({super.key});
 
-  static const scale = .8;
+  static const scale = .85;
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +223,8 @@ class RatingIcon extends StatelessWidget {
 class TrashIcon extends StatelessWidget {
   final int? trashDaysLeft;
 
+  static const scale = .85;
+
   const TrashIcon({
     super.key,
     required this.trashDaysLeft,
@@ -231,6 +234,7 @@ class TrashIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final child = OverlayIcon(
       icon: AIcons.bin,
+      iconScale: scale,
       text: trashDaysLeft != null ? context.l10n.timeDays(trashDaysLeft!) : null,
     );
 
