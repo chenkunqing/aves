@@ -31,6 +31,7 @@ import 'package:aves/ref/mime_types.dart';
 import 'package:aves/services/app_service.dart';
 import 'package:aves/services/common/image_op_events.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves/services/intent_service.dart';
 import 'package:aves/services/media/media_edit_service.dart';
 import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/themes.dart';
@@ -132,6 +133,11 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         return isMain && isSelecting && !isTrash && canWrite;
       case .restore:
         return isMain && isSelecting && isTrash && canWrite;
+      // fab
+      case .pickCollectionFilters:
+        return appMode == .pickCollectionFiltersExternal;
+      case .pickMultipleMedia:
+        return appMode == .pickMultipleMediaExternal;
     }
   }
 
@@ -187,6 +193,11 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .editRating:
       case .editTags:
       case .removeMetadata:
+        return hasSelection;
+      // fab
+      case .pickCollectionFilters:
+        return true;
+      case .pickMultipleMedia:
         return hasSelection;
     }
   }
@@ -260,6 +271,11 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _editTags(context);
       case .removeMetadata:
         _removeMetadata(context);
+      // fab
+      case .pickCollectionFilters:
+        _pickCollectionFilters(context);
+      case .pickMultipleMedia:
+        _pickMultipleMedia(context);
     }
   }
 
@@ -930,5 +946,23 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
   void _setHome(BuildContext context) async {
     settings.setHome(HomePageSetting.collection, customCollection: context.read<CollectionLens>().filters);
     showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
+  }
+
+  Future<void> _pickCollectionFilters(BuildContext context) async {
+    final filters = context.read<CollectionLens>().filters;
+    await IntentService.submitPickedCollectionFilters(filters);
+  }
+
+  Future<void> _pickMultipleMedia(BuildContext context) async {
+    final selection = context.read<Selection<AvesEntry>>();
+    final uris = selection.selectedItems.map((entry) => entry.uri).toList();
+    try {
+      await IntentService.submitPickedItems(uris);
+    } on TooManyItemsException catch (_) {
+      await showWarningDialog(
+        context: context,
+        message: context.l10n.tooManyItemsErrorDialogMessage,
+      );
+    }
   }
 }

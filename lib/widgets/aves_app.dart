@@ -675,8 +675,8 @@ class _AvesAppContentDecoratorState extends State<AvesAppContentDecorator> with 
   void didUpdateWidget(covariant AvesAppContentDecorator oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!oldWidget.initialized && widget.initialized) {
-      _onTvLayoutChanged();
       AvesApp.setSystemUIStyle(Theme.of(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onTvLayoutChanged());
     }
   }
 

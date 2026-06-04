@@ -42,7 +42,7 @@ class PrivacySection extends SettingsSection {
       SettingsTilePrivacyAllowInstalledAppAccess(),
       if (canEnableErrorReporting) SettingsTilePrivacyAllowErrorReporting(),
       if (!settings.useTvLayout && device.canRequestManageMedia) SettingsTilePrivacyManageMedia(),
-      SettingsTilePrivacyAutoExportSettings(),
+      if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
       SettingsTilePrivacySaveSearchHistory(),
       if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
       SettingsTilePrivacyHiddenItems(),

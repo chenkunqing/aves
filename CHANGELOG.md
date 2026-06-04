@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 
 - Collection: video thumbnail generation fallback when the Android codecs fail
+- TV: missing button to pick collection for screen saver
 
 ## <a id="v1.14.5"></a>[v1.14.5] - 2026-05-30
 

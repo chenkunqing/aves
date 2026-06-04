@@ -213,11 +213,12 @@ class _StatsPageState extends State<StatsPage> with FeedbackMixin, VaultAwareMix
             automaticallyImplyLeading: !useTvLayout,
             title: Text(l10n.statsPageTitle),
             actions: [
-              IconButton(
-                icon: const Icon(AIcons.fileExport),
-                onPressed: () => _export(context),
-                tooltip: context.l10n.settingsActionExport,
-              ),
+              if (!settings.isReadOnly)
+                IconButton(
+                  icon: const Icon(AIcons.fileExport),
+                  onPressed: () => _export(context),
+                  tooltip: context.l10n.settingsActionExport,
+                ),
             ],
           ),
           body: GestureAreaProtectorStack(

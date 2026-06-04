@@ -10,7 +10,7 @@ import 'package:aves/services/app_service.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/themes.dart';
 import 'package:aves/utils/mime_utils.dart';
-import 'package:aves/view/src/metadata/exportable_fields.dart';
+import 'package:aves/view/view.dart';
 import 'package:aves/widgets/common/action_mixins/feedback.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/basic/text/outlined.dart';
