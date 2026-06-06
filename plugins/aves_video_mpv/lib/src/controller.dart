@@ -228,13 +228,21 @@ class MpvVideoController extends AvesVideoController {
       case .enabled:
         hwdec = 'auto-safe';
       case .forced:
-        hwdec = 'mediacodec';
+        // https://mpv.io/manual/stable/#options-hwdec says:
+        // mediacodec is not safe. It forces RGB conversion (not with -copy) and
+        // how well it handles non-standard colorspaces is not known.
+        // In the rare cases where 10-bit is supported the bit depth of the output will be reduced to 8.
+        hwdec = 'mediacodec'; // seems similar with 'mediacodec-copy'
     }
-    var videoControllerConfiguration = VideoControllerConfiguration(
-      hwdec: hwdec,
+    // as of `media_kit_video` v2.0.1, the following properties are set internally:
+    // - 'gpu-context': 'android',
+    // - 'hwdec-codecs': 'h264,hevc,mpeg4,mpeg2video,vp8,vp9,av1',
+    return VideoControllerConfiguration(
+      vo: 'gpu', // 'gpu-next' / 'mediacodec_embed' are not usable as of `media_kit_video` v2.0.1, `media_kit_libs_android_video` v1.3.8
+      hwdec: hwdec, // default: 'auto-safe'
       enableHardwareAcceleration: hardwareAcceleration != VideoHardwareAcceleration.disabled,
+      androidAttachSurfaceAfterVideoParameters: true,
     );
-    return videoControllerConfiguration;
   }
 
   @override

@@ -795,6 +795,7 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
       final collectionEntries = collection!.sortedEntries;
       removedEntries.forEach((removedEntry) {
         // remove from collection
+        // TODO TLAD local collection removal w/o modifying `sortedEntries` so it can be `List.unmodifiable(...)`
         if (collectionEntries.remove(removedEntry)) return;
 
         // remove from burst

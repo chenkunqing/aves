@@ -566,8 +566,8 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
           builder: (context, queryEnabled, child) {
             return TitleSearchToggler(
               queryEnabled: queryEnabled,
-              onPressed: onPressed,
               focusNode: focusNode,
+              onPressed: onPressed,
             );
           },
         );
@@ -635,7 +635,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
   }
 
   PopupMenuItem<EntrySetAction> _toMenuItem(EntrySetAction action, {required bool enabled, required Selection<AvesEntry> selection}) {
-    late Widget child;
+    final Widget child;
     switch (action) {
       case .toggleTitleSearch:
         child = TitleSearchToggler(
