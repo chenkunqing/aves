@@ -149,6 +149,7 @@ class SettingKeys {
   // map
   static const mapStyleKey = 'info_map_style';
   static const mapDefaultCenterKey = 'map_default_center';
+  static const mapShowItemTracksKey = 'map_show_item_tracks';
   static const customMapStylesKey = 'custom_map_styles';
 
   // search

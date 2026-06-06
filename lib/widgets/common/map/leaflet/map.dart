@@ -27,10 +27,10 @@ class EntryLeafletMap<T> extends StatefulWidget {
   final MarkerClusterBuilder<T> markerClusterBuilder;
   final MarkerWidgetBuilder<T> markerWidgetBuilder;
   final ValueNotifier<LatLng?>? dotLocationNotifier;
+  final ValueNotifier<Set<List<LatLng>>> tracksNotifier;
   final Size markerSize, dotMarkerSize;
   final ValueNotifier<double>? overlayOpacityNotifier;
   final MapOverlay? overlayEntry;
-  final Set<List<LatLng>>? tracks;
   final UserZoomChangeCallback? onUserZoomChange;
   final MapTapCallback? onMapTap;
   final MarkerTapCallback<T>? onMarkerTap;
@@ -47,11 +47,11 @@ class EntryLeafletMap<T> extends StatefulWidget {
     required this.markerClusterBuilder,
     required this.markerWidgetBuilder,
     required this.dotLocationNotifier,
+    required this.tracksNotifier,
     required this.markerSize,
     required this.dotMarkerSize,
     this.overlayOpacityNotifier,
     this.overlayEntry,
-    this.tracks,
     this.onUserZoomChange,
     this.onMapTap,
     this.onMarkerTap,
@@ -177,7 +177,7 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
       children: [
         _buildMapLayer(style),
         if (widget.overlayEntry != null) _buildOverlayImageLayer(),
-        if (widget.tracks != null) _buildTracksLayer(),
+        _buildTracksLayer(),
         MarkerLayer(
           markers: markers,
           rotate: true,
@@ -256,20 +256,24 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
   }
 
   Widget _buildTracksLayer() {
-    final tracks = widget.tracks;
-    if (tracks == null) return const SizedBox();
-
     final trackColor = Theme.of(context).colorScheme.primary;
-    return PolylineLayer(
-      polylines: tracks
-          .map(
-            (v) => Polyline(
-              points: v,
-              strokeWidth: MapThemeData.trackWidth.toDouble(),
-              color: trackColor,
-            ),
-          )
-          .toList(),
+    return NullableValueListenableBuilder<Set<List<LatLng>>>(
+      valueListenable: widget.tracksNotifier,
+      builder: (context, tracks, child) {
+        if (tracks == null) return const SizedBox();
+
+        return PolylineLayer(
+          polylines: tracks
+              .map(
+                (v) => Polyline(
+                  points: v,
+                  strokeWidth: MapThemeData.trackWidth.toDouble(),
+                  color: trackColor,
+                ),
+              )
+              .toList(),
+        );
+      },
     );
   }
 

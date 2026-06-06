@@ -70,7 +70,7 @@ Future<void> _search(String query, String chipKey) async {
 }
 
 Future<void> _selectMapStyle(String styleKey) async {
-  await driver.tapKeyAndWait('map-menu-layers');
+  await driver.tapKeyAndWait('map-menu-selectStyle');
   await driver.tapKeyAndWait(styleKey);
 
   // tiles may take time to load

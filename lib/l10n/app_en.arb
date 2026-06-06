@@ -1087,6 +1087,8 @@
   "mapStyleEditorDialogUserAgent": "User-Agent",
   "mapZoomInTooltip": "Zoom in",
   "mapZoomOutTooltip": "Zoom out",
+  "mapShowItemTracks": "Show paths",
+  "mapHideItemTracks": "Hide paths",
   "mapPointNorthUpTooltip": "Point north up",
   "mapAttributionOsmData": "Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors",
   "mapAttributionOsmLiberty": "Tiles by [OpenMapTiles](https://www.openmaptiles.org/), [CC BY](http://creativecommons.org/licenses/by/4.0) • Hosted by [OSM Americana](https://tile.ourmap.us)",
