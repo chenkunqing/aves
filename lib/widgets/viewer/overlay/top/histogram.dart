@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:aves/model/entry/entry.dart';
-import 'package:aves/widgets/viewer/overlay/top.dart';
+import 'package:aves/widgets/viewer/overlay/top/top.dart';
 import 'package:aves/widgets/viewer/view/controller.dart';
 import 'package:aves/widgets/viewer/view/histogram.dart';
 import 'package:collection/collection.dart';

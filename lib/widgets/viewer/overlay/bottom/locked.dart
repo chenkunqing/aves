@@ -5,7 +5,7 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';
 import 'package:aves/widgets/common/identity/buttons/overlay_button.dart';
 import 'package:aves/widgets/viewer/controls/notifications.dart';
-import 'package:aves/widgets/viewer/overlay/viewer_buttons.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/viewer_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

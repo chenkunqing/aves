@@ -4,7 +4,7 @@ import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/identity/buttons/overlay_button.dart';
 import 'package:aves/widgets/settings/common/quick_actions/action_panel.dart';
-import 'package:aves/widgets/viewer/overlay/video/controls.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/video/controls.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

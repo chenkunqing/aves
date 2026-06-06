@@ -1,5 +1,5 @@
 import 'package:aves/theme/icons.dart';
-import 'package:aves/widgets/viewer/overlay/details/details.dart';
+import 'package:aves/widgets/viewer/overlay/top/details/details.dart';
 import 'package:decorated_icon/decorated_icon.dart';
 import 'package:flutter/material.dart';
 

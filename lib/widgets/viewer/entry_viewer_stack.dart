@@ -24,12 +24,12 @@ import 'package:aves/widgets/viewer/controls/notifications.dart';
 import 'package:aves/widgets/viewer/entry_vertical_pager.dart';
 import 'package:aves/widgets/viewer/hero.dart';
 import 'package:aves/widgets/viewer/multipage/conductor.dart';
-import 'package:aves/widgets/viewer/overlay/bottom.dart';
-import 'package:aves/widgets/viewer/overlay/locked.dart';
-import 'package:aves/widgets/viewer/overlay/panorama.dart';
-import 'package:aves/widgets/viewer/overlay/slideshow_buttons.dart';
-import 'package:aves/widgets/viewer/overlay/top.dart';
-import 'package:aves/widgets/viewer/overlay/video/video.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/bottom.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/locked.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/panorama.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/slideshow_buttons.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/video/video.dart';
+import 'package:aves/widgets/viewer/overlay/top/top.dart';
 import 'package:aves/widgets/viewer/page_entry_builder.dart';
 import 'package:aves/widgets/viewer/video/conductor.dart';
 import 'package:aves/widgets/viewer/view/conductor.dart';
@@ -284,9 +284,10 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
                         ]);
                       }
 
-                      // TODO TLAD [flutter vNext] wrap into `BackdropGroup`
-                      return Stack(
-                        children: children,
+                      return BackdropGroup(
+                        child: Stack(
+                          children: children,
+                        ),
                       );
                     },
                     child: viewer,
