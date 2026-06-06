@@ -17,6 +17,10 @@ class ServiceWindowHandler(service: Service) : WindowHandler(service) {
         result.success(null)
     }
 
+    override fun isCrossWindowBlurEnabled(call: MethodCall, result: MethodChannel.Result) {
+        result.success(false)
+    }
+
     override fun isInMultiWindowMode(call: MethodCall, result: MethodChannel.Result) {
         result.success(false)
     }

@@ -11,6 +11,8 @@ abstract class WindowService {
 
   Future<void> secureScreen(bool on);
 
+  Future<bool> isCrossWindowBlurEnabled();
+
   Future<bool> isInMultiWindowMode();
 
   Future<bool> isInPictureInPictureMode();
@@ -73,6 +75,18 @@ class PlatformWindowService implements WindowService {
       await reportService.recordError(e, stack);
     }
   }
+
+  @override
+  Future<bool> isCrossWindowBlurEnabled() async {
+    try {
+      final result = await _platform.invokeMethod('isCrossWindowBlurEnabled');
+      if (result != null) return result as bool;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return false;
+  }
+
 
   @override
   Future<bool> isInMultiWindowMode() async {

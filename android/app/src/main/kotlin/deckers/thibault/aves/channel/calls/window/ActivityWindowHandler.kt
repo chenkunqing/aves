@@ -64,6 +64,15 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
         result.success(activity.isInMultiWindowMode)
     }
 
+    override fun isCrossWindowBlurEnabled(call: MethodCall, result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            result.success(windowManager.isCrossWindowBlurEnabled)
+        } else {
+            result.success(false)
+        }
+    }
+
     override fun isInPictureInPictureMode(call: MethodCall, result: MethodChannel.Result) {
         result.success(activity.isInPictureInPictureMode)
     }

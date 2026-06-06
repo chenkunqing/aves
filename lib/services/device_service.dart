@@ -18,7 +18,7 @@ abstract class DeviceService {
   // 0 is Sunday
   Future<int?> getFirstDayOfWeekIndex();
 
-  Future<int> getPerformanceClass();
+  Future<int> getMediaPerformanceClass();
 
   Future<double?> getWidgetCornerRadiusPx();
 
@@ -114,9 +114,9 @@ class PlatformDeviceService extends DeviceService {
   }
 
   @override
-  Future<int> getPerformanceClass() async {
+  Future<int> getMediaPerformanceClass() async {
     try {
-      final result = await _platform.invokeMethod('getPerformanceClass');
+      final result = await _platform.invokeMethod('getMediaPerformanceClass');
       if (result != null) return result as int;
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);

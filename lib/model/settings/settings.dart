@@ -141,8 +141,8 @@ class Settings
 
   Future<void> setContextualDefaults(AppFlavor flavor) async {
     // performance
-    final performanceClass = await deviceService.getPerformanceClass();
-    enableBlurEffect = performanceClass >= 29;
+    final performanceClass = await deviceService.getMediaPerformanceClass();
+    enableBlurEffect = performanceClass >= 31;
 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final manufacturer = androidInfo.manufacturer.toLowerCase();

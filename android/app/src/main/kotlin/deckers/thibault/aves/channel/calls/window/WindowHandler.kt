@@ -14,6 +14,7 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
             "isActivity" -> Coresult.safe(call, result, ::isActivity)
             "keepScreenOn" -> Coresult.safe(call, result, ::keepScreenOn)
             "secureScreen" -> Coresult.safe(call, result, ::secureScreen)
+            "isCrossWindowBlurEnabled" -> Coresult.safe(call, result, ::isCrossWindowBlurEnabled)
             "isInMultiWindowMode" -> Coresult.safe(call, result, ::isInMultiWindowMode)
             "isInPictureInPictureMode" -> Coresult.safe(call, result, ::isInPictureInPictureMode)
             "isRotationLocked" -> Coresult.safe(call, result, ::isRotationLocked)
@@ -35,6 +36,8 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
     abstract fun keepScreenOn(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun secureScreen(call: MethodCall, result: MethodChannel.Result)
+
+    abstract fun isCrossWindowBlurEnabled(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun isInMultiWindowMode(call: MethodCall, result: MethodChannel.Result)
 

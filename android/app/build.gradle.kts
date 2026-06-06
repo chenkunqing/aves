@@ -206,6 +206,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.ktx)
+    implementation(libs.androidx.performance)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.media)
     implementation(libs.androidx.multidex)
