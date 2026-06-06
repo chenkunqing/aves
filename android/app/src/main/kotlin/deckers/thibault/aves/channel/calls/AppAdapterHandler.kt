@@ -221,15 +221,15 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
         // (e.g. Samsung S7 with Android 8.0 / API 26, but not on Tab A 10.1 with Android 8.1 / API 27)
         Handler(Looper.getMainLooper()).post {
             try {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                if (clipboard != null) {
+                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                if (clipboardManager != null) {
                     val clip: ClipData
                     if (uri != null) {
                         clip = ClipData.newUri(context.contentResolver, label, getShareableUri(context, uri))
                     } else {
                         clip = ClipData.newPlainText(label, text)
                     }
-                    clipboard.setPrimaryClip(clip)
+                    clipboardManager.setPrimaryClip(clip)
                     result.success(true)
                 } else {
                     result.success(false)
