@@ -57,7 +57,7 @@ class DateFilter extends CollectionFilter {
   @override
   Map<String, Object?> toMap() => {
     'type': type,
-    'level': level.toString(),
+    'level': level.name,
     'date': date?.toIso8601String(),
     if (reversed) 'reversed': reversed,
   };

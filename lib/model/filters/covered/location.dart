@@ -65,7 +65,7 @@ class LocationFilter extends CollectionFilter with CoveredFilter {
     }
     return {
       'type': type,
-      'level': level.toString(),
+      'level': level.name,
       'location': location,
       if (reversed) 'reversed': reversed,
     };

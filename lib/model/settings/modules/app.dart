@@ -103,7 +103,7 @@ mixin AppSettings on SettingsAccess {
 
   TileLayout getTileLayout(String routeName) => getEnumOrDefault(SettingKeys.tileLayoutPrefixKey + routeName, SettingsDefaults.tileLayout, TileLayout.values);
 
-  void setTileLayout(String routeName, TileLayout newValue) => set(SettingKeys.tileLayoutPrefixKey + routeName, newValue.toString());
+  void setTileLayout(String routeName, TileLayout newValue) => set(SettingKeys.tileLayoutPrefixKey + routeName, newValue.name);
 
   String get entryRenamingPattern => getString(SettingKeys.entryRenamingPatternKey) ?? SettingsDefaults.entryRenamingPattern;
 

@@ -19,7 +19,7 @@ mixin NavigationSettings on SettingsAccess {
 
   KeepScreenOn get keepScreenOn => getEnumOrDefault(SettingKeys.keepScreenOnKey, SettingsDefaults.keepScreenOn, KeepScreenOn.values);
 
-  set keepScreenOn(KeepScreenOn newValue) => set(SettingKeys.keepScreenOnKey, newValue.toString());
+  set keepScreenOn(KeepScreenOn newValue) => set(SettingKeys.keepScreenOnKey, newValue.name);
 
   HomePageSetting get homePage => getEnumOrDefault(SettingKeys.homePageKey, SettingsDefaults.homePage, HomePageSetting.values);
 
@@ -45,7 +45,7 @@ mixin NavigationSettings on SettingsAccess {
     Set<CollectionFilter> customCollection = const {},
     String? customExplorerPath,
   }) {
-    set(SettingKeys.homePageKey, homePage.toString());
+    set(SettingKeys.homePageKey, homePage.name);
     set(SettingKeys.homeCustomCollectionKey, customCollection.map((filter) => filter.toJson()).toList());
     set(SettingKeys.homeCustomExplorerPathKey, customExplorerPath);
   }
