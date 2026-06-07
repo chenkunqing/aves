@@ -370,6 +370,7 @@ class Settings
           case SettingKeys.showThumbnailMotionPhotoKey:
           case SettingKeys.showThumbnailRatingKey:
           case SettingKeys.showThumbnailRawKey:
+          case SettingKeys.showThumbnailSlowMotionVideoKey:
           case SettingKeys.showThumbnailVideoDurationKey:
           case SettingKeys.albumSortReverseKey:
           case SettingKeys.countrySortReverseKey:

@@ -216,6 +216,7 @@ class AIcons {
   static const motionPhoto = Symbols.motion_photos_on;
   static const multiPage = Symbols.burst_mode;
   static const panorama = Symbols.vrpano;
+  static const slowMotion = Symbols.slow_motion_video;
   static const sphericalVideo = Symbols.threesixty;
   static const videoPlay = Symbols.play_circle;
   static const selected = Symbols.check_circle;

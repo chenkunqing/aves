@@ -253,6 +253,8 @@ class AvesEntry with AvesEntryBase {
 
   bool get isHdr => _catalogMetadata?.isHdr ?? false;
 
+  bool get isSlowMotion => _catalogMetadata?.isSlowMotion ?? false;
+
   int get rating => _catalogMetadata?.rating ?? 0;
 
   @override

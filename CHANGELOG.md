@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Cataloguing: detect/filter slow motion videos
 - Map: show paths
 - Settings: automatic export option
 

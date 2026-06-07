@@ -126,6 +126,7 @@ class ViewerDebugPage extends StatelessWidget {
             'isHdr': '${entry.isHdr}',
             'isMultiPage': '${entry.isMultiPage}',
             'isMotionPhoto': '${entry.isMotionPhoto}',
+            'isSlowMotion': '${entry.isSlowMotion}',
             'canEdit': '${entry.canEdit}',
             'canEditDate': '${entry.canEditDate}',
             'canEditTags': '${entry.canEditTags}',

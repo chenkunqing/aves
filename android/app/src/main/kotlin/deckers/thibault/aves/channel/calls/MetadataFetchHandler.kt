@@ -42,6 +42,7 @@ import deckers.thibault.aves.metadata.GeoTiffKeys
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeDateMillis
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeDescription
+import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeDouble
 import deckers.thibault.aves.metadata.MediaMetadataRetrieverHelper.getSafeInt
 import deckers.thibault.aves.metadata.Metadata
 import deckers.thibault.aves.metadata.Metadata.DIR_DNG
@@ -933,6 +934,12 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
                 }
             }
 
+            if (isVideo(mimeType)) {
+                retriever.getSafeDouble(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE) {
+                    if (it >= SLOW_MOTION_MIN_CAPTURE_FRAME_RATE) flags = flags or MASK_IS_SLOW_MOTION
+                }
+            }
+
             metadataMap[KEY_FLAGS] = flags
         } catch (e: Exception) {
             Log.w(LOG_TAG, "failed to get catalog metadata by MediaMetadataRetriever for uri=$uri", e)
@@ -1473,6 +1480,7 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
         const val CHANNEL = "deckers.thibault/aves/metadata_fetch"
 
         private val doubleFormat = DecimalFormat("0.###")
+        private const val SLOW_MOTION_MIN_CAPTURE_FRAME_RATE = 120
 
         private val allMetadataRedundantDirNames = setOf(
             "MP4",
@@ -1528,6 +1536,7 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
         private const val MASK_IS_MULTIPAGE = 1 shl 4
         private const val MASK_IS_MOTION_PHOTO = 1 shl 5
         private const val MASK_IS_HDR = 1 shl 6 // for images: embedded HDR gainmap, for videos: HDR color transfer
+        private const val MASK_IS_SLOW_MOTION = 1 shl 7
         private const val XMP_SUBJECTS_SEPARATOR = ";"
 
         // overlay metadata

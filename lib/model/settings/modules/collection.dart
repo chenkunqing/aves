@@ -54,6 +54,10 @@ mixin CollectionSettings on SettingsAccess {
 
   set showThumbnailRaw(bool newValue) => set(SettingKeys.showThumbnailRawKey, newValue);
 
+  bool get showThumbnailSlowMotionVideo => getBool(SettingKeys.showThumbnailSlowMotionVideoKey) ?? SettingsDefaults.showThumbnailRaw;
+
+  set showThumbnailSlowMotionVideo(bool newValue) => set(SettingKeys.showThumbnailSlowMotionVideoKey, newValue);
+
   bool get showThumbnailVideoDuration => getBool(SettingKeys.showThumbnailVideoDurationKey) ?? SettingsDefaults.showThumbnailVideoDuration;
 
   set showThumbnailVideoDuration(bool newValue) => set(SettingKeys.showThumbnailVideoDurationKey, newValue);

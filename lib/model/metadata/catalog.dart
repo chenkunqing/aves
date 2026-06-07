@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class CatalogMetadata {
   final int id;
   final int? dateMillis;
-  final bool isAnimated, isGeotiff, is360, isMultiPage, isMotionPhoto, isHdr;
+  final bool isAnimated, isGeotiff, is360, isMultiPage, isMotionPhoto, isHdr, isSlowMotion;
   bool isFlipped;
   int? rotationDegrees;
   final String? mimeType, xmpSubjects, xmpTitle;
@@ -22,6 +22,7 @@ class CatalogMetadata {
   static const _isMultiPageMask = 1 << 4;
   static const _isMotionPhotoMask = 1 << 5;
   static const _isHdr = 1 << 6; // for images: embedded HDR gainmap, for videos: HDR color transfer
+  static const _isSlowMotion = 1 << 7;
 
   CatalogMetadata({
     required this.id,
@@ -34,6 +35,7 @@ class CatalogMetadata {
     this.isMultiPage = false,
     this.isMotionPhoto = false,
     this.isHdr = false,
+    this.isSlowMotion = false,
     this.rotationDegrees,
     this.xmpSubjects,
     this.xmpTitle,
@@ -76,6 +78,7 @@ class CatalogMetadata {
       isMultiPage: isMultiPage ?? this.isMultiPage,
       isMotionPhoto: isMotionPhoto,
       isHdr: isHdr,
+      isSlowMotion: isSlowMotion,
       rotationDegrees: rotationDegrees ?? this.rotationDegrees,
       xmpSubjects: xmpSubjects,
       xmpTitle: xmpTitle,
@@ -98,6 +101,7 @@ class CatalogMetadata {
       isMultiPage: flags & _isMultiPageMask != 0,
       isMotionPhoto: flags & _isMotionPhotoMask != 0,
       isHdr: flags & _isHdr != 0,
+      isSlowMotion: flags & _isSlowMotion != 0,
       // `rotationDegrees` should default to `sourceRotationDegrees`, not 0
       rotationDegrees: map['rotationDegrees'],
       xmpSubjects: map['xmpSubjects'] ?? '',
@@ -119,7 +123,8 @@ class CatalogMetadata {
         (is360 ? _is360Mask : 0) |
         (isMultiPage ? _isMultiPageMask : 0) |
         (isMotionPhoto ? _isMotionPhotoMask : 0) |
-        (isHdr ? _isHdr : 0),
+        (isHdr ? _isHdr : 0) |
+        (isSlowMotion ? _isSlowMotion : 0),
     'rotationDegrees': rotationDegrees,
     'xmpSubjects': xmpSubjects,
     'xmpTitle': xmpTitle,
@@ -131,6 +136,7 @@ class CatalogMetadata {
   @override
   String toString() =>
       '$runtimeType#${shortHash(this)}{id=$id, mimeType=$mimeType, dateMillis=$dateMillis'
-      ', isAnimated=$isAnimated, isFlipped=$isFlipped, isGeotiff=$isGeotiff, is360=$is360, isMultiPage=$isMultiPage, isMotionPhoto=$isMotionPhoto, isHdr=$isHdr'
+      ', isAnimated=$isAnimated, isFlipped=$isFlipped, isGeotiff=$isGeotiff, is360=$is360'
+      ', isMultiPage=$isMultiPage, isMotionPhoto=$isMotionPhoto, isHdr=$isHdr, isSlowMotion=$isSlowMotion'
       ', rotationDegrees=$rotationDegrees, xmpSubjects=$xmpSubjects, xmpTitle=$xmpTitle, latitude=$latitude, longitude=$longitude, rating=$rating}';
 }

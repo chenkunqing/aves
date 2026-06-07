@@ -31,42 +31,6 @@ class ThumbnailOverlayPage extends StatelessWidget {
         child: ListView(
           children: [
             SettingsSwitchListTile(
-              selector: (context, s) => s.showThumbnailFavourite,
-              onChanged: (v) => settings.showThumbnailFavourite = v,
-              title: (_) => l10n.settingsThumbnailShowFavouriteIcon,
-              trailing: Padding(
-                padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - FavouriteIcon.scale) / 2),
-                child: Icon(
-                  AIcons.favourite,
-                  size: iconSize * FavouriteIcon.scale,
-                  color: iconColor,
-                ),
-              ),
-            ),
-            SettingsSwitchListTile(
-              selector: (context, s) => s.showThumbnailMotionPhoto,
-              onChanged: (v) => settings.showThumbnailMotionPhoto = v,
-              title: (_) => l10n.settingsThumbnailShowMotionPhotoIcon,
-              trailing: Padding(
-                padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - MotionPhotoIcon.scale) / 2),
-                child: Icon(
-                  AIcons.motionPhoto,
-                  size: iconSize * MotionPhotoIcon.scale,
-                  color: iconColor,
-                ),
-              ),
-            ),
-            SettingsSwitchListTile(
-              selector: (context, s) => s.showThumbnailRating,
-              onChanged: (v) => settings.showThumbnailRating = v,
-              title: (_) => l10n.settingsThumbnailShowRating,
-              trailing: Icon(
-                AIcons.rating,
-                size: iconSize,
-                color: iconColor,
-              ),
-            ),
-            SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailHdr,
               onChanged: (v) => settings.showThumbnailHdr = v,
               title: (_) => l10n.settingsThumbnailShowHdrIcon,
@@ -87,9 +51,56 @@ class ThumbnailOverlayPage extends StatelessWidget {
               ),
             ),
             SettingsSwitchListTile(
+              selector: (context, s) => s.showThumbnailMotionPhoto,
+              onChanged: (v) => settings.showThumbnailMotionPhoto = v,
+              title: (_) => l10n.settingsThumbnailShowMotionPhotoIcon,
+              trailing: Padding(
+                padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - MotionPhotoIcon.scale) / 2),
+                child: Icon(
+                  AIcons.motionPhoto,
+                  size: iconSize * MotionPhotoIcon.scale,
+                  color: iconColor,
+                ),
+              ),
+            ),
+            SettingsSwitchListTile(
+              selector: (context, s) => s.showThumbnailSlowMotionVideo,
+              onChanged: (v) => settings.showThumbnailSlowMotionVideo = v,
+              title: (_) => l10n.showThumbnailSlowMotionVideoIcon,
+              trailing: Icon(
+                AIcons.slowMotion,
+                size: iconSize,
+                color: iconColor,
+              ),
+            ),
+            SettingsSwitchListTile(
               selector: (context, s) => s.showThumbnailVideoDuration,
               onChanged: (v) => settings.showThumbnailVideoDuration = v,
               title: (_) => l10n.settingsThumbnailShowVideoDuration,
+            ),
+            const Divider(),
+            SettingsSwitchListTile(
+              selector: (context, s) => s.showThumbnailFavourite,
+              onChanged: (v) => settings.showThumbnailFavourite = v,
+              title: (_) => l10n.settingsThumbnailShowFavouriteIcon,
+              trailing: Padding(
+                padding: EdgeInsets.symmetric(horizontal: iconSize * (1 - FavouriteIcon.scale) / 2),
+                child: Icon(
+                  AIcons.favourite,
+                  size: iconSize * FavouriteIcon.scale,
+                  color: iconColor,
+                ),
+              ),
+            ),
+            SettingsSwitchListTile(
+              selector: (context, s) => s.showThumbnailRating,
+              onChanged: (v) => settings.showThumbnailRating = v,
+              title: (_) => l10n.settingsThumbnailShowRating,
+              trailing: Icon(
+                AIcons.rating,
+                size: iconSize,
+                color: iconColor,
+              ),
             ),
             SettingsTileThumbnailLocationIcon().build(context),
             SettingsTileThumbnailTagIcon().build(context),
