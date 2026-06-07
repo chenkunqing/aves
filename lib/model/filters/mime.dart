@@ -54,7 +54,7 @@ class MimeFilter extends CollectionFilter {
   Map<String, Object?> toMap() => {
     'type': type,
     'mime': mime,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

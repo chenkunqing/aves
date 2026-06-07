@@ -51,9 +51,9 @@ class AvesEntry with AvesEntryBase {
   Set<AvesEntry> toSelectableItems() => stackedEntries != null ? Set.unmodifiable(stackedEntries!) : {this};
 
   @override
-  final AChangeNotifier visualChangeNotifier = AChangeNotifier();
+  final AChangeNotifier visualChangeNotifier = .new();
 
-  final AChangeNotifier metadataChangeNotifier = AChangeNotifier(), addressChangeNotifier = AChangeNotifier();
+  final AChangeNotifier metadataChangeNotifier = .new(), addressChangeNotifier = .new();
 
   AvesEntry({
     required int? id,

@@ -1,3 +1,4 @@
+export 'src/collection_utils.dart';
 export 'src/color_extractor.dart';
 export 'src/colors.dart';
 export 'src/dart_utils.dart';

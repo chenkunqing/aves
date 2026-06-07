@@ -41,7 +41,7 @@ class AspectRatioFilter extends CollectionFilter {
     'type': type,
     'threshold': threshold,
     'op': op,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

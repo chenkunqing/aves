@@ -61,6 +61,6 @@ abstract class GroupBaseFilter extends CollectionFilter with ContainerFilter, Co
     'type': category,
     'uri': uri.toString(),
     'filter': filter.toJson(),
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 }

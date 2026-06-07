@@ -37,7 +37,7 @@ class CoordinateFilter extends CollectionFilter {
     'type': type,
     'sw': sw.toJson(),
     'ne': ne.toJson(),
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

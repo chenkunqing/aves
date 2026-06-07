@@ -175,7 +175,7 @@ class _HomeWidgetSettingsPageState extends State<HomeWidgetSettingsPage> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         itemBuilder: (context, index) {
-          final shape = WidgetShape.values[index];
+          final shape = shapes[index];
           final selected = shape == _shape;
           final duration = context.read<DurationsData>().formTransition;
           return Padding(

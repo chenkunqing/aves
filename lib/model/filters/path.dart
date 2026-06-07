@@ -41,7 +41,7 @@ class PathFilter extends CollectionFilter {
   Map<String, Object?> toMap() => {
     'type': type,
     'path': path,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

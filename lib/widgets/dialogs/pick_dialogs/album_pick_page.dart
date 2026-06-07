@@ -41,7 +41,7 @@ import 'package:provider/provider.dart';
 Future<AlbumBaseFilter?> pickAlbum({
   required BuildContext context,
   required MoveType? moveType,
-  required Iterable<AlbumChipType> chipTypes,
+  required Set<AlbumChipType> chipTypes,
   required Uri? initialGroup,
   GroupUriPredicate? isValidGroupPick,
 }) async {
@@ -71,7 +71,7 @@ class _AlbumPickPage extends StatefulWidget {
 
   final CollectionSource source;
   final MoveType? moveType;
-  final Iterable<AlbumChipType> chipTypes;
+  final Set<AlbumChipType> chipTypes;
   final Uri? initialGroup;
   final GroupUriPredicate? isValidGroupPick;
 
@@ -93,11 +93,11 @@ class _AlbumPickPageState extends State<_AlbumPickPage> with FeedbackMixin, Vaul
 
   CollectionSource get source => widget.source;
 
-  Iterable<AlbumChipType> get albumChipTypes => widget.chipTypes;
+  Set<AlbumChipType> get albumChipTypes => widget.chipTypes;
 
   bool get isPickingGroup => albumChipTypes.length == 1 && albumChipTypes.contains(AlbumChipType.group);
 
-  bool get canPickGroupFromCrumbLine => albumChipTypes == AlbumChipType.values;
+  bool get canPickGroupFromCrumbLine => albumChipTypes.length == AlbumChipType.values.length;
 
   String get title {
     final l10n = context.l10n;

@@ -109,7 +109,7 @@ class _BottomNavigationActionEditorPageState extends State<BottomNavigationActio
         final albumFilter = await pickAlbum(
           context: context,
           moveType: null,
-          chipTypes: AlbumChipType.values,
+          chipTypes: AlbumChipType.values.toSet(),
           initialGroup: null,
         );
         if (albumFilter == null) return;
@@ -117,7 +117,7 @@ class _BottomNavigationActionEditorPageState extends State<BottomNavigationActio
       case .addTag:
         final tagFilter = await pickTag(
           context: context,
-          chipTypes: ChipType.values,
+          chipTypes: ChipType.values.toSet(),
           initialGroup: null,
         );
         if (tagFilter == null) return;

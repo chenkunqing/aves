@@ -29,7 +29,7 @@ class FavouriteFilter extends CollectionFilter {
   @override
   Map<String, Object?> toMap() => {
     'type': type,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

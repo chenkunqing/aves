@@ -64,7 +64,7 @@ class _EntryViewerStackState extends State<EntryViewerStack> with EntryViewContr
   late int _currentEntryIndex;
   late ValueNotifier<int> _currentVerticalPage;
   late PageController _horizontalPager, _verticalPager;
-  final AChangeNotifier _verticalScrollNotifier = AChangeNotifier();
+  final AChangeNotifier _verticalScrollNotifier = .new();
   bool _overlayInitialized = false;
   final ValueNotifier<bool> _overlayVisible = ValueNotifier(true);
   final ValueNotifier<bool> _viewLocked = ValueNotifier(false);

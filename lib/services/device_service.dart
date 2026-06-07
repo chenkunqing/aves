@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:aves/services/common/channel.dart';
 import 'package:aves/services/common/services.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/services.dart';
 
 enum MemorySizeType { advertised, available, free, max, total, used }
@@ -172,7 +173,7 @@ class PlatformDeviceService extends DeviceService {
       final result = await _platform.invokeMethod('getHeapSizes', <String, Object?>{
         'types': types.map((v) => v.name).toList(),
       });
-      if (result is Map) return result.cast<String, int?>().map((k, v) => MapEntry(MemorySizeType.values.firstWhere((v) => v.name == k), v));
+      if (result is Map) return result.cast<String, int?>().map((k, v) => MapEntry(MemorySizeType.values.safeByName(k)!, v));
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
     }
@@ -185,7 +186,7 @@ class PlatformDeviceService extends DeviceService {
       final result = await _platform.invokeMethod('getRamSizes', <String, Object?>{
         'types': types.map((v) => v.name).toList(),
       });
-      if (result is Map) return result.cast<String, int?>().map((k, v) => MapEntry(MemorySizeType.values.firstWhere((v) => v.name == k), v));
+      if (result is Map) return result.cast<String, int?>().map((k, v) => MapEntry(MemorySizeType.values.safeByName(k)!, v));
     } on PlatformException catch (e, stack) {
       await reportService.recordError(e, stack);
     }

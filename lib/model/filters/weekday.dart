@@ -29,7 +29,7 @@ class WeekDayFilter extends CollectionFilter {
   Map<String, Object?> toMap() => {
     'type': type,
     'weekday': weekday,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

@@ -3,7 +3,7 @@ import 'package:aves/theme/format.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/utils/time_utils.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
-import 'package:collection/collection.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -48,7 +48,7 @@ class DateFilter extends CollectionFilter {
   factory DateFilter.fromMap(Map<String, Object?> json) {
     final dateString = json['date'] as String?;
     return DateFilter(
-      DateLevel.values.firstWhereOrNull((v) => v.toString() == json['level']) ?? DateLevel.ymd,
+      DateLevel.values.safeByName(json['level'] as String?) ?? .ymd,
       dateString != null ? DateTime.tryParse(dateString) : null,
       reversed: json['reversed'] as bool? ?? false,
     );
@@ -59,7 +59,7 @@ class DateFilter extends CollectionFilter {
     'type': type,
     'level': level.toString(),
     'date': date?.toIso8601String(),
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

@@ -33,7 +33,7 @@ class TagFilter extends CollectionFilter with CoveredFilter, TagBaseFilter {
   Map<String, Object?> toMap() => {
     'type': type,
     'tag': tag,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

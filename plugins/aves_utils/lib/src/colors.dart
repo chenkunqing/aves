@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:aves_utils/aves_utils.dart';
 import 'package:flutter/foundation.dart';
 
 class ColorUtils {
@@ -66,7 +67,7 @@ extension ExtraColor on Color {
       red: map['r'] as double,
       green: map['g'] as double,
       blue: map['b'] as double,
-      colorSpace: ColorSpace.values.byName(map['colorSpace'] as String),
+      colorSpace: ColorSpace.values.safeByName(map['colorSpace'] as String?) ?? ColorSpace.sRGB,
     );
   }
 }

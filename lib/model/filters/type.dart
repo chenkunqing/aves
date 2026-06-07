@@ -76,7 +76,7 @@ class TypeFilter extends CollectionFilter {
   Map<String, Object?> toMap() => {
     'type': type,
     'itemType': itemType,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

@@ -93,7 +93,7 @@ class _GeoMapState extends State<GeoMap> {
   late final ValueNotifier<ZoomedBounds> _boundsNotifier;
   Fluster<GeoEntry<AvesEntry>>? _defaultMarkerCluster;
   Fluster<GeoEntry<AvesEntry>>? _slowMarkerCluster;
-  final AChangeNotifier _clusterChangeNotifier = AChangeNotifier();
+  final AChangeNotifier _clusterChangeNotifier = .new();
 
   final ValueNotifier<Set<List<LatLng>>> _tracksNotifier = ValueNotifier({});
 

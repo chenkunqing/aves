@@ -45,7 +45,7 @@ class RatingFilter extends CollectionFilter {
     'type': type,
     'rating': rating,
     'op': op,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

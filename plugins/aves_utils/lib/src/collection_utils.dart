@@ -36,11 +36,27 @@ extension ExtraNumIterable on Iterable<int?> {
 }
 
 extension ExtraEnum<T extends Enum> on Iterable<T> {
-  T safeByName(String name, T defaultValue) {
-    try {
-      return byName(name);
-    } catch (error) {
-      return defaultValue;
+  // similar to `EnumByName` extension `byName()`,
+  // but check full name too, and fall back to a default value
+  T? safeByName(String? name, {bool ignoreCase = false}) {
+    if (name == null) return null;
+
+    if (ignoreCase) {
+      name = name.toLowerCase();
+      return _safeByName(name, (v) => v.name.toLowerCase());
+    } else {
+      return _safeByName(name, (v) => v.name);
     }
+  }
+
+  T? _safeByName(String name, String Function(T element) getter) {
+    for (var value in this) {
+      if (getter(value) == name) return value;
+    }
+    final separatorIndex = name.indexOf('.');
+    if (separatorIndex > -1) {
+      return _safeByName(name.substring(separatorIndex + 1), getter);
+    }
+    return null;
   }
 }

@@ -35,7 +35,7 @@ class DynamicAlbumFilter extends CollectionFilter with ContainerFilter, CoveredF
     'type': type,
     'name': name,
     'filter': filter.toJson(),
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override

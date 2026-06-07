@@ -28,8 +28,9 @@ class _TimeToTakeActionTileState extends State<TimeToTakeActionTile> {
       future: _hasSystemOptionLoader,
       builder: (context, snapshot) {
         if (snapshot.hasError || !snapshot.hasData) return const SizedBox();
+        const values = AccessibilityTimeout.values;
         final hasSystemOption = snapshot.data!;
-        final optionValues = hasSystemOption ? AccessibilityTimeout.values : AccessibilityTimeout.values.where((v) => v != AccessibilityTimeout.system).toList();
+        final optionValues = hasSystemOption ? values : values.where((v) => v != AccessibilityTimeout.system).toList();
 
         return SettingsSelectionListTile<AccessibilityTimeout>(
           values: optionValues,

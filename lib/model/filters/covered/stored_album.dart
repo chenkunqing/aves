@@ -41,7 +41,7 @@ class StoredAlbumFilter extends CollectionFilter with CoveredFilter, AlbumBaseFi
     'type': type,
     'album': album,
     'uniqueName': displayName,
-    'reversed': reversed,
+    if (reversed) 'reversed': reversed,
   };
 
   @override
