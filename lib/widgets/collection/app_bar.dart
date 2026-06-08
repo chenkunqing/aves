@@ -315,20 +315,29 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
 
   Widget _buildAppBarTitle(bool isSelecting) {
     final l10n = context.l10n;
+    final appMode = context.watch<ValueNotifier<AppMode>>().value;
 
     if (isSelecting) {
       // `Selection` may not be available during hero
       return Selector<Selection<AvesEntry>?, int>(
         selector: (context, selection) => selection?.selectedItemCount ?? 0,
-        builder: (context, count, child) => Text(
-          count == 0 ? l10n.collectionSelectPageTitle : l10n.itemCount(count),
-          softWrap: false,
-          overflow: TextOverflow.fade,
-          maxLines: 1,
-        ),
+        builder: (context, count, child) {
+          Widget title = Text(
+            count == 0 ? l10n.collectionSelectPageTitle : l10n.itemCount(count),
+            softWrap: false,
+            overflow: TextOverflow.fade,
+            maxLines: 1,
+          );
+          if (appMode == AppMode.main) {
+            title = SourceStateAwareAppBarTitle(
+              title: title,
+              source: source,
+            );
+          }
+          return title;
+        },
       );
     } else {
-      final appMode = context.watch<ValueNotifier<AppMode>>().value;
       Widget title = Text(
         appMode.isPickingMedia ? l10n.collectionPickPageTitle : (isTrash ? l10n.binPageTitle : l10n.collectionPageTitle),
         softWrap: false,
