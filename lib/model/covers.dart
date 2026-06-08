@@ -250,7 +250,7 @@ class Covers {
 
   // import/export
 
-  List<Map<String, String>>? export(CollectionSource source) {
+  List<Map<String, Object?>>? export(CollectionSource source) {
     final visibleEntries = source.visibleEntries;
     final jsonList = all
         .map((row) {
@@ -260,10 +260,10 @@ class Covers {
           final volume = androidFileUtils.getStorageVolume(path)?.path;
           final relativePath = volume != null ? path?.substring(volume.length) : null;
           final packageName = cover.packageName;
-          final colorJson = cover.color?.toJson();
+          final colorJson = cover.color?.toJsonMap();
 
           return {
-            'filter': row.filter.toJson(),
+            'filter': row.filter.toJsonMap(),
             'volume': ?volume,
             'relativePath': ?relativePath,
             'packageName': ?packageName,
@@ -284,7 +284,7 @@ class Covers {
     final visibleEntries = source.visibleEntries;
     jsonList.cast<Map<String, Object?>>().forEach((row) {
       try {
-        final filter = CollectionFilter.fromJson(row['filter'] as String?);
+        final filter = CollectionFilter.fromJson(row['filter']);
         if (filter == null) {
           debugPrint('failed to import cover for row=$row');
           return;
@@ -365,9 +365,9 @@ class CoverRow extends Equatable {
   }
 
   Map<String, Object?> toMap() => {
-    'filter': filter.toJson(),
+    'filter': filter.toJsonMap(),
     'entryId': coverProps.entryId,
     'packageName': coverProps.packageName,
-    'color': coverProps.color?.toJson(),
+    'color': coverProps.color?.toJsonMap(),
   };
 }

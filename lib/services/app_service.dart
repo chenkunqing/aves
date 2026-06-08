@@ -264,7 +264,7 @@ class PlatformAppService implements AppService {
         'label': label,
         'iconBytes': iconBytes,
         'route': route,
-        'filters': filters?.map((filter) => filter.toJson()).toList(),
+        'filters': filters?.map((filter) => filter.toJsonString()).toList(),
         'path': path,
         'viewUri': viewUri,
         'geoUri': geoUri,

@@ -41,7 +41,7 @@ class RatingFilter extends CollectionFilter {
   }
 
   @override
-  Map<String, Object?> toMap() => {
+  Map<String, Object?> toJsonMap() => {
     'type': type,
     'rating': rating,
     'op': op,

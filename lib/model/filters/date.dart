@@ -55,7 +55,7 @@ class DateFilter extends CollectionFilter {
   }
 
   @override
-  Map<String, Object?> toMap() => {
+  Map<String, Object?> toJsonMap() => {
     'type': type,
     'level': level.name,
     'date': date?.toIso8601String(),

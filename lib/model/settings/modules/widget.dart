@@ -13,7 +13,7 @@ mixin WidgetSettings on SettingsAccess {
 
   Set<CollectionFilter> getWidgetCollectionFilters(int widgetId) => (getStringList('${SettingKeys.widgetCollectionFiltersPrefixKey}$widgetId') ?? []).map(CollectionFilter.fromJson).nonNulls.toSet();
 
-  void setWidgetCollectionFilters(int widgetId, Set<CollectionFilter> newValue) => set('${SettingKeys.widgetCollectionFiltersPrefixKey}$widgetId', newValue.map((filter) => filter.toJson()).toList());
+  void setWidgetCollectionFilters(int widgetId, Set<CollectionFilter> newValue) => set('${SettingKeys.widgetCollectionFiltersPrefixKey}$widgetId', newValue.map((filter) => filter.toJsonString()).toList());
 
   WidgetOpenPage getWidgetOpenPage(int widgetId) => getEnumOrDefault('${SettingKeys.widgetOpenPagePrefixKey}$widgetId', SettingsDefaults.widgetOpenPage, WidgetOpenPage.values);
 

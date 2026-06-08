@@ -23,9 +23,9 @@ mixin SubtitlesSettings on SettingsAccess {
 
   Color get subtitleTextColor => ExtraColor.fromJson(getString(SettingKeys.subtitleTextColorKey)) ?? SettingsDefaults.subtitleTextColor;
 
-  set subtitleTextColor(Color newValue) => set(SettingKeys.subtitleTextColorKey, newValue.toJson());
+  set subtitleTextColor(Color newValue) => set(SettingKeys.subtitleTextColorKey, newValue.toJsonString());
 
   Color get subtitleBackgroundColor => ExtraColor.fromJson(getString(SettingKeys.subtitleBackgroundColorKey)) ?? SettingsDefaults.subtitleBackgroundColor;
 
-  set subtitleBackgroundColor(Color newValue) => set(SettingKeys.subtitleBackgroundColorKey, newValue.toJson());
+  set subtitleBackgroundColor(Color newValue) => set(SettingKeys.subtitleBackgroundColorKey, newValue.toJsonString());
 }

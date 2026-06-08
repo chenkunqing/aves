@@ -121,7 +121,7 @@ mixin AppSettings on SettingsAccess {
 
   List<CollectionFilter> get _recentTags => (getStringList(SettingKeys.recentTagsKey) ?? []).map(CollectionFilter.fromJson).nonNulls.toList();
 
-  set _recentTags(List<CollectionFilter> newValue) => set(SettingKeys.recentTagsKey, newValue.take(recentFilterHistoryMax).map((filter) => filter.toJson()).toList());
+  set _recentTags(List<CollectionFilter> newValue) => set(SettingKeys.recentTagsKey, newValue.take(recentFilterHistoryMax).map((filter) => filter.toJsonString()).toList());
 
   // when vaults are unlocked, recent tags are transient and not persisted
   List<CollectionFilter>? _protectedRecentTags;

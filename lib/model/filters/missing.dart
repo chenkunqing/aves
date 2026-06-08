@@ -43,7 +43,7 @@ class MissingFilter extends CollectionFilter {
   }
 
   @override
-  Map<String, Object?> toMap() => {
+  Map<String, Object?> toJsonMap() => {
     'type': type,
     'metadataType': metadataType,
     if (reversed) 'reversed': reversed,

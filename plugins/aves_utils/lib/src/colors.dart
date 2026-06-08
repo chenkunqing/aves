@@ -36,24 +36,31 @@ extension ExtraColor on Color {
 
   // serialization
 
-  String toJson() => jsonEncode(_toMap());
+  String toJsonString() => jsonEncode(toJsonMap());
 
-  static Color? fromJson(String? jsonString) {
-    if (jsonString == null || jsonString.isEmpty) return null;
+  // either a `String` or a `Map<String, Object?>`
+  static Color? fromJson(Object? json) {
+    if (json == null) return null;
 
     try {
-      final jsonMap = jsonDecode(jsonString);
-      if (jsonMap is Map<String, Object?>) {
-        return _fromMap(jsonMap);
+      Map? jsonMap;
+      if (json is String) {
+        if (json.isEmpty) return null;
+        jsonMap = jsonDecode(json);
+      } else if (json is Map) {
+        jsonMap = json;
       }
-      debugPrint('failed to parse color from json=$jsonString');
+      if (jsonMap != null) {
+        return _fromMap(jsonMap.cast<String, Object?>());
+      }
+      debugPrint('failed to parse color from json=$json');
     } catch (error, stack) {
-      debugPrint('failed to parse color from json=$jsonString error=$error\n$stack');
+      debugPrint('failed to parse color from json=$json error=$error\n$stack');
     }
     return null;
   }
 
-  Map<String, Object?> _toMap() => {
+  Map<String, Object?> toJsonMap() => {
     'a': a,
     'r': r,
     'g': g,

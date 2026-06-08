@@ -52,7 +52,7 @@ class LocationFilter extends CollectionFilter with CoveredFilter {
   }
 
   @override
-  Map<String, Object?> toMap() {
+  Map<String, Object?> toJsonMap() {
     String location = _location;
     switch (level) {
       case .country:

@@ -46,7 +46,7 @@ mixin NavigationSettings on SettingsAccess {
     String? customExplorerPath,
   }) {
     set(SettingKeys.homePageKey, homePage.name);
-    set(SettingKeys.homeCustomCollectionKey, customCollection.map((filter) => filter.toJson()).toList());
+    set(SettingKeys.homeCustomCollectionKey, customCollection.map((filter) => filter.toJsonString()).toList());
     set(SettingKeys.homeCustomExplorerPathKey, customExplorerPath);
   }
 
@@ -75,17 +75,14 @@ mixin NavigationSettings on SettingsAccess {
   set setMetadataDateBeforeFileOp(bool newValue) => set(SettingKeys.setMetadataDateBeforeFileOpKey, newValue);
 
   List<CollectionFilter?> get drawerTypeBookmarks =>
-      getStringList(SettingKeys.drawerTypeBookmarksKey)?.map((v) {
-        if (v.isEmpty) return null;
-        return CollectionFilter.fromJson(v);
-      }).toList() ??
+      getStringList(SettingKeys.drawerTypeBookmarksKey)?.map(CollectionFilter.fromJson).nonNulls.toList() ??
       SettingsDefaults.drawerTypeBookmarks;
 
-  set drawerTypeBookmarks(List<CollectionFilter?> newValue) => set(SettingKeys.drawerTypeBookmarksKey, newValue.map((filter) => filter?.toJson() ?? '').toList());
+  set drawerTypeBookmarks(List<CollectionFilter?> newValue) => set(SettingKeys.drawerTypeBookmarksKey, newValue.map((filter) => filter?.toJsonString() ?? '').toList());
 
   List<AlbumBaseFilter>? get drawerAlbumBookmarks => getStringList(SettingKeys.drawerAlbumBookmarksKey)?.map(CollectionFilter.fromJson).whereType<AlbumBaseFilter>().toList();
 
-  set drawerAlbumBookmarks(List<AlbumBaseFilter>? newValue) => set(SettingKeys.drawerAlbumBookmarksKey, newValue?.map((filter) => filter.toJson()).toList());
+  set drawerAlbumBookmarks(List<AlbumBaseFilter>? newValue) => set(SettingKeys.drawerAlbumBookmarksKey, newValue?.map((filter) => filter.toJsonString()).toList());
 
   List<String> get drawerPageBookmarks => getStringList(SettingKeys.drawerPageBookmarksKey) ?? SettingsDefaults.drawerPageBookmarks;
 
