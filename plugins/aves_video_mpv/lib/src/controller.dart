@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_utils/aves_utils.dart';
 import 'package:aves_video/aves_video.dart';
+import 'package:aves_video_mpv/aves_video_mpv.dart';
 import 'package:aves_video_mpv/src/tracks.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -131,12 +132,21 @@ class MpvVideoController extends AvesVideoController {
           final start = abRepeat.start;
           final end = abRepeat.end;
           if (start != null && end != null) {
-            if (v.inMilliseconds < end) {
+            if (_toCaptureTime(v.inMilliseconds) < end) {
               _abRepeatSeeking = false;
             } else if (!_abRepeatSeeking) {
               _abRepeatSeeking = true;
-              _mkPlayer.seek(Duration(milliseconds: start));
+              _mkPlayer.seek(Duration(milliseconds: _toPlaybackTime(start)));
             }
+          }
+        }
+
+        if (!_abRepeatSeeking && slowMotionFactor != 1) {
+          final slowMotionRange = slowMotionRangeNotifier.value;
+
+          final targetSpeed = 1.0 / (slowMotionRange.inRange(progress) ? slowMotionFactor : 1);
+          if (speed != targetSpeed) {
+            speed = targetSpeed;
           }
         }
       }),
@@ -170,6 +180,17 @@ class MpvVideoController extends AvesVideoController {
         }),
       );
     }
+  }
+
+  Future<void> _updateSlowMotionFactor() async {
+    final captureFps = await MpvVideoMetadataFetcher.getCaptureFrameRate(_mkPlayer);
+    if (captureFps != null) {
+      final playbackFps = _videoTracks.firstOrNull?.fps;
+      if (playbackFps != null) {
+        slowMotionFactor = captureFps / playbackFps;
+      }
+    }
+    canSetSpeedNotifier.value = slowMotionFactor != 1;
   }
 
   void _stopListening() {
@@ -213,6 +234,7 @@ class MpvVideoController extends AvesVideoController {
             configuration: _toControllerConfiguration(settings.videoHardwareAcceleration),
           )
           ..waitUntilFirstFrameRendered.then((v) {
+            _updateSlowMotionFactor();
             _firstFrameRendered = true;
             _statusStreamController.add(_status);
           });
@@ -279,7 +301,7 @@ class MpvVideoController extends AvesVideoController {
       await Future.delayed(const Duration(milliseconds: 500));
     }
     targetMillis = abRepeatNotifier.value?.clamp(targetMillis) ?? targetMillis;
-    await _mkPlayer.seek(Duration(milliseconds: targetMillis));
+    await _mkPlayer.seek(Duration(milliseconds: _toPlaybackTime(targetMillis)));
   }
 
   @override
@@ -312,7 +334,7 @@ class MpvVideoController extends AvesVideoController {
   Stream<double> get volumeStream => _mkPlayer.stream.volume;
 
   @override
-  Stream<double> get speedStream => _mkPlayer.stream.rate;
+  Stream<double> get speedStream => _mkPlayer.stream.rate.map((v) => v / slowMotionFactor);
 
   @override
   bool get isReady {
@@ -328,14 +350,22 @@ class MpvVideoController extends AvesVideoController {
     }
   }
 
-  @override
-  int get duration => _mkPlayer.state.duration.inMilliseconds;
+  int _toCaptureTime(int videoTime) {
+    return (videoTime / slowMotionFactor).round();
+  }
+
+  int _toPlaybackTime(int videoTime) {
+    return (videoTime * slowMotionFactor).round();
+  }
 
   @override
-  int get currentPosition => _mkPlayer.state.position.inMilliseconds;
+  int get duration => _toCaptureTime(_mkPlayer.state.duration.inMilliseconds);
 
   @override
-  Stream<int> get positionStream => _mkPlayer.stream.position.map((pos) => pos.inMilliseconds);
+  int get currentPosition => _toCaptureTime(_mkPlayer.state.position.inMilliseconds);
+
+  @override
+  Stream<int> get positionStream => _mkPlayer.stream.position.map((pos) => _toCaptureTime(pos.inMilliseconds));
 
   @override
   Stream<String?> get timedTextStream => _timedTextStreamController.stream;
@@ -347,10 +377,10 @@ class MpvVideoController extends AvesVideoController {
   Future<void> mute(bool muted) => _mkPlayer.setVolume(muted ? 0 : 100);
 
   @override
-  double get speed => _mkPlayer.state.rate;
+  double get speed => _mkPlayer.state.rate / slowMotionFactor;
 
   @override
-  set speed(double speed) => _mkPlayer.setRate(speed);
+  set speed(double speed) => _mkPlayer.setRate(speed * slowMotionFactor);
 
   @override
   Future<Uint8List?> captureFrame() {

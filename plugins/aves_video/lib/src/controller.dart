@@ -17,7 +17,7 @@ abstract class AvesVideoControllerFactory {
   });
 }
 
-abstract class AvesVideoController extends Disposer with ABRepeatMixin {
+abstract class AvesVideoController extends Disposer with ABRepeatMixin, SlowMotionMixin {
   final AvesEntryBase _entry;
   final PlaybackStateHandler playbackStateHandler;
   final VideoSettings settings;

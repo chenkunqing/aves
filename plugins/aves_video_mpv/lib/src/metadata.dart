@@ -84,7 +84,7 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
   static const _propertyMetadata = 'metadata';
   static const _propertyTrackList = 'track-list';
 
-  Future<Map<String, Object?>> _getMetadataFields(Player player) async {
+  static Future<Map<String, Object?>> _getMetadataFields(Player player) async {
     final platform = player.platform;
     if (platform is! NativePlayer) {
       throw Exception('Platform player ${platform.runtimeType} does not support property retrieval');
@@ -103,7 +103,8 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     final metadata = await platform.getProperty(_propertyMetadata);
     if (metadata.isNotEmpty) {
       try {
-        jsonDecode(metadata).forEach((key, value) {
+        final jsonMap = jsonDecode(metadata) as Map<String, Object?>;
+        jsonMap.forEach((key, value) {
           fields[key] = value;
         });
       } catch (error) {
@@ -144,7 +145,7 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     return fields;
   }
 
-  Map<String, Object?> _normalizeStream(Map<String, Object?> stream, VideoParams videoParams) {
+  static Map<String, Object?> _normalizeStream(Map<String, Object?> stream, VideoParams videoParams) {
     void replaceKey(String k1, String k2) {
       final v = stream.remove(k1);
       if (v != null) {
@@ -219,6 +220,27 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
         stream[Keys.streamType] = MediaStreamTypes.subtitle;
     }
     return stream;
+  }
+
+  static Future<double?> getCaptureFrameRate(Player player) async {
+    final platform = player.platform;
+    if (platform is NativePlayer) {
+      final metadata = await platform.getProperty(_propertyMetadata);
+      if (metadata.isNotEmpty) {
+        try {
+          final jsonMap = jsonDecode(metadata) as Map<String, Object?>;
+          final Object? captureFpsRaw = jsonMap[Keys.androidCaptureFramerate];
+          if (captureFpsRaw is String) {
+            return double.tryParse(captureFpsRaw);
+          } else if (captureFpsRaw is num) {
+            return captureFpsRaw.toDouble();
+          }
+        } catch (error) {
+          debugPrint('failed to parse metadata=$metadata with error=$error');
+        }
+      }
+    }
+    return null;
   }
 
   @override

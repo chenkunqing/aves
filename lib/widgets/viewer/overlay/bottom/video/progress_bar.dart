@@ -6,6 +6,7 @@ import 'package:aves/theme/format.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/theme/themes.dart';
+import 'package:aves/utils/math_utils.dart';
 import 'package:aves/widgets/common/extensions/theme.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/borders.dart';
@@ -189,7 +190,7 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
       return speed != 1
           ? Padding(
               padding: const EdgeInsetsDirectional.only(end: 8),
-              child: _buildText('x$speed'),
+              child: _buildText('x${roundToPrecision(speed, decimals: 2)}'),
             )
           : const SizedBox();
     },

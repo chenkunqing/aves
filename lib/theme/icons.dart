@@ -9,7 +9,6 @@ class AIcons {
   static const vector = Symbols.code;
 
   static const accessibility = Symbols.accessibility_new;
-  static const android = Symbols.android;
   static const app = Symbols.apps;
   static const apply = Symbols.done;
   static const aspectRatio = Symbols.aspect_ratio;
