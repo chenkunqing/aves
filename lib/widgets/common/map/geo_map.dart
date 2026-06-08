@@ -40,7 +40,7 @@ class GeoMap extends StatefulWidget {
   final ValueNotifier<LatLng?>? dotLocationNotifier;
   final ValueNotifier<double>? overlayOpacityNotifier;
   final MapOverlay? overlayEntry;
-  final Set<List<LatLng>>? tracks;
+  final List<GeoTrack>? tracks;
   final UserZoomChangeCallback? onUserZoomChange;
   final MapTapCallback? onMapTap;
   final void Function(
@@ -95,7 +95,7 @@ class _GeoMapState extends State<GeoMap> {
   Fluster<GeoEntry<AvesEntry>>? _slowMarkerCluster;
   final AChangeNotifier _clusterChangeNotifier = .new();
 
-  final ValueNotifier<Set<List<LatLng>>> _tracksNotifier = ValueNotifier({});
+  final ValueNotifier<List<GeoTrack>> _tracksNotifier = ValueNotifier([]);
 
   List<AvesEntry> get entries => widget.collection?.sortedEntries ?? widget.entries ?? [];
 
@@ -384,10 +384,11 @@ class _GeoMapState extends State<GeoMap> {
   }
 
   void _updateItemTracks() {
-    final tracks = {...?widget.tracks};
+    final tracks = [...?widget.tracks];
     if (settings.mapShowItemTracks) {
       final entries = widget.collection?.sortedEntries;
       if (entries != null && entries.isNotEmpty) {
+        final itemTrackPoints = <List<LatLng>>[];
         var prevDate = DateTime.fromMillisecondsSinceEpoch(0);
         var prevLatLng = const LatLng(0, 0);
         final currentTrack = <LatLng>[];
@@ -395,7 +396,7 @@ class _GeoMapState extends State<GeoMap> {
           final thisDate = entry.bestDate;
           if (thisDate != null) {
             if (thisDate.difference(prevDate) > maxTrackPointInterval) {
-              tracks.add(List.unmodifiable(currentTrack));
+              itemTrackPoints.add(List.unmodifiable(currentTrack));
               currentTrack.clear();
             }
             final latLng = entry.latLng;
@@ -408,8 +409,10 @@ class _GeoMapState extends State<GeoMap> {
             prevDate = thisDate;
           }
         }
-        tracks.add(List.unmodifiable(currentTrack));
-        tracks.removeWhere((v) => v.length < minTrackPointCount);
+        itemTrackPoints.add(List.unmodifiable(currentTrack));
+        itemTrackPoints.removeWhere((v) => v.length < minTrackPointCount);
+
+        tracks.addAll(GeoTrack.buildTracks(itemTrackPoints));
       }
     }
     _tracksNotifier.value = tracks;

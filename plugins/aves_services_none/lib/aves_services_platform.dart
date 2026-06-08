@@ -28,7 +28,7 @@ class PlatformMobileServices extends MobileServices {
     required MarkerWidgetBuilder<T> markerWidgetBuilder,
     required MarkerImageReadyChecker<T> markerImageReadyChecker,
     required ValueNotifier<LatLng?>? dotLocationNotifier,
-    required ValueNotifier<Set<List<LatLng>>> tracksNotifier,
+    required ValueNotifier<List<GeoTrack>> tracksNotifier,
     required ValueNotifier<double>? overlayOpacityNotifier,
     required MapOverlay? overlayEntry,
     required UserZoomChangeCallback? onUserZoomChange,

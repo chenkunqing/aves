@@ -27,7 +27,7 @@ class EntryLeafletMap<T> extends StatefulWidget {
   final MarkerClusterBuilder<T> markerClusterBuilder;
   final MarkerWidgetBuilder<T> markerWidgetBuilder;
   final ValueNotifier<LatLng?>? dotLocationNotifier;
-  final ValueNotifier<Set<List<LatLng>>> tracksNotifier;
+  final ValueNotifier<List<GeoTrack>> tracksNotifier;
   final Size markerSize, dotMarkerSize;
   final ValueNotifier<double>? overlayOpacityNotifier;
   final MapOverlay? overlayEntry;
@@ -256,19 +256,21 @@ class _EntryLeafletMapState<T> extends State<EntryLeafletMap<T>> with TickerProv
   }
 
   Widget _buildTracksLayer() {
-    final trackColor = Theme.of(context).colorScheme.primary;
-    return NullableValueListenableBuilder<Set<List<LatLng>>>(
+    return NullableValueListenableBuilder<List<GeoTrack>>(
       valueListenable: widget.tracksNotifier,
       builder: (context, tracks, child) {
         if (tracks == null) return const SizedBox();
 
+        final strokeWidth = MapThemeData.trackWidth.toDouble();
         return PolylineLayer(
           polylines: tracks
               .map(
-                (v) => Polyline(
-                  points: v,
-                  strokeWidth: MapThemeData.trackWidth.toDouble(),
-                  color: trackColor,
+                (track) => Polyline(
+                  points: track.points,
+                  strokeWidth: strokeWidth,
+                  color: track.color,
+                  strokeCap: .round,
+                  strokeJoin: .round,
                 ),
               )
               .toList(),

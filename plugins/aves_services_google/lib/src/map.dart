@@ -20,7 +20,7 @@ class EntryGoogleMap<T> extends StatefulWidget {
   final MarkerWidgetBuilder<T> markerWidgetBuilder;
   final MarkerImageReadyChecker<T> markerImageReadyChecker;
   final ValueNotifier<ll.LatLng?>? dotLocationNotifier;
-  final ValueNotifier<Set<List<ll.LatLng>>> tracksNotifier;
+  final ValueNotifier<List<GeoTrack>> tracksNotifier;
   final ValueNotifier<double>? overlayOpacityNotifier;
   final MapOverlay? overlayEntry;
   final UserZoomChangeCallback? onUserZoomChange;
@@ -168,14 +168,13 @@ class _EntryGoogleMapState<T> extends State<EntryGoogleMap<T>> {
 
         final interactive = context.select<MapThemeData, bool>((v) => v.interactive);
         final overlayEntry = widget.overlayEntry;
-        final trackColor = Theme.of(context).colorScheme.primary;
         return LayoutBuilder(
           builder: (context, constraints) {
             _sizeNotifier.value = constraints.biggest;
             return NullableValueListenableBuilder<ll.LatLng?>(
               valueListenable: widget.dotLocationNotifier,
               builder: (context, dotLocation, child) {
-                return NullableValueListenableBuilder<Set<List<ll.LatLng>>>(
+                return NullableValueListenableBuilder<List<GeoTrack>>(
                   valueListenable: widget.tracksNotifier,
                   builder: (context, tracks, child) {
                     return NullableValueListenableBuilder<double>(
@@ -203,14 +202,18 @@ class _EntryGoogleMapState<T> extends State<EntryGoogleMap<T>> {
                             ),
                         };
                         final polylines = {
-                          if (tracks != null)
-                            for (final track in tracks)
-                              Polyline(
-                                polylineId: PolylineId(track.hashCode.toString()),
-                                points: track.map(_toServiceLatLng).toList(),
-                                width: MapThemeData.trackWidth,
-                                color: trackColor,
-                              ),
+                          ...?tracks?.map(
+                            (track) => Polyline(
+                              polylineId: PolylineId(track.hashCode.toString()),
+                              color: track.color,
+                              endCap: .roundCap,
+                              geodesic: true,
+                              jointType: .round,
+                              points: track.points.map(_toServiceLatLng).toList(),
+                              startCap: .roundCap,
+                              width: MapThemeData.trackWidth,
+                            ),
+                          ),
                         };
                         final tileOverlays = {
                           // TODO TLAD [geotiff] may use ground overlay instead
