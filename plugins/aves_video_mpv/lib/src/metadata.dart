@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_video/aves_video.dart';
 import 'package:aves_video_mpv/aves_video_mpv.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:media_kit/media_kit.dart';
@@ -72,7 +73,7 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     final player = await _openBackgroundPlayer(uri: uri, mimeType: mimeType);
     if (player == null) return {};
 
-    final fields = await _getMetadataFields(player);
+    final fields = await _describeAllMetadataFields(player);
 
     await player.dispose();
     return fields;
@@ -84,7 +85,7 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
   static const _propertyMetadata = 'metadata';
   static const _propertyTrackList = 'track-list';
 
-  static Future<Map<String, Object?>> _getMetadataFields(Player player) async {
+  static Future<Map<String, Object?>> _describeAllMetadataFields(Player player) async {
     final platform = player.platform;
     if (platform is! NativePlayer) {
       throw Exception('Platform player ${platform.runtimeType} does not support property retrieval');
@@ -118,8 +119,8 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
         final tracksJson = jsonDecode(tracks);
         if (tracksJson is List && tracksJson.isNotEmpty) {
           final videoParams = player.state.videoParams;
-          fields[Keys.streams] = tracksJson.whereType<Map>().map((stream) {
-            return _normalizeStream(stream.cast<String, Object?>(), videoParams);
+          fields[Keys.streams] = tracksJson.whereType<Map>().map((track) {
+            return _normalizeTrack(track.cast<String, Object?>(), videoParams);
           }).toList();
         }
       } catch (error) {
@@ -145,7 +146,7 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     return fields;
   }
 
-  static Map<String, Object?> _normalizeStream(Map<String, Object?> stream, VideoParams videoParams) {
+  static Map<String, Object?> _normalizeTrack(Map<String, Object?> stream, VideoParams videoParams) {
     void replaceKey(String k1, String k2) {
       final v = stream.remove(k1);
       if (v != null) {
@@ -222,25 +223,104 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     return stream;
   }
 
-  static Future<double?> getCaptureFrameRate(Player player) async {
+  static Future<Map<String, Object?>> _getMetadataFields(Player player, Set<String> keys) async {
+    final result = <String, Object?>{};
     final platform = player.platform;
     if (platform is NativePlayer) {
       final metadata = await platform.getProperty(_propertyMetadata);
       if (metadata.isNotEmpty) {
         try {
           final jsonMap = jsonDecode(metadata) as Map<String, Object?>;
-          final Object? captureFpsRaw = jsonMap[Keys.androidCaptureFramerate];
-          if (captureFpsRaw is String) {
-            return double.tryParse(captureFpsRaw);
-          } else if (captureFpsRaw is num) {
-            return captureFpsRaw.toDouble();
-          }
+          result.addAll(
+            Map.fromEntries(
+              keys.map((key) {
+                Object? value = jsonMap[key];
+                switch (key) {
+                  case Keys.androidCaptureFramerate:
+                    value = _toDoubleValue(value);
+                  case Keys.xiaomiSlowMoment:
+                    if (value is String) {
+                      value = value == '1';
+                    }
+                }
+                return MapEntry(key, value);
+              }),
+            ),
+          );
         } catch (error) {
           debugPrint('failed to parse metadata=$metadata with error=$error');
         }
       }
     }
+    return result;
+  }
+
+  Future<double?> _getVideoPlaybackFps(Player player) async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) {
+      throw Exception('Platform player ${platform.runtimeType} does not support property retrieval');
+    }
+
+    double? playbackFps;
+    final tracks = await platform.getProperty(_propertyTrackList);
+    if (tracks.isNotEmpty) {
+      try {
+        final tracksJson = jsonDecode(tracks);
+        if (tracksJson is List && tracksJson.isNotEmpty) {
+          final videoTrack = tracksJson.whereType<Map>().map((track) => track.cast<String, Object?>()).firstWhereOrNull((kv) => kv['type'] == mpvTypeVideo);
+          final demuxFps = videoTrack?['demux-fps'];
+          playbackFps = _toDoubleValue(demuxFps);
+        }
+      } catch (error) {
+        debugPrint('failed to parse tracks=$tracks with error=$error');
+      }
+    }
+
+    return playbackFps;
+  }
+
+  static double? _toDoubleValue(Object? value) {
+    if (value is String) {
+      return double.tryParse(value);
+    } else if (value is num) {
+      return value.toDouble();
+    }
     return null;
+  }
+
+  @override
+  Future<int> computeSlowMotionFactor({required String uri, required String mimeType}) async {
+    final player = await _openBackgroundPlayer(uri: uri, mimeType: mimeType);
+    if (player == null) return 1;
+
+    final playbackFps = await _getVideoPlaybackFps(player);
+    final slowMotionFactor = await computeSlowMotionFactorWithPlayer(player, playbackFps);
+
+    await player.dispose();
+    return slowMotionFactor;
+  }
+
+  static Future<int> computeSlowMotionFactorWithPlayer(Player player, double? playbackFps) async {
+    int _slowMotionFactor = 1;
+
+    if (playbackFps != null) {
+      final result = await _getMetadataFields(player, {
+        Keys.androidCaptureFramerate,
+        Keys.xiaomiSlowMoment,
+      });
+      final captureFps = result[Keys.androidCaptureFramerate];
+      if (captureFps is double) {
+        _slowMotionFactor = (captureFps / playbackFps).round();
+        if (_slowMotionFactor == 1) {
+          // Xiaomi slow motion videos set both FPS to 120
+          final slowMoment = result[Keys.xiaomiSlowMoment];
+          if (slowMoment is bool && slowMoment) {
+            _slowMotionFactor = (captureFps / SlowMotionMixin.fallbackPlaybackFps).round();
+          }
+        }
+      }
+    }
+    return _slowMotionFactor;
   }
 
   @override

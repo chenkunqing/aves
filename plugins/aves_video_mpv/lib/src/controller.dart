@@ -141,12 +141,12 @@ class MpvVideoController extends AvesVideoController {
           }
         }
 
-        if (!_abRepeatSeeking && slowMotionFactor != 1) {
+        if (!_abRepeatSeeking && isSlowMotion) {
           final slowMotionRange = slowMotionRangeNotifier.value;
 
           final targetSpeed = 1.0 / (slowMotionRange.inRange(progress) ? slowMotionFactor : 1);
           if (speed != targetSpeed) {
-            speed = targetSpeed;
+            setSpeed(targetSpeed);
           }
         }
       }),
@@ -182,21 +182,16 @@ class MpvVideoController extends AvesVideoController {
     }
   }
 
-  Future<void> _updateSlowMotionFactor() async {
-    final captureFps = await MpvVideoMetadataFetcher.getCaptureFrameRate(_mkPlayer);
-    if (captureFps != null) {
-      final playbackFps = _videoTracks.firstOrNull?.fps;
-      if (playbackFps != null) {
-        slowMotionFactor = captureFps / playbackFps;
-      }
-    }
-    canSetSpeedNotifier.value = slowMotionFactor != 1;
-  }
-
   void _stopListening() {
     _subscriptions
       ..forEach((sub) => sub.cancel())
       ..clear();
+  }
+
+  Future<void> _updateSlowMotionFactor() async {
+    final playbackFps = _videoTracks.firstOrNull?.fps;
+    slowMotionFactor = await MpvVideoMetadataFetcher.computeSlowMotionFactorWithPlayer(_mkPlayer, playbackFps);
+    canSetSpeedNotifier.value = isSlowMotion;
   }
 
   Future<void> _applyLoop() async {
@@ -355,7 +350,7 @@ class MpvVideoController extends AvesVideoController {
   }
 
   int _toPlaybackTime(int videoTime) {
-    return (videoTime * slowMotionFactor).round();
+    return videoTime * slowMotionFactor;
   }
 
   @override
@@ -380,7 +375,7 @@ class MpvVideoController extends AvesVideoController {
   double get speed => _mkPlayer.state.rate / slowMotionFactor;
 
   @override
-  set speed(double speed) => _mkPlayer.setRate(speed * slowMotionFactor);
+  Future<void> setSpeed(double speed) => _mkPlayer.setRate(speed * slowMotionFactor);
 
   @override
   Future<Uint8List?> captureFrame() {

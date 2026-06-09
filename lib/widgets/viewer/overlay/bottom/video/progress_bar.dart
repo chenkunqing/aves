@@ -190,7 +190,7 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
       return speed != 1
           ? Padding(
               padding: const EdgeInsetsDirectional.only(end: 8),
-              child: _buildText('x${roundToPrecision(speed, decimals: 2)}'),
+              child: _buildText('x${roundToPrecision(speed, decimals: 3)}'),
             )
           : const SizedBox();
     },

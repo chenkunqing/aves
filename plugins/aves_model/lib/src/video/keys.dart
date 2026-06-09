@@ -1,5 +1,5 @@
-// keys returned by fijkplayer when getting media and streams info
-// they originate from FFmpeg, fijkplayer, and other software
+// keys returned by `mpv` when getting media and streams info
+// they originate from `FFmpeg`, and other software
 // that write additional metadata to media files
 class Keys {
   static const alpha = 'alpha';

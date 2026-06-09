@@ -133,7 +133,7 @@ abstract class AvesVideoController extends Disposer with ABRepeatMixin, SlowMoti
 
   double get maxSpeed;
 
-  set speed(double speed);
+  Future<void> setSpeed(double speed);
 
   Future<void> selectTrack(MediaTrackType type, MediaTrackSummary? selected);
 

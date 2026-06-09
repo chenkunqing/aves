@@ -22,9 +22,12 @@ class SlowMotionRange {
 }
 
 mixin SlowMotionMixin on Disposer {
-  double slowMotionFactor = 1;
-
+  int slowMotionFactor = 1;
   ValueNotifier<SlowMotionRange> slowMotionRangeNotifier = ValueNotifier(SlowMotionRange(start: .25, end: .75));
+
+  bool get isSlowMotion => slowMotionFactor != 1;
+
+  static const double fallbackPlaybackFps = 30;
 
   @override
   void dispose() {
