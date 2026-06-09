@@ -94,9 +94,9 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     final fields = <String, Object?>{};
 
     // mpv doc: "duration with milliseconds"
-    final durationMs = await platform.getProperty(_propertyDurationFull);
-    if (durationMs.isNotEmpty) {
-      fields[Keys.duration] = durationMs;
+    final durationSecs = await platform.getProperty(_propertyDurationFull);
+    if (durationSecs.isNotEmpty) {
+      fields[Keys.duration] = durationSecs;
     }
 
     // mpv doc: "metadata key/value pairs"
@@ -223,60 +223,75 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
     return stream;
   }
 
-  static Future<Map<String, Object?>> _getMetadataFields(Player player, Set<String> keys) async {
+  static Future<double?> _getPlaybackDurationSecs(Player player) async {
+    final platform = player.platform;
+    if (platform is NativePlayer) {
+      final durationString = await platform.getProperty(_propertyDurationFull);
+      return _toDoubleValue(durationString);
+    }
+    return null;
+  }
+
+  static Future<Map<String, Object?>> _getFields(
+    Player player,
+    Set<String> keys,
+    Future<Map<String, Object?>> Function(NativePlayer platform) toJsonMap,
+  ) async {
     final result = <String, Object?>{};
     final platform = player.platform;
     if (platform is NativePlayer) {
-      final metadata = await platform.getProperty(_propertyMetadata);
-      if (metadata.isNotEmpty) {
-        try {
-          final jsonMap = jsonDecode(metadata) as Map<String, Object?>;
-          result.addAll(
-            Map.fromEntries(
-              keys.map((key) {
-                Object? value = jsonMap[key];
-                switch (key) {
-                  case Keys.androidCaptureFramerate:
-                    value = _toDoubleValue(value);
-                  case Keys.xiaomiSlowMoment:
-                    if (value is String) {
-                      value = value == '1';
-                    }
+      final jsonMap = await toJsonMap(platform);
+      result.addAll(
+        Map.fromEntries(
+          keys.map((key) {
+            Object? value = jsonMap[key];
+            switch (key) {
+              case Keys.androidCaptureFramerate:
+              case Keys.demuxFps:
+                value = _toDoubleValue(value);
+              case Keys.xiaomiSlowMoment:
+                if (value is String) {
+                  value = value == '1';
                 }
-                return MapEntry(key, value);
-              }),
-            ),
-          );
-        } catch (error) {
-          debugPrint('failed to parse metadata=$metadata with error=$error');
-        }
-      }
+            }
+            return MapEntry(key, value);
+          }),
+        ),
+      );
     }
     return result;
   }
 
-  Future<double?> _getVideoPlaybackFps(Player player) async {
-    final platform = player.platform;
-    if (platform is! NativePlayer) {
-      throw Exception('Platform player ${platform.runtimeType} does not support property retrieval');
-    }
-
-    double? playbackFps;
-    final tracks = await platform.getProperty(_propertyTrackList);
-    if (tracks.isNotEmpty) {
-      try {
-        final tracksJson = jsonDecode(tracks);
-        if (tracksJson is List && tracksJson.isNotEmpty) {
-          final videoTrack = tracksJson.whereType<Map>().map((track) => track.cast<String, Object?>()).firstWhereOrNull((kv) => kv['type'] == mpvTypeVideo);
-          final demuxFps = videoTrack?['demux-fps'];
-          playbackFps = _toDoubleValue(demuxFps);
+  static Future<Map<String, Object?>> _getMetadataFields(Player player, Set<String> keys) async {
+    return _getFields(player, keys, (platform) async {
+      final metadata = await platform.getProperty(_propertyMetadata);
+      if (metadata.isNotEmpty) {
+        try {
+          return jsonDecode(metadata) as Map<String, Object?>;
+        } catch (error) {
+          debugPrint('failed to parse metadata=$metadata with error=$error');
         }
-      } catch (error) {
-        debugPrint('failed to parse tracks=$tracks with error=$error');
       }
-    }
+      return {};
+    });
+  }
 
-    return playbackFps;
+  static Future<Map<String, Object?>> _getVideoTrackFields(Player player, Set<String> keys) async {
+    return _getFields(player, keys, (platform) async {
+      final tracks = await platform.getProperty(_propertyTrackList);
+      if (tracks.isNotEmpty) {
+        try {
+          final tracksJson = jsonDecode(tracks);
+          if (tracksJson is List && tracksJson.isNotEmpty) {
+            final videoTrack = tracksJson.whereType<Map>().map((track) => track.cast<String, Object?>()).firstWhereOrNull((kv) => kv['type'] == mpvTypeVideo);
+            return videoTrack ?? {};
+          }
+        } catch (error) {
+          debugPrint('failed to parse tracks=$tracks with error=$error');
+        }
+      }
+      return {};
+    });
   }
 
   static double? _toDoubleValue(Object? value) {
@@ -289,19 +304,30 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
   }
 
   @override
-  Future<int> computeSlowMotionFactor({required String uri, required String mimeType}) async {
+  Future<(int, int?)> computeSlowMotionFactorAndDuration({required String uri, required String mimeType}) async {
     final player = await _openBackgroundPlayer(uri: uri, mimeType: mimeType);
-    if (player == null) return 1;
+    if (player == null) return (1, null);
 
-    final playbackFps = await _getVideoPlaybackFps(player);
-    final slowMotionFactor = await computeSlowMotionFactorWithPlayer(player, playbackFps);
+    final playbackFps = (await _getVideoTrackFields(player, {Keys.demuxFps}))[Keys.demuxFps];
 
+    int? slowMotionFactor;
+    if (playbackFps is double) {
+      slowMotionFactor = await computeSlowMotionFactor(player, playbackFps);
+    }
+    if (slowMotionFactor == null) return (1, null);
+
+    final playbackDurationSecs = await _getPlaybackDurationSecs(player);
     await player.dispose();
-    return slowMotionFactor;
+
+    int? captureDurationMillis;
+    if (playbackDurationSecs is double) {
+      captureDurationMillis = (playbackDurationSecs * 1000 / slowMotionFactor).round();
+    }
+    return (slowMotionFactor, captureDurationMillis);
   }
 
-  static Future<int> computeSlowMotionFactorWithPlayer(Player player, double? playbackFps) async {
-    int _slowMotionFactor = 1;
+  static Future<int> computeSlowMotionFactor(Player player, double? playbackFps) async {
+    int slowMotionFactor = 1;
 
     if (playbackFps != null) {
       final result = await _getMetadataFields(player, {
@@ -310,17 +336,17 @@ class MpvVideoMetadataFetcher extends AvesVideoMetadataFetcher {
       });
       final captureFps = result[Keys.androidCaptureFramerate];
       if (captureFps is double) {
-        _slowMotionFactor = (captureFps / playbackFps).round();
-        if (_slowMotionFactor == 1) {
+        slowMotionFactor = (captureFps / playbackFps).round();
+        if (slowMotionFactor == 1) {
           // Xiaomi slow motion videos set both FPS to 120
           final slowMoment = result[Keys.xiaomiSlowMoment];
           if (slowMoment is bool && slowMoment) {
-            _slowMotionFactor = (captureFps / SlowMotionMixin.fallbackPlaybackFps).round();
+            slowMotionFactor = (captureFps / SlowMotionMixin.fallbackPlaybackFps).round();
           }
         }
       }
     }
-    return _slowMotionFactor;
+    return slowMotionFactor;
   }
 
   @override

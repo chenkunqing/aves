@@ -190,7 +190,7 @@ class MpvVideoController extends AvesVideoController {
 
   Future<void> _updateSlowMotionFactor() async {
     final playbackFps = _videoTracks.firstOrNull?.fps;
-    slowMotionFactor = await MpvVideoMetadataFetcher.computeSlowMotionFactorWithPlayer(_mkPlayer, playbackFps);
+    slowMotionFactor = await MpvVideoMetadataFetcher.computeSlowMotionFactor(_mkPlayer, playbackFps);
     canSetSpeedNotifier.value = isSlowMotion;
   }
 

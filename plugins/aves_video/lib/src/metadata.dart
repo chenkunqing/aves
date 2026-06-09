@@ -7,7 +7,7 @@ abstract class AvesVideoMetadataFetcher {
 
   Future<Map<String, Object?>> getMetadata({required String uri, required String mimeType});
 
-  Future<int> computeSlowMotionFactor({required String uri, required String mimeType});
+  Future<(int, int?)> computeSlowMotionFactorAndDuration({required String uri, required String mimeType});
 
   Future<ui.ImageDescriptor?> getThumbnailDescriptor({required String uri, required String mimeType, required double targetExtentDip});
 

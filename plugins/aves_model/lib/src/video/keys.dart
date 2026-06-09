@@ -38,6 +38,7 @@ class Keys {
   static const date = 'date';
   static const decoderHeight = 'dh';
   static const decoderWidth = 'dw';
+  static const demuxFps = 'demux-fps';
   static const disposition = 'disposition';
   static const duration = 'duration';
   static const durationMicros = 'duration_us';
