@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:aves/model/selection.dart';
 import 'package:aves/model/settings/settings.dart';
-import 'package:aves/utils/math_utils.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:aves/widgets/common/basic/gestures/gesture_detector.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/common/extensions/media_query.dart';

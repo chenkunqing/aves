@@ -1,4 +1,4 @@
-import 'package:aves_utils/src/collection_utils.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:test/test.dart';
 
 enum _TestEnum { apple, pear, platypus }

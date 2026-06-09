@@ -6,10 +6,10 @@ import 'package:aves/theme/format.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/theme/styles.dart';
 import 'package:aves/theme/themes.dart';
-import 'package:aves/utils/math_utils.dart';
 import 'package:aves/widgets/common/extensions/theme.dart';
 import 'package:aves/widgets/common/fx/blurred.dart';
 import 'package:aves/widgets/common/fx/borders.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:aves_video/aves_video.dart';
 import 'package:decorated_icon/decorated_icon.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 class VideoProgressBar extends StatefulWidget {
   final AvesVideoController? controller;
   final Animation<double> scale;
+
+  static const padding = EdgeInsets.symmetric(horizontal: 16);
 
   const VideoProgressBar({
     super.key,
@@ -31,9 +33,9 @@ class VideoProgressBar extends StatefulWidget {
 class _VideoProgressBarState extends State<VideoProgressBar> {
   final GlobalKey _progressBarKey = GlobalKey(debugLabel: 'video-progress-bar');
   bool _playingOnDragStart = false;
-  final ValueNotifier<ABRepeat?> _internalAbRepeatNotifier = ValueNotifier(null);
 
-  static const double radius = 123;
+  static const double _radius = 123;
+  static const double _abRepeatMarkWidth = 2;
 
   AvesVideoController? get controller => widget.controller;
 
@@ -41,13 +43,11 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
 
   bool get isPlaying => controller?.isPlaying ?? false;
 
-  ValueNotifier<ABRepeat?> get abRepeatNotifier => controller?.abRepeatNotifier ?? _internalAbRepeatNotifier;
+  bool get isSlowMotion => controller?.isSlowMotion ?? false;
 
-  @override
-  void dispose() {
-    _internalAbRepeatNotifier.dispose();
-    super.dispose();
-  }
+  ValueNotifier<ABRepeat?>? get abRepeatNotifier => controller?.abRepeatNotifier;
+
+  ValueNotifier<SlowMotionRange>? get slowMotionRangeNotifier => controller?.slowMotionRangeNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
       sizeFactor: widget.scale,
       child: BlurredRRect.all(
         enabled: blurred,
-        borderRadius: radius,
+        borderRadius: _radius,
         child: GestureDetector(
           onTapDown: (details) {
             _seekFromTap(details.globalPosition);
@@ -75,17 +75,17 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: VideoProgressBar.padding,
               decoration: BoxDecoration(
                 color: Themes.overlayBackgroundColor(brightness: theme.brightness, blurred: blurred),
                 border: AvesBorder.border(context),
-                borderRadius: const BorderRadius.all(Radius.circular(radius)),
+                borderRadius: const BorderRadius.all(Radius.circular(_radius)),
               ),
               child: MediaQuery(
                 data: MediaQuery.of(context).copyWith(
                   textScaler: TextScaler.noScaling,
                 ),
-                child: ValueListenableBuilder<ABRepeat?>(
+                child: NullableValueListenableBuilder<ABRepeat?>(
                   valueListenable: abRepeatNotifier,
                   builder: (context, abRepeat, child) {
                     return Stack(
@@ -136,7 +136,7 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
                               ),
                               Row(
                                 children: [
-                                  _buildSpeedIndicator(),
+                                  if (!isSlowMotion) _buildSpeedIndicator(),
                                   _buildMuteIndicator(),
                                   // fake text below to match the height of the text above and center the whole thing
                                   _buildText(''),
@@ -171,13 +171,14 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
 
   Widget _buildABRepeatMark(BuildContext context, int? position) {
     if (controller == null || position == null) return const SizedBox();
+    final dx = _progressToDx(position / controller!.duration);
     return Positioned(
-      left: _progressToDx(position / controller!.duration),
+      left: dx != null ? dx - _abRepeatMarkWidth / 2 : null,
       top: 0,
       bottom: 0,
       child: Container(
         decoration: BoxDecoration(
-          border: Border(left: AvesBorder.straightSide(context, width: 2)),
+          border: Border(left: AvesBorder.straightSide(context, width: _abRepeatMarkWidth)),
         ),
       ),
     );
@@ -214,10 +215,6 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
     },
   );
 
-  RenderBox? _getProgressBarRenderBox() {
-    return _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
-  }
-
   void _seekFromTap(Offset globalPosition) async {
     final box = _getProgressBarRenderBox();
     if (controller == null || box == null) return;
@@ -229,5 +226,9 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
   double? _progressToDx(double progress) {
     final box = _getProgressBarRenderBox();
     return box != null && box.hasSize ? progress * box.size.width : null;
+  }
+
+  RenderBox? _getProgressBarRenderBox() {
+    return _progressBarKey.currentContext?.findRenderObject() as RenderBox?;
   }
 }

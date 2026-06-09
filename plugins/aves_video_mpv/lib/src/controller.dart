@@ -142,9 +142,10 @@ class MpvVideoController extends AvesVideoController {
         }
 
         if (!_abRepeatSeeking && isSlowMotion) {
-          final slowMotionRange = slowMotionRangeNotifier.value;
-
-          final targetSpeed = 1.0 / (slowMotionRange.inRange(progress) ? slowMotionFactor : 1);
+          final targetSpeed = getSlowMotionTargetSpeed(
+            currentPosition: currentPosition,
+            duration: duration,
+          );
           if (speed != targetSpeed) {
             setSpeed(targetSpeed);
           }
@@ -191,7 +192,7 @@ class MpvVideoController extends AvesVideoController {
   Future<void> _updateSlowMotionFactor() async {
     final playbackFps = _videoTracks.firstOrNull?.fps;
     slowMotionFactor = await MpvVideoMetadataFetcher.computeSlowMotionFactor(_mkPlayer, playbackFps);
-    canSetSpeedNotifier.value = isSlowMotion;
+    canSetSpeedNotifier.value = !isSlowMotion;
   }
 
   Future<void> _applyLoop() async {

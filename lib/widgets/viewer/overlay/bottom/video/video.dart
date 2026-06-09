@@ -8,6 +8,7 @@ import 'package:aves/widgets/viewer/overlay/bottom/bottom.dart';
 import 'package:aves/widgets/viewer/overlay/bottom/video/ab_repeat.dart';
 import 'package:aves/widgets/viewer/overlay/bottom/video/controls.dart';
 import 'package:aves/widgets/viewer/overlay/bottom/video/progress_bar.dart';
+import 'package:aves/widgets/viewer/overlay/bottom/video/slow_motion_bar.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:aves_video/aves_video.dart';
 import 'package:flutter/material.dart';
@@ -66,10 +67,22 @@ class _VideoControlOverlayState extends State<VideoControlOverlay> with SingleTi
           );
         }
 
-        final progressBar = VideoProgressBar(
+        Widget progressBar = VideoProgressBar(
           controller: controller,
           scale: scale,
         );
+        if (controller?.isSlowMotion ?? false) {
+          progressBar = Column(
+            children: [
+              SlowMotionBar(
+                controller: controller,
+                scale: scale,
+              ),
+              const SizedBox(height: 8),
+              progressBar,
+            ],
+          );
+        }
         final controls = VideoControlRow(
           controller: controller,
           scale: scale,
@@ -93,6 +106,7 @@ class _VideoControlOverlayState extends State<VideoControlOverlay> with SingleTi
                   ]
                 : [
                     Row(
+                      crossAxisAlignment: .end,
                       textDirection: ViewerBottomOverlay.actionsDirection,
                       children: [
                         Expanded(child: progressBar),
