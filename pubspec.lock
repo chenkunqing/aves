@@ -680,10 +680,10 @@ packages:
     dependency: transitive
     description:
       name: idb_shim
-      sha256: aabfe78d065fb7b40fffb337cc7c50757dd4eee3dec95cac2bd2692e7b874ef3
+      sha256: "520763d12e232f4792b01ed0e4fbf0bda07db36cab0e2499dc9b3e58ea1f5ad4"
       url: "https://pub.dev"
     source: hosted
-    version: "2.9.3"
+    version: "2.9.3+1"
   image:
     dependency: transitive
     description:
@@ -988,7 +988,7 @@ packages:
     description:
       path: "."
       ref: aves
-      resolved-ref: "308961136eed3d39cdc307b0cc3a7c3747f69448"
+      resolved-ref: "08ad8a2489c327dba9b18b5d0b04b6b9088856fc"
       url: "https://github.com/deckerst/aves_panorama.git"
     source: git
     version: "0.4.1"
@@ -1349,10 +1349,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: a2c49fc1fed7140cadd892d765bd47edbe4ac0b9c7e7e3c493dcb58126f99cf0
+      sha256: "93ae5884a9df5d3bb696825bceb3a17590754548b5d740eba51500afc8d088f5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.25"
+    version: "2.4.26"
   shared_preferences_foundation:
     dependency: transitive
     description:
