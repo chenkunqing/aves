@@ -988,7 +988,7 @@ packages:
     description:
       path: "."
       ref: aves
-      resolved-ref: "08ad8a2489c327dba9b18b5d0b04b6b9088856fc"
+      resolved-ref: "6bdc7a7996abb469037e90aa07585fbe5bf5d1c3"
       url: "https://github.com/deckerst/aves_panorama.git"
     source: git
     version: "0.4.1"
