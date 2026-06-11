@@ -134,6 +134,8 @@ class CatalogMetadata {
     'rating': rating,
   };
 
+  Map<String, Object?> toDbMap() => toMap();
+
   @override
   String toString() =>
       '$runtimeType#${shortHash(this)}{id=$id, mimeType=$mimeType, dateMillis=$dateMillis'

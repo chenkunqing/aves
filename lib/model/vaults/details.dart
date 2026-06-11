@@ -47,6 +47,8 @@ class VaultDetails extends Equatable {
     'lockType': lockType.name,
   };
 
+  Map<String, Object?> toDbMap() => toMap();
+
   String get passKey => 'vault_pass_$name';
 
   String get path => '${androidFileUtils.vaultRoot}$name';

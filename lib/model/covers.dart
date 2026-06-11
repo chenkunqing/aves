@@ -350,16 +350,12 @@ class CoverRow extends Equatable {
     final filter = CollectionFilter.fromJson(map['filter']);
     if (filter == null) return null;
 
-    final entryId = map['entryId'] as int?;
-    final packageName = map['packageName'] as String?;
-    final colorJson = map['color'] as String?;
-
     return CoverRow(
       filter: filter,
       coverProps: CoverProps(
-        entryId,
-        packageName,
-        ExtraColor.fromJson(colorJson),
+        map['entryId'] as int?,
+        map['packageName'] as String?,
+        ExtraColor.fromJson(map['color']),
       ),
     );
   }
@@ -369,5 +365,12 @@ class CoverRow extends Equatable {
     'entryId': coverProps.entryId,
     'packageName': coverProps.packageName,
     'color': coverProps.color?.toJsonMap(),
+  };
+
+  Map<String, Object?> toDbMap() => {
+    'filter': filter.toJsonString(),
+    'entryId': coverProps.entryId,
+    'packageName': coverProps.packageName,
+    'color': coverProps.color?.toJsonString(),
   };
 }
