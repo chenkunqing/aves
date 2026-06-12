@@ -1,13 +1,10 @@
 import 'dart:async';
 
-import 'package:aves/app_flavor.dart';
-import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/settings.dart';
 import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/model/vaults/vaults.dart';
 import 'package:aves/services/common/services.dart';
 import 'package:aves/theme/colors.dart';
-import 'package:aves/theme/durations.dart';
 import 'package:aves/theme/icons.dart';
 import 'package:aves/widgets/collection/entry_set_action_delegate.dart';
 import 'package:aves/widgets/common/action_mixins/permission_aware.dart';
@@ -18,6 +15,7 @@ import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
 import 'package:aves/widgets/settings/privacy/access_grants_page.dart';
 import 'package:aves/widgets/settings/privacy/hidden_items_page.dart';
+import 'package:aves/widgets/settings/privacy/permissions/permissions_tile.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,45 +35,15 @@ class PrivacySection extends SettingsSection {
 
   @override
   Future<List<SettingsTile>> tiles(BuildContext context) async {
-    final canEnableErrorReporting = context.select<AppFlavor, bool>((v) => v.canEnableErrorReporting);
     return [
-      SettingsTilePrivacyAllowInstalledAppAccess(),
-      if (canEnableErrorReporting) SettingsTilePrivacyAllowErrorReporting(),
-      if (!settings.useTvLayout && device.canRequestManageMedia) SettingsTilePrivacyManageMedia(),
-      if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
-      SettingsTilePrivacySaveSearchHistory(),
-      if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
+      SettingsTilePermissions(),
       SettingsTilePrivacyHiddenItems(),
       if (!settings.useTvLayout) SettingsTilePrivacyStorageAccess(),
+      if (!settings.useTvLayout) SettingsTilePrivacyEnableBin(),
+      SettingsTilePrivacySaveSearchHistory(),
+      if (!settings.useTvLayout) SettingsTilePrivacyAutoExportSettings(),
     ];
   }
-}
-
-class SettingsTilePrivacyAllowInstalledAppAccess extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsAllowInstalledAppAccess;
-
-  @override
-  Widget build(BuildContext context) => SettingsSwitchListTile(
-    selector: (context, s) => s.isInstalledAppAccessAllowed,
-    onChanged: (v) => settings.isInstalledAppAccessAllowed = v,
-    leading: const Icon(AIcons.app),
-    title: title,
-    subtitle: (context) => context.l10n.settingsAllowInstalledAppAccessSubtitle,
-  );
-}
-
-class SettingsTilePrivacyAllowErrorReporting extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsAllowErrorReporting;
-
-  @override
-  Widget build(BuildContext context) => SettingsSwitchListTile(
-    selector: (context, s) => s.isErrorReportingAllowed,
-    onChanged: (v) => settings.isErrorReportingAllowed = v,
-    leading: const Icon(AIcons.bugReport),
-    title: title,
-  );
 }
 
 class SettingsTilePrivacyAutoExportSettings extends SettingsTile with PermissionAwareMixin {
@@ -97,7 +65,6 @@ class SettingsTilePrivacyAutoExportSettings extends SettingsTile with Permission
         settings.autoExportPath = null;
       }
     },
-    leading: const Icon(AIcons.fileExport),
     title: title,
     subtitle: (_) => settings.autoExportPath,
   );
@@ -116,7 +83,6 @@ class SettingsTilePrivacySaveSearchHistory extends SettingsTile {
         settings.searchHistory = [];
       }
     },
-    leading: const Icon(AIcons.searchHistory),
     title: title,
   );
 }
@@ -129,7 +95,6 @@ class SettingsTilePrivacyEnableBin extends SettingsTile {
   Widget build(BuildContext context) => SettingsSwitchListTile(
     selector: (context, s) => s.enableBin,
     onChanged: (v) => setBinUsage(context, v),
-    leading: const Icon(AIcons.bin),
     title: title,
     subtitle: (context) => context.l10n.settingsEnableBinSubtitle,
   );
@@ -197,75 +162,4 @@ class SettingsTilePrivacyStorageAccess extends SettingsTile {
     routeName: StorageAccessPage.routeName,
     builder: (context) => const StorageAccessPage(),
   );
-}
-
-class SettingsTilePrivacyManageMedia extends SettingsTile {
-  @override
-  String title(BuildContext context) => context.l10n.settingsAllowMediaManagement;
-
-  @override
-  Widget build(BuildContext context) => _ManageMediaTile(title: title(context));
-}
-
-class _ManageMediaTile extends StatefulWidget {
-  final String title;
-
-  const _ManageMediaTile({
-    required this.title,
-  });
-
-  @override
-  State<_ManageMediaTile> createState() => _ManageMediaTileState();
-}
-
-class _ManageMediaTileState extends State<_ManageMediaTile> with WidgetsBindingObserver {
-  late Future<bool> _loader;
-
-  @override
-  void initState() {
-    super.initState();
-    _initLoader();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  void _initLoader() => _loader = deviceService.canManageMedia();
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _initLoader();
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: _loader,
-      builder: (context, snapshot) {
-        final loading = snapshot.connectionState != ConnectionState.done;
-        final current = snapshot.data ?? false;
-
-        final onChanged = loading ? null : (v) => deviceService.requestMediaManagePermission();
-        final leading = AnimatedOpacity(
-          opacity: current && onChanged != null ? 1 : SettingsSwitchListTile.disabledOpacity,
-          duration: ADurations.toggleableTransitionLoose,
-          child: const Icon(AIcons.allCollection),
-        );
-
-        return SwitchListTile(
-          value: current,
-          onChanged: onChanged,
-          title: Text(widget.title),
-          secondary: leading,
-        );
-      },
-    );
-  }
 }

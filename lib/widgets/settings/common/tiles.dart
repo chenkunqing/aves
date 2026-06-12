@@ -16,12 +16,14 @@ typedef TitleBuilder = String? Function(BuildContext context);
 
 class SettingsSubPageTile extends StatelessWidget {
   final TitleBuilder title;
+  final WidgetBuilder? subtitle;
   final String routeName;
   final WidgetBuilder builder;
 
   const SettingsSubPageTile({
     super.key,
     required this.title,
+    this.subtitle,
     required this.routeName,
     required this.builder,
   });
@@ -30,6 +32,7 @@ class SettingsSubPageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(title(context) ?? '?'),
+      subtitle: subtitle?.call(context),
       onTap: () {
         Navigator.maybeOf(context)?.push(
           MaterialPageRoute(

@@ -60,7 +60,8 @@ class DeviceHandler(private val context: Context) : MethodCallHandler {
             hashMapOf(
                 "canPinShortcut" to ShortcutManagerCompat.isRequestPinShortcutSupported(context),
                 "canRenderSubdivisionFlagEmojis" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O),
-                "canRequestManageMedia" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S),
+                "canRequestMediaManagementPermission" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S),
+                "canRequestNotificationPermission" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU),
                 "hasGeocoder" to Geocoder.isPresent(),
                 "isDynamicColorAvailable" to DynamicColors.isDynamicColorAvailable(),
                 "showPinShortcutFeedback" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O),

@@ -45,6 +45,7 @@ class AIcons {
   static const minimap = Symbols.picture_in_picture;
   static const name = Symbols.match_word;
   static const newTier = Symbols.fiber_new;
+  static const notifications = Symbols.notifications;
   static const opacity = Symbols.opacity;
   static const palette = Symbols.palette;
   static const path = Symbols.account_tree;
@@ -55,7 +56,6 @@ class AIcons {
   static const raw = Symbols.raw_on;
   static const sensorControlEnabled = Symbols.explore;
   static const sensorControlDisabled = Symbols.explore_off;
-  static const searchHistory = Symbols.youtube_searched_for;
   static const settings = Symbols.settings;
   static const shooting = Symbols.camera;
   static const size = Symbols.data_usage;

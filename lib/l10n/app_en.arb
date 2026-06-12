@@ -998,6 +998,10 @@
   "settingsEnableBinSubtitle": "Keep deleted items for 30 days",
   "settingsDisablingBinWarningDialogMessage": "Items in the recycle bin will be deleted forever.",
   "settingsAllowMediaManagement": "Allow media management",
+  "settingsAllowNotifications": "Allow notifications",
+
+  "settingsPermissionsTile": "Permissions",
+  "settingsPermissionsPageTitle": "Permissions",
 
   "settingsHiddenItemsTile": "Hidden items",
   "settingsHiddenItemsPageTitle": "Hidden Items",
