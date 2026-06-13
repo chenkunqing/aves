@@ -147,18 +147,10 @@ class SettingsSelectionListTile<T> extends StatelessWidget {
     return Selector<Settings, T>(
       selector: selector,
       builder: (context, current, child) {
-        Widget titleWidget = Text(tileTitle(context) ?? '?');
-        if (trailingBuilder != null) {
-          titleWidget = Row(
-            children: [
-              Expanded(child: titleWidget),
-              trailingBuilder!(context),
-            ],
-          );
-        }
         return ListTile(
-          title: titleWidget,
+          title: Text(tileTitle(context) ?? '?'),
           subtitle: AvesCaption(getName(context, current)),
+          trailing: trailingBuilder?.call(context),
           onTap: () => showSelectionDialog<T>(
             context: context,
             builder: (context) => AvesSingleSelectionDialog<T>(
@@ -181,7 +173,6 @@ class SettingsMultiSelectionListTile<T> extends StatelessWidget {
   final List<T> Function(BuildContext, Settings) selector;
   final ValueChanged<List<T>> onSelection;
   final String tileTitle, noneSubtitle;
-  final WidgetBuilder? trailingBuilder;
   final String? dialogTitle;
   final TextBuilder<T>? optionSubtitleBuilder;
 
@@ -193,7 +184,6 @@ class SettingsMultiSelectionListTile<T> extends StatelessWidget {
     required this.onSelection,
     required this.tileTitle,
     required this.noneSubtitle,
-    this.trailingBuilder,
     this.dialogTitle,
     this.optionSubtitleBuilder,
   });
@@ -203,17 +193,8 @@ class SettingsMultiSelectionListTile<T> extends StatelessWidget {
     return Selector<Settings, List<T>>(
       selector: selector,
       builder: (context, current, child) {
-        Widget titleWidget = Text(tileTitle);
-        if (trailingBuilder != null) {
-          titleWidget = Row(
-            children: [
-              Expanded(child: titleWidget),
-              trailingBuilder!(context),
-            ],
-          );
-        }
         return ListTile(
-          title: titleWidget,
+          title: Text(tileTitle),
           subtitle: AvesCaption(current.isEmpty ? noneSubtitle : current.map((v) => getName(context, v)).join(AText.separator)),
           onTap: () => showSelectionDialog<List<T>>(
             context: context,

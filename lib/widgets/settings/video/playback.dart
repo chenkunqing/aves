@@ -1,6 +1,9 @@
 import 'package:aves/model/device.dart';
 import 'package:aves/model/settings/settings.dart';
+import 'package:aves/theme/icons.dart';
 import 'package:aves/view/view.dart';
+import 'package:aves/widgets/about/app_ref.dart';
+import 'package:aves/widgets/aves_app.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
@@ -22,13 +25,6 @@ class VideoPlaybackPage extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           children: [
-            SettingsSelectionListTile<VideoHardwareAcceleration>(
-              values: VideoHardwareAcceleration.values,
-              getName: (context, v) => v.getName(context),
-              selector: (context, s) => s.videoHardwareAcceleration,
-              onSelection: (v) => settings.videoHardwareAcceleration = v,
-              tileTitle: (_) => l10n.settingsVideoEnableHardwareAcceleration,
-            ),
             SettingsSelectionListTile<VideoAutoPlayMode>(
               values: VideoAutoPlayMode.values,
               getName: (context, v) => v.getName(context),
@@ -61,6 +57,18 @@ class VideoPlaybackPage extends StatelessWidget {
                 tileTitle: (_) => l10n.settingsVideoBackgroundMode,
                 dialogTitle: l10n.settingsVideoBackgroundModeDialogTitle,
               ),
+            SettingsSelectionListTile<VideoHardwareAcceleration>(
+              values: VideoHardwareAcceleration.values,
+              getName: (context, v) => v.getName(context),
+              selector: (context, s) => s.videoHardwareAcceleration,
+              onSelection: (v) => settings.videoHardwareAcceleration = v,
+              tileTitle: (_) => l10n.settingsVideoEnableHardwareAcceleration,
+              trailingBuilder: (context) => IconButton(
+                icon: const Icon(AIcons.help),
+                onPressed: () => AvesApp.launchUrl('${AppReference.avesFaq}#should-i-enable-hardware-acceleration-to-play-videos'),
+                tooltip: 'FAQ',
+              ),
+            ),
           ],
         ),
       ),
