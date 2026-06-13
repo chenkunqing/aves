@@ -13,7 +13,7 @@ import 'package:aves/widgets/filter_grids/common/enums.dart';
 import 'package:aves/widgets/home/home_page.dart';
 import 'package:aves/widgets/navigation/nav_item.dart';
 import 'package:aves/widgets/settings/common/quick_actions/editor_page.dart';
-import 'package:aves/widgets/settings/navigation/drawer.dart';
+import 'package:aves/widgets/settings/navigation/drawer_editor_page.dart';
 import 'package:aves/widgets/settings/settings_page.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';

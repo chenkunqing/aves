@@ -2,7 +2,7 @@ import 'package:aves/model/settings/settings.dart';
 import 'package:aves/widgets/common/basic/scaffold.dart';
 import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
-import 'package:aves/widgets/settings/video/control_actions.dart';
+import 'package:aves/widgets/settings/video/control_buttons_page.dart';
 import 'package:flutter/material.dart';
 
 class VideoControlsPage extends StatelessWidget {

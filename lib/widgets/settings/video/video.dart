@@ -8,9 +8,9 @@ import 'package:aves/widgets/common/extensions/build_context.dart';
 import 'package:aves/widgets/settings/common/tile_leading.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
 import 'package:aves/widgets/settings/settings_definition.dart';
-import 'package:aves/widgets/settings/video/controls.dart';
-import 'package:aves/widgets/settings/video/playback.dart';
-import 'package:aves/widgets/settings/video/subtitle_theme.dart';
+import 'package:aves/widgets/settings/video/controls_page.dart';
+import 'package:aves/widgets/settings/video/playback_page.dart';
+import 'package:aves/widgets/settings/video/subtitle_theme_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

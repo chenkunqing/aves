@@ -2,8 +2,8 @@ import 'package:aves/model/filters/container/dynamic_album.dart';
 import 'package:aves/model/filters/filters.dart';
 import 'package:aves/model/grouping/common.dart';
 import 'package:aves/model/settings/defaults.dart';
-import 'package:aves_utils/aves_utils.dart';
 import 'package:aves_model/aves_model.dart';
+import 'package:aves_utils/aves_utils.dart';
 import 'package:synchronized/synchronized.dart';
 
 mixin FilterGridsSettings on SettingsAccess {
