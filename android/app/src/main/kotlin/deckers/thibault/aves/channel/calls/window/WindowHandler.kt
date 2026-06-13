@@ -25,6 +25,8 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
             "getCutoutInsets" -> Coresult.safe(call, result, ::getCutoutInsets)
             "supportsWideGamut" -> Coresult.safe(call, result, ::supportsWideGamut)
             "supportsHdr" -> Coresult.safe(call, result, ::supportsHdr)
+            "isInWideColorGamutMode" -> Coresult.safe(call, result, ::isInWideColorGamutMode)
+            "isInHdrMode" -> Coresult.safe(call, result, ::isInHdrMode)
             "setColorMode" -> Coresult.safe(call, result, ::setColorMode)
             "startGlobalDrag" -> Coresult.safe(call, result, ::startGlobalDrag)
             else -> result.notImplemented()
@@ -66,6 +68,10 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
     abstract fun supportsWideGamut(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun supportsHdr(call: MethodCall, result: MethodChannel.Result)
+
+    abstract fun isInWideColorGamutMode(call: MethodCall, result: MethodChannel.Result)
+
+    abstract fun isInHdrMode(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun setColorMode(call: MethodCall, result: MethodChannel.Result)
 

@@ -57,6 +57,14 @@ class ServiceWindowHandler(service: Service) : WindowHandler(service) {
         result.success(false)
     }
 
+    override fun isInWideColorGamutMode(call: MethodCall, result: MethodChannel.Result) {
+        result.success(false)
+    }
+
+    override fun isInHdrMode(call: MethodCall, result: MethodChannel.Result) {
+        result.success(false)
+    }
+
     override fun setColorMode(call: MethodCall, result: MethodChannel.Result) {
         result.success(null)
     }

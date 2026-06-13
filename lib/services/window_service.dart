@@ -33,7 +33,11 @@ abstract class WindowService {
 
   Future<bool> supportsHdr();
 
-  Future<void> setColorMode({required bool wideColorGamut, required bool hdr});
+  Future<bool> isInWideColorGamutMode();
+
+  Future<bool> isInHdrMode();
+
+  Future<void> setColorMode({required bool wideColorGamut, required bool hdr, double? desiredHdrHeadroom});
 
   Future<bool> startGlobalDrag(String uri, String? label, Size shadowSize, Uint8List shadowBytes);
 }
@@ -86,7 +90,6 @@ class PlatformWindowService implements WindowService {
     }
     return false;
   }
-
 
   @override
   Future<bool> isInMultiWindowMode() async {
@@ -244,16 +247,38 @@ class PlatformWindowService implements WindowService {
   }
 
   @override
-  Future<void> setColorMode({required bool wideColorGamut, required bool hdr}) async {
-    // TODO TLAD [hdr] enable when ready
-    // try {
-    //   await _platform.invokeMethod('setColorMode', <String, Object?>{
-    //     'wideColorGamut': wideColorGamut,
-    //     'hdr': hdr,
-    //   });
-    // } on PlatformException catch (e, stack) {
-    //   await reportService.recordError(e, stack);
-    // }
+  Future<bool> isInWideColorGamutMode() async {
+    try {
+      final result = await _platform.invokeMethod('isInWideColorGamutMode');
+      if (result != null) return result as bool;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return false;
+  }
+
+  @override
+  Future<bool> isInHdrMode() async {
+    try {
+      final result = await _platform.invokeMethod('isInHdrMode');
+      if (result != null) return result as bool;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return false;
+  }
+
+  @override
+  Future<void> setColorMode({required bool wideColorGamut, required bool hdr, double? desiredHdrHeadroom}) async {
+    try {
+      await _platform.invokeMethod('setColorMode', <String, Object?>{
+        'wideColorGamut': wideColorGamut,
+        'hdr': hdr,
+        'desiredHdrHeadroom': desiredHdrHeadroom,
+      });
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
   }
 
   @override

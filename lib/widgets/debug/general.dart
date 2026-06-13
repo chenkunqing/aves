@@ -3,6 +3,7 @@ import 'package:aves/model/source/collection_source.dart';
 import 'package:aves/services/analysis_service.dart';
 import 'package:aves/services/common/channel.dart';
 import 'package:aves/services/common/service_policy.dart';
+import 'package:aves/services/common/services.dart';
 import 'package:aves/widgets/common/identity/aves_expansion_tile.dart';
 import 'package:aves/widgets/settings/common/tiles.dart';
 import 'package:aves/widgets/viewer/info/common.dart';
@@ -18,7 +19,21 @@ class DebugGeneralSection extends StatefulWidget {
 }
 
 class _DebugGeneralSectionState extends State<DebugGeneralSection> with AutomaticKeepAliveClientMixin {
+  late Future<bool> _wideGamutModeLoader;
+  late Future<bool> _hdrModeLoader;
+
   static OverlayEntry? _taskQueueOverlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _initLoaders();
+  }
+
+  void _initLoaders() {
+    _wideGamutModeLoader = windowService.isInWideColorGamutMode();
+    _hdrModeLoader = windowService.isInHdrMode();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +87,34 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
           selector: (context, s) => s.debugShowViewerTiles,
           onChanged: (v) => settings.debugShowViewerTiles = v,
           title: (_) => 'Show viewer tiles',
+        ),
+        FutureBuilder<bool>(
+          future: _wideGamutModeLoader,
+          builder: (context, snapshot) {
+            return SwitchListTile(
+              value: snapshot.data ?? false,
+              onChanged: (value) async {
+                await windowService.setColorMode(wideColorGamut: value, hdr: false);
+                _initLoaders();
+                setState(() {});
+              },
+              title: const Text('Wide gamut mode'),
+            );
+          },
+        ),
+        FutureBuilder<bool>(
+          future: _hdrModeLoader,
+          builder: (context, snapshot) {
+            return SwitchListTile(
+              value: snapshot.data ?? false,
+              onChanged: (value) async {
+                await windowService.setColorMode(wideColorGamut: false, hdr: value);
+                _initLoaders();
+                setState(() {});
+              },
+              title: const Text('HDR mode'),
+            );
+          },
         ),
         ElevatedButton(
           onPressed: () => AnalysisService.startService(force: false),

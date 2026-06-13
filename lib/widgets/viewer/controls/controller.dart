@@ -69,8 +69,9 @@ class ViewerController with CastMixin {
     if (kFlutterMemoryAllocationsEnabled) {
       LeakTracking.dispatchObjectDisposed(object: this);
     }
+    // TODO TLAD [hdr] enable when ready
+    // windowService.setColorMode(wideColorGamut: false, hdr: false);
     entryNotifier.dispose();
-    windowService.setColorMode(wideColorGamut: false, hdr: false);
     _autopilotNotifier.dispose();
     _clearAutopilotAnimations();
     _stopPlayTimer();
@@ -78,12 +79,13 @@ class ViewerController with CastMixin {
   }
 
   Future<void> _onEntryChanged() async {
-    if (await windowService.supportsHdr()) {
-      await windowService.setColorMode(
-        wideColorGamut: false,
-        hdr: entryNotifier.value?.isHdr ?? false,
-      );
-    }
+    // TODO TLAD [hdr] enable when ready
+    // if (await windowService.supportsHdr()) {
+    //   await windowService.setColorMode(
+    //     wideColorGamut: false,
+    //     hdr: entryNotifier.value?.isHdr ?? false,
+    //   );
+    // }
   }
 
   void _onAutopilotChanged() {

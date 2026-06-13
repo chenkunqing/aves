@@ -118,7 +118,7 @@ object Helper {
             }
 
             else -> tag.description
-        }
+        } ?: "${dir.getObject(tag.tagType)}"
     }
 
     fun readMimeType(input: InputStream): String? {

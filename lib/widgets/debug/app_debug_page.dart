@@ -27,7 +27,6 @@ import 'package:aves/widgets/debug/os_apps.dart';
 import 'package:aves/widgets/debug/os_codecs.dart';
 import 'package:aves/widgets/debug/os_paths.dart';
 import 'package:aves/widgets/debug/os_storage.dart';
-import 'package:aves/widgets/debug/report.dart';
 import 'package:aves/widgets/debug/settings.dart';
 import 'package:aves_model/aves_model.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +87,6 @@ class AppDebugPage extends StatelessWidget {
                     DebugCapabilitiesSection(),
                     DebugColorSection(),
                     DebugAppDatabaseSection(),
-                    DebugErrorReportingSection(),
                     DebugSettingsSection(),
                     DebugGroupsSection(),
                     DebugOSAppSection(),
