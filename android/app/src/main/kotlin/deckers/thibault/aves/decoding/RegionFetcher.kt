@@ -123,7 +123,7 @@ class RegionFetcher internal constructor(
                 bitmap = decoder.decodeRegion(effectiveRect, options)
             }
 
-            val bytes = BitmapUtils.getBytes(bitmap, recycle = true, decoded = decoded, mimeType)
+            val bytes = BitmapUtils.getBytes(bitmap, recycle = true, decoded = decoded, mimeType = mimeType)
             if (bytes == null) {
                 result.error("fetch-null", "failed to decode region for uri=$uri regionRect=$regionRect", null)
             } else {
@@ -170,7 +170,7 @@ class RegionFetcher internal constructor(
                     if (!encodedExport) {
                         Log.w(LOG_TAG, "failed export via encoded bytes for uri=$uri mimeType=$mimeType pageId=$pageId exportFormat=$exportFormat, with bitmap=${bitmap.describe()}")
 
-                        val decodedBytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, mimeType)
+                        val decodedBytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, mimeType = mimeType)
                         if (decodedBytes != null) {
                             val exportBitmap = createBitmap(bitmap.width, bitmap.height, PREFERRED_CONFIG)
                             exportBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(decodedBytes))

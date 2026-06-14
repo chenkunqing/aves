@@ -131,7 +131,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             }
             if (bitmap != null) {
                 // do not recycle bitmaps fetched from Glide as their lifecycle is unknown
-                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType)
+                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType = mimeType)
                 streamBytes(ByteArrayInputStream(bytes))
             } else {
                 error("streamImage-image-decode-null", "failed to get image for mimeType=$mimeType uri=$uri", null)
@@ -153,7 +153,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             val bitmap = withContext(Dispatchers.IO) { target.get() }
             if (bitmap != null) {
                 // do not recycle bitmaps fetched from Glide as their lifecycle is unknown
-                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType)
+                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType = mimeType)
                 streamBytes(ByteArrayInputStream(bytes))
             } else {
                 error("streamImage-video-null", "failed to get image for mimeType=$mimeType uri=$uri", null)

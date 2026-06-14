@@ -108,7 +108,7 @@ class ThumbnailFetcher internal constructor(
         }
 
         // do not recycle bitmaps fetched from `ContentResolver` or Glide as their lifecycle is unknown
-        val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType)
+        val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType = mimeType)
         if (bytes == null) {
             var errorDetails: String? = exception?.message
             if (errorDetails?.isNotEmpty() == true) {

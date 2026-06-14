@@ -62,9 +62,9 @@ class PlatformMediaFetchService implements MediaFetchService {
   static const _platformObject = AvesMethodChannel('deckers.thibault/aves/media_fetch_object');
   static final _byteStream = AvesStreamsChannel('deckers.thibault/aves/media_byte_stream');
 
-  static const int formatTrailerLength = 1; // single format byte
-  static const int formatByteEncoded = 0xCA;
-  static const int formatByteDecoded = 0xFE;
+  static const int _formatTrailerLength = 1; // single format byte
+  static const int _formatByteEncoded = 0xCA;
+  static const int _formatByteDecoded = 0xFE;
 
   @override
   Future<AvesEntry?> getEntry(String uri, String? mimeType, {bool allowUnsized = false}) async {
@@ -148,14 +148,14 @@ class PlatformMediaFetchService implements MediaFetchService {
   }
 
   Future<ui.Codec> _bytesToCodec(Map<String, dynamic> args, Uint8List bytes, ImageDecoderCallback? decode) async {
-    final trailerOffset = bytes.lengthInBytes - formatTrailerLength;
+    final trailerOffset = bytes.lengthInBytes - _formatTrailerLength;
     if (trailerOffset < 0) {
       throw UnreportedStateError('failed to get image bytes for args=$args');
     }
 
     final format = bytes[trailerOffset];
     switch (format) {
-      case formatByteEncoded:
+      case _formatByteEncoded:
         if (decode == null) {
           throw Exception('failed to decode encoded image bytes because decoder callback is missing for args=$args');
         }
@@ -165,7 +165,7 @@ class PlatformMediaFetchService implements MediaFetchService {
           throw UnreportedStateError('failed to get codec from encoded image bytes for args=$args');
         }
         return codec;
-      case formatByteDecoded:
+      case _formatByteDecoded:
         // bytes are expected to be in ARGB_8888, necessary for wide gamut or HDR
         final descriptor = await InteropDecoding.rawBytesToDescriptor(bytes);
         if (descriptor == null) {
@@ -196,13 +196,13 @@ class PlatformMediaFetchService implements MediaFetchService {
     );
 
     final byteCount = bytes.lengthInBytes;
-    if (byteCount <= formatTrailerLength) {
+    if (byteCount <= _formatTrailerLength) {
       throw UnreportedStateError('failed to get image bytes for request=$request');
     }
 
     // trim custom trailer
     // a view does not reallocate memory and uses the underlying buffer
-    return Uint8List.sublistView(bytes, 0, byteCount - formatTrailerLength);
+    return Uint8List.sublistView(bytes, 0, byteCount - _formatTrailerLength);
   }
 
   @override
