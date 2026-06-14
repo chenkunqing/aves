@@ -23,11 +23,14 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
             "showSystemUI" -> Coresult.safe(call, result, ::showSystemUI)
             "isCutoutAware" -> Coresult.safe(call, result, ::isCutoutAware)
             "getCutoutInsets" -> Coresult.safe(call, result, ::getCutoutInsets)
+
             "supportsWideGamut" -> Coresult.safe(call, result, ::supportsWideGamut)
             "supportsHdr" -> Coresult.safe(call, result, ::supportsHdr)
             "isInWideColorGamutMode" -> Coresult.safe(call, result, ::isInWideColorGamutMode)
             "isInHdrMode" -> Coresult.safe(call, result, ::isInHdrMode)
+            "getDesiredHdrHeadroom" -> Coresult.safe(call, result, ::getDesiredHdrHeadroom)
             "setColorMode" -> Coresult.safe(call, result, ::setColorMode)
+
             "startGlobalDrag" -> Coresult.safe(call, result, ::startGlobalDrag)
             else -> result.notImplemented()
         }
@@ -72,6 +75,8 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
     abstract fun isInWideColorGamutMode(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun isInHdrMode(call: MethodCall, result: MethodChannel.Result)
+
+    abstract fun getDesiredHdrHeadroom(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun setColorMode(call: MethodCall, result: MethodChannel.Result)
 

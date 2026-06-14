@@ -37,6 +37,8 @@ abstract class WindowService {
 
   Future<bool> isInHdrMode();
 
+  Future<double?> getDesiredHdrHeadroom();
+
   Future<void> setColorMode({required bool wideColorGamut, required bool hdr, double? desiredHdrHeadroom});
 
   Future<bool> startGlobalDrag(String uri, String? label, Size shadowSize, Uint8List shadowBytes);
@@ -266,6 +268,17 @@ class PlatformWindowService implements WindowService {
       await reportService.recordError(e, stack);
     }
     return false;
+  }
+
+  @override
+  Future<double?> getDesiredHdrHeadroom() async {
+    try {
+      final result = await _platform.invokeMethod('getDesiredHdrHeadroom');
+      if (result != null) return result as double;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return null;
   }
 
   @override

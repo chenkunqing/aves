@@ -21,6 +21,7 @@ class DebugGeneralSection extends StatefulWidget {
 class _DebugGeneralSectionState extends State<DebugGeneralSection> with AutomaticKeepAliveClientMixin {
   late Future<bool> _wideGamutModeLoader;
   late Future<bool> _hdrModeLoader;
+  late Future<double?> _hdrHeadroomLoader;
 
   static OverlayEntry? _taskQueueOverlayEntry;
 
@@ -33,6 +34,7 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
   void _initLoaders() {
     _wideGamutModeLoader = windowService.isInWideColorGamutMode();
     _hdrModeLoader = windowService.isInHdrMode();
+    _hdrHeadroomLoader = windowService.getDesiredHdrHeadroom();
   }
 
   @override
@@ -104,15 +106,45 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
         ),
         FutureBuilder<bool>(
           future: _hdrModeLoader,
-          builder: (context, snapshot) {
-            return SwitchListTile(
-              value: snapshot.data ?? false,
-              onChanged: (value) async {
-                await windowService.setColorMode(wideColorGamut: false, hdr: value);
-                _initLoaders();
-                setState(() {});
+          builder: (context, hdrModeSnapshot) {
+            final isHdrModeEnabled = hdrModeSnapshot.data ?? false;
+            return FutureBuilder<double?>(
+              future: _hdrHeadroomLoader,
+              builder: (context, hdrHeadroomSnapshot) {
+                final hdrHeadroom = hdrHeadroomSnapshot.data;
+                return Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    SwitchListTile(
+                      value: isHdrModeEnabled,
+                      onChanged: (value) async {
+                        await windowService.setColorMode(wideColorGamut: false, hdr: value);
+                        _initLoaders();
+                        setState(() {});
+                      },
+                      title: const Text('HDR mode'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text('Desired HDR headroom (current: ${hdrHeadroom?.round()})'),
+                    ),
+                    if (hdrHeadroom != null)
+                      Slider(
+                        value: hdrHeadroom,
+                        onChanged: isHdrModeEnabled
+                            ? (v) async {
+                                await windowService.setColorMode(wideColorGamut: false, hdr: true, desiredHdrHeadroom: v);
+                                _initLoaders();
+                                setState(() {});
+                              }
+                            : null,
+                        min: 0.0,
+                        max: 10000.0,
+                        label: '$hdrHeadroom',
+                      ),
+                  ],
+                );
               },
-              title: const Text('HDR mode'),
             );
           },
         ),

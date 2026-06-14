@@ -161,6 +161,15 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
         )
     }
 
+    override fun getDesiredHdrHeadroom(call: MethodCall, result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            result.success(activity.window.desiredHdrHeadroom)
+            return
+        }
+
+        result.success(null)
+    }
+
     override fun setColorMode(call: MethodCall, result: MethodChannel.Result) {
         val wideColorGamut = call.argument<Boolean>("wideColorGamut")
         val hdr = call.argument<Boolean>("hdr")
