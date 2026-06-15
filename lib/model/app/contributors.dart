@@ -115,7 +115,7 @@ class Contributors {
     Contributor('Hasan Kara', 'hasanbeytullahkara@gmail.com'),
     Contributor('Thomas Di Cristofaro', 'hostedweblate.8347@tdc.akamail.it'),
     Contributor('Petrov', 'i_v_c@mail.ru'),
-    Contributor('தமிழ்நேரம்', 'anishprabu.t@gmail.com'),
+    Contributor('தமிழ்நேரம்', 'anishprabu.t@gmail.com'), // tamilneram247@gmail.com
     Contributor('bovirus', 'roberto.boriotti@canon.it'),
     Contributor('Максим Горпиніч', 'maksimgorpinic2005a@gmail.com'),
     Contributor('Priit Jõerüüt', 'hwlate@joeruut.com'),
