@@ -1217,7 +1217,7 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
                     return
                 }
             } catch (e: Exception) {
-                result.error("getIptc-exception", "failed to read IPTC for mimeType=$mimeType uri=$uri", e.message)
+                result.error("getIptc-exception", "failed to read IPTC for mimeType=$mimeType uri=$uri", e.stackTraceToString())
                 return
             }
         }
@@ -1258,13 +1258,13 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
                     }
                 }
             } catch (e: Exception) {
-                result.error("getXmp-exception", "failed to read XMP for mimeType=$mimeType uri=$uri", e.message)
+                result.error("getXmp-exception", "failed to read XMP for mimeType=$mimeType uri=$uri", e.stackTraceToString())
                 return
             } catch (e: NoClassDefFoundError) {
-                result.error("getXmp-noclass", "failed to read XMP for mimeType=$mimeType uri=$uri", e.message)
+                result.error("getXmp-noclass", "failed to read XMP for mimeType=$mimeType uri=$uri", e.stackTraceToString())
                 return
             } catch (e: AssertionError) {
-                result.error("getXmp-assert", "failed to read XMP for mimeType=$mimeType uri=$uri", e.message)
+                result.error("getXmp-assert", "failed to read XMP for mimeType=$mimeType uri=$uri", e.stackTraceToString())
                 return
             }
         }
@@ -1312,7 +1312,7 @@ class MetadataFetchHandler(private val context: Context) : MethodCallHandler {
             val value = context.queryContentPropValue(uri, mimeType, prop)
             result.success(value?.toString())
         } catch (e: Exception) {
-            result.error("getContentPropValue-query", "failed to query prop for uri=$uri", e.message)
+            result.error("getContentPropValue-query", "failed to query prop for uri=$uri", e.stackTraceToString())
         }
     }
 
