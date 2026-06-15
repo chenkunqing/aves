@@ -74,11 +74,11 @@ mixin NavigationSettings on SettingsAccess {
 
   set setMetadataDateBeforeFileOp(bool newValue) => set(SettingKeys.setMetadataDateBeforeFileOpKey, newValue);
 
-  List<CollectionFilter?> get drawerTypeBookmarks =>
-      getStringList(SettingKeys.drawerTypeBookmarksKey)?.map(CollectionFilter.fromJson).nonNulls.toList() ??
-      SettingsDefaults.drawerTypeBookmarks;
+  static const _noFilterPlaceholder = '';
 
-  set drawerTypeBookmarks(List<CollectionFilter?> newValue) => set(SettingKeys.drawerTypeBookmarksKey, newValue.map((filter) => filter?.toJsonString() ?? '').toList());
+  List<CollectionFilter?> get drawerTypeBookmarks => getStringList(SettingKeys.drawerTypeBookmarksKey)?.map((v) => v == _noFilterPlaceholder ? null : CollectionFilter.fromJson(v)).toList() ?? SettingsDefaults.drawerTypeBookmarks;
+
+  set drawerTypeBookmarks(List<CollectionFilter?> newValue) => set(SettingKeys.drawerTypeBookmarksKey, newValue.map((filter) => filter?.toJsonString() ?? _noFilterPlaceholder).toList());
 
   List<AlbumBaseFilter>? get drawerAlbumBookmarks => getStringList(SettingKeys.drawerAlbumBookmarksKey)?.map(CollectionFilter.fromJson).whereType<AlbumBaseFilter>().toList();
 
