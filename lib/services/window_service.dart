@@ -37,6 +37,8 @@ abstract class WindowService {
 
   Future<bool> isInHdrMode();
 
+  Future<double?> getDisplayHdrSdrRatio();
+
   Future<double?> getDesiredHdrHeadroom();
 
   Future<void> setColorMode({required bool wideColorGamut, required bool hdr, double? desiredHdrHeadroom});
@@ -268,6 +270,17 @@ class PlatformWindowService implements WindowService {
       await reportService.recordError(e, stack);
     }
     return false;
+  }
+
+  @override
+  Future<double?> getDisplayHdrSdrRatio() async {
+    try {
+      final result = await _platform.invokeMethod('getDisplayHdrSdrRatio');
+      if (result != null) return result as double;
+    } on PlatformException catch (e, stack) {
+      await reportService.recordError(e, stack);
+    }
+    return null;
   }
 
   @override

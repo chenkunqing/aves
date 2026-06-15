@@ -21,6 +21,7 @@ class DebugGeneralSection extends StatefulWidget {
 class _DebugGeneralSectionState extends State<DebugGeneralSection> with AutomaticKeepAliveClientMixin {
   late Future<bool> _wideGamutModeLoader;
   late Future<bool> _hdrModeLoader;
+  late Future<double?> _displayHdrSdrRatioLoader;
   late Future<double?> _hdrHeadroomLoader;
 
   static OverlayEntry? _taskQueueOverlayEntry;
@@ -34,6 +35,7 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
   void _initLoaders() {
     _wideGamutModeLoader = windowService.isInWideColorGamutMode();
     _hdrModeLoader = windowService.isInHdrMode();
+    _displayHdrSdrRatioLoader = windowService.getDisplayHdrSdrRatio();
     _hdrHeadroomLoader = windowService.getDesiredHdrHeadroom();
   }
 
@@ -122,7 +124,13 @@ class _DebugGeneralSectionState extends State<DebugGeneralSection> with Automati
                         _initLoaders();
                         setState(() {});
                       },
-                      title: const Text('HDR mode'),
+                      title: FutureBuilder<double?>(
+                        future: _displayHdrSdrRatioLoader,
+                        builder: (context, hdrSdrRatioSnapshot) {
+                          final hdrSdrRatio = hdrSdrRatioSnapshot.data;
+                          return Text('HDR mode (ratio: $hdrSdrRatio)');
+                        }
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8),

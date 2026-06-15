@@ -28,6 +28,7 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
             "supportsHdr" -> Coresult.safe(call, result, ::supportsHdr)
             "isInWideColorGamutMode" -> Coresult.safe(call, result, ::isInWideColorGamutMode)
             "isInHdrMode" -> Coresult.safe(call, result, ::isInHdrMode)
+            "getDisplayHdrSdrRatio" -> Coresult.safe(call, result, ::getDisplayHdrSdrRatio)
             "getDesiredHdrHeadroom" -> Coresult.safe(call, result, ::getDesiredHdrHeadroom)
             "setColorMode" -> Coresult.safe(call, result, ::setColorMode)
 
@@ -75,6 +76,8 @@ abstract class WindowHandler(private val contextWrapper: ContextWrapper) : Metho
     abstract fun isInWideColorGamutMode(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun isInHdrMode(call: MethodCall, result: MethodChannel.Result)
+
+    abstract fun getDisplayHdrSdrRatio(call: MethodCall, result: MethodChannel.Result)
 
     abstract fun getDesiredHdrHeadroom(call: MethodCall, result: MethodChannel.Result)
 

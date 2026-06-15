@@ -161,6 +161,15 @@ class ActivityWindowHandler(private val activity: Activity) : WindowHandler(acti
         )
     }
 
+    override fun getDisplayHdrSdrRatio(call: MethodCall, result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            result.success(activity.display.hdrSdrRatio)
+            return
+        }
+
+        result.success(null)
+    }
+
     override fun getDesiredHdrHeadroom(call: MethodCall, result: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             result.success(activity.window.desiredHdrHeadroom)

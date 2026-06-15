@@ -65,6 +65,10 @@ class ServiceWindowHandler(service: Service) : WindowHandler(service) {
         result.success(false)
     }
 
+    override fun getDisplayHdrSdrRatio(call: MethodCall, result: MethodChannel.Result) {
+        result.success(0)
+    }
+
     override fun getDesiredHdrHeadroom(call: MethodCall, result: MethodChannel.Result) {
         result.success(0)
     }
