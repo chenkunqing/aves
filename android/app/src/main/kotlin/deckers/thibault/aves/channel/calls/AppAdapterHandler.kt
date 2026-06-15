@@ -191,7 +191,7 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
                     }
 
                     // do not recycle bitmaps fetched from `ContentResolver` as their lifecycle is unknown
-                    bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, mimeType = null)
+                    bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, applyGainmap = false, mimeType = null)
                 } catch (e: Exception) {
                     Log.w(LOG_TAG, "failed to decode app icon for packageName=$packageName", e)
                 }

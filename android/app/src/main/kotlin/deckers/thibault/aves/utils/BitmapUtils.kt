@@ -25,7 +25,7 @@ object BitmapUtils {
     private const val FORMAT_BYTE_ENCODED: Int = 0xCA
     val FORMAT_BYTE_ENCODED_AS_BYTES: ByteArray = ByteArray(1) { _ -> FORMAT_BYTE_ENCODED.toByte() }
     private const val FORMAT_BYTE_DECODED: Byte = 0xFE.toByte()
-    private const val RAW_BYTES_TRAILER_LENGTH = INT_BYTE_SIZE * 3 + 1
+    const val RAW_BYTES_TRAILER_LENGTH = INT_BYTE_SIZE * 3 + 1
 
     fun Bitmap.describe(): String {
         return "{${
@@ -46,21 +46,21 @@ object BitmapUtils {
 
     const val BYTE_TRAILER_LENGTH = 1
 
-    suspend fun getBytes(bitmap: Bitmap?, recycle: Boolean, decoded: Boolean, useHighBitDepth: Boolean = false, mimeType: String?): ByteArray? {
+    suspend fun getBytes(bitmap: Bitmap?, recycle: Boolean, decoded: Boolean, applyGainmap: Boolean, mimeType: String?): ByteArray? {
         return if (decoded) {
-            getRawBytes(bitmap, recycle = recycle, useHighBitDepth = useHighBitDepth)
+            getRawBytes(bitmap, recycle = recycle, applyGainmap = applyGainmap)
         } else {
             val encodedBytes = getEncodedBytes(bitmap, canHaveAlpha = MimeTypes.canHaveAlpha(mimeType), recycle = recycle)
             if ((encodedBytes?.size ?: 0) <= BYTE_TRAILER_LENGTH) {
                 // fallback when the bitmap cannot directly be compressed to JPEG/PNG
-                getRawBytes(bitmap, recycle = recycle, useHighBitDepth = false)
+                getRawBytes(bitmap, recycle = recycle, applyGainmap = applyGainmap)
             } else {
                 encodedBytes
             }
         }
     }
 
-    private fun getRawBytes(bitmap: Bitmap?, recycle: Boolean, useHighBitDepth: Boolean): ByteArray? {
+    private fun getRawBytes(bitmap: Bitmap?, recycle: Boolean, applyGainmap: Boolean): ByteArray? {
         bitmap ?: return null
 
         val byteCount = bitmap.byteCount
@@ -89,28 +89,32 @@ object BitmapUtils {
 
                     when (sourceConfig) {
                         BitmapConversion.CONFIG_ANDROID_ARGB_8888 -> {
-                            if (useHighBitDepth) {
-                                targetConfig = BitmapConversion.CONFIG_ANDROID_RGBA_1010102
-                                BitmapConversion.fromArgb8888ToRgba1010102(bytes, connector, end = byteCount)
+                            val gainmapPixelTransformer = if (applyGainmap
+                                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                            ) {
+                                GainmapUtils.getGainmapPixelTransformer(bitmap)
+                            } else null
+
+                            if (gainmapPixelTransformer != null) {
+                                targetConfig = BitmapConversion.CONFIG_DART_RGBA_FLOAT32
+                                bytes = BitmapConversion.fromArgb8888ToDartRgbaFloat32(
+                                    bytes,
+                                    connector,
+                                    end = byteCount,
+                                    gainmapPixelTransformer = gainmapPixelTransformer
+                                )
                             } else if (srcColorSpace != dstColorSpace) {
-                                BitmapConversion.fromArgb8888ToArgb8888(bytes, connector, end = byteCount)
+                                bytes = BitmapConversion.fromArgb8888ToArgb8888(bytes, connector, end = byteCount)
                             }
                         }
 
                         BitmapConversion.CONFIG_ANDROID_RGBA_F16 -> {
-                            BitmapConversion.fromRgbaf16ToArgb8888(bytes, connector, end = byteCount)
+                            bytes = BitmapConversion.fromRgbaf16ToArgb8888(bytes, connector, end = byteCount)
                         }
 
                         BitmapConversion.CONFIG_ANDROID_RGBA_1010102 -> {
-                            BitmapConversion.fromRgba1010102ToArgb8888(bytes, connector, end = byteCount)
+                            bytes = BitmapConversion.fromRgba1010102ToArgb8888(bytes, connector, end = byteCount)
                         }
-                    }
-
-                    // truncate if target takes fewer bytes
-                    val byteCountRatio = BitmapConversion.getBytePerPixel(sourceConfig) / BitmapConversion.getBytePerPixel(targetConfig)
-                    if (byteCountRatio > 1) {
-                        val newConfigByteCount = byteCount / byteCountRatio
-                        bytes = bytes.sliceArray(0..<newConfigByteCount + RAW_BYTES_TRAILER_LENGTH)
                     }
                 }
             }

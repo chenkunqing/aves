@@ -66,6 +66,8 @@ class PlatformMediaFetchService implements MediaFetchService {
   static const int _formatByteEncoded = 0xCA;
   static const int _formatByteDecoded = 0xFE;
 
+  static bool applyHdrGainmap = false;
+
   @override
   Future<AvesEntry?> getEntry(String uri, String? mimeType, {bool allowUnsized = false}) async {
     try {
@@ -232,6 +234,7 @@ class PlatformMediaFetchService implements MediaFetchService {
     final args = <String, Object?>{
       'op': 'getRegion',
       'decoded': decoded,
+      'applyGainmap': applyHdrGainmap,
       'uri': request.uri,
       'pageId': request.pageId,
       'mimeType': request.mimeType,

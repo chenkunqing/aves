@@ -21,6 +21,7 @@ import 'package:aves/widgets/debug/colors.dart';
 import 'package:aves/widgets/debug/database.dart';
 import 'package:aves/widgets/debug/general.dart';
 import 'package:aves/widgets/debug/groups.dart';
+import 'package:aves/widgets/debug/hdr.dart';
 import 'package:aves/widgets/debug/leaking.dart';
 import 'package:aves/widgets/debug/media_store_scan_dialog.dart';
 import 'package:aves/widgets/debug/os_apps.dart';
@@ -82,11 +83,12 @@ class AppDebugPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8) + EdgeInsets.only(bottom: mqPaddingBottom),
                   children: const [
                     DebugGeneralSection(),
-                    DebugLeakingSection(),
+                    DebugAppDatabaseSection(),
                     DebugCacheSection(),
                     DebugCapabilitiesSection(),
                     DebugColorSection(),
-                    DebugAppDatabaseSection(),
+                    DebugHdrSection(),
+                    DebugLeakingSection(),
                     DebugSettingsSection(),
                     DebugGroupsSection(),
                     DebugOSAppSection(),

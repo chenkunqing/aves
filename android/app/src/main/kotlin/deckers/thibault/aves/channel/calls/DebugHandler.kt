@@ -518,7 +518,7 @@ class DebugHandler(private val context: Context) : MethodCallHandler {
         }
 
         // do not recycle bitmaps fetched from `ContentResolver` or Glide as their lifecycle is unknown
-        val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType = mimeType)
+        val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, applyGainmap = false, mimeType = mimeType)
 
         if (bytes == null) {
             var errorDetails: String? = exception?.message
