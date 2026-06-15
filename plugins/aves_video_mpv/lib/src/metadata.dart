@@ -426,6 +426,8 @@ class _ThumbnailByteOutput {
   });
 }
 
+const double _rescaleReductionThreshold = .15;
+
 _ThumbnailByteOutput? _getThumbnailBytes(_ThumbnailByteInput input) {
   final bgra = input.bytes;
   final videoWidth = input.videoWidth;
@@ -473,12 +475,15 @@ _ThumbnailByteOutput? _getThumbnailBytes(_ThumbnailByteInput input) {
     final scalingFactor = min(sampledWidth / targetWidth, sampledHeight / targetHeight);
     final dstWidth = (sampledWidth / scalingFactor).round();
     final dstHeight = (sampledHeight / scalingFactor).round();
-    debugPrint(
-      'rescale thumbnail for width=$targetWidth height=$targetHeight'
-      ', with bitmap byteCount=${targetImage.lengthInBytes} size=${sampledWidth}x$sampledHeight'
-      ', to target=${dstWidth}x$dstHeight',
-    );
-    targetImage = img.copyResize(targetImage, width: dstWidth, height: dstHeight);
+    final reduction = 1 - (dstWidth * dstHeight).toDouble() / (sampledWidth * sampledHeight);
+    if (reduction > _rescaleReductionThreshold) {
+      debugPrint(
+        'rescale thumbnail for width=$targetWidth height=$targetHeight'
+        ', with bitmap byteCount=${targetImage.lengthInBytes} size=${sampledWidth}x$sampledHeight, to target=${dstWidth}x$dstHeight'
+        ', reduced by ${((reduction) * 100).round()}%)',
+      );
+      targetImage = img.copyResize(targetImage, width: dstWidth, height: dstHeight);
+    }
   }
 
   if (videoRotationDegrees > 0) {
