@@ -190,10 +190,10 @@ class Contributors {
     // Contributor('AJ07', 'ajaykumarmeena676@gmail.com'), // Hindi
     // Contributor('Sartaj', 'ssaarrttaajj111@gmail.com'), // Hindi
     // Contributor('Anurag Samota', 'anuragsamotasamota@gmail.com'), // Hindi
-    // Contributor('GoRaN', 'gorangharib.909@gmail.com'), // Kurdish (Central)
-    // Contributor('Rasti K5', 'rasti.khdhr@gmail.com'), // Kurdish (Central)
-    // Contributor('CYAXXX', 'ferhad.hasan9624@gmail.com'), // Kurdish (Northern)
-    // Contributor('Cx', 'cyax1@proton.me'), // Kurdish (Northern)
+    // Contributor('GoRaN', 'gorangharib.909@gmail.com'), // Kurdish (Sorani, Central)
+    // Contributor('Rasti K5', 'rasti.khdhr@gmail.com'), // Kurdish (Sorani, Central)
+    // Contributor('CYAXXX', 'ferhad.hasan9624@gmail.com'), // Kurdish (Kurmanji, Northern)
+    // Contributor('Cx', 'cyax1@proton.me'), // Kurdish (Kurmanji, Northern)
     // Contributor('Raman', 'xysed@tutanota.com'), // Malayalam
     // Contributor('Akhil Raj', 'akhilakae07@gmail.com'), // Malayalam
     // Contributor('Over Barrow', 'rawixo6748@insfou.com'), // Nepali
