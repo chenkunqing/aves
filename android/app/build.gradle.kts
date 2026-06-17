@@ -54,6 +54,8 @@ android {
         jvmToolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
             vendor.set(JvmVendorSpec.ADOPTIUM) // Temurin
+            // for consistency, refresh `gradle-daemon-jvm.properties` with the following:
+            // ./gradlew updateDaemonJvm --jvm-version=21 --jvm-vendor=ADOPTIUM
         }
     }
 
