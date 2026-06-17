@@ -22,32 +22,39 @@ class MapDecorator extends StatelessWidget {
     // i.e. map corner radius = button corner radius + padding
     final visualDensity = context.select<MapThemeData, VisualDensity>((v) => v.visualDensity);
     final buttonPadding = context.select<MapThemeData, double>((v) => v.buttonPadding);
+    final scale = context.select<MapThemeData, Animation<double>>((v) => v.scale);
     final innerRadius = (kMinInteractiveDimension + visualDensity.horizontal * 4) / 2; // from `IconButton` and `VisualDensity`
     final outerRadius = innerRadius + buttonPadding;
-    final mapBorderRadius = BorderRadius.all(Radius.circular(outerRadius));
 
-    Widget _child = ClipRRect(
-      borderRadius: mapBorderRadius,
-      child: Container(
-        color: mapBackground,
-        foregroundDecoration: BoxDecoration(
-          border: AvesBorder.border(context),
+    Widget _child = AnimatedBuilder(
+      animation: scale,
+      builder: (context, child) {
+        final mapBorderRadius = BorderRadius.all(Radius.circular(outerRadius * scale.value));
+        return ClipRRect(
           borderRadius: mapBorderRadius,
-        ),
-        child: Stack(
-          children: [
-            const GridPaper(
-              color: mapLoadingGrid,
-              interval: 10,
-              divisions: 1,
-              subdivisions: 1,
-              child: CustomPaint(
-                size: Size.infinite,
-              ),
+          child: Container(
+            color: mapBackground,
+            foregroundDecoration: BoxDecoration(
+              border: AvesBorder.border(context),
+              borderRadius: mapBorderRadius,
             ),
-            child,
-          ],
-        ),
+            child: child,
+          ),
+        );
+      },
+      child: Stack(
+        children: [
+          const GridPaper(
+            color: mapLoadingGrid,
+            interval: 10,
+            divisions: 1,
+            subdivisions: 1,
+            child: CustomPaint(
+              size: Size.infinite,
+            ),
+          ),
+          child,
+        ],
       ),
     );
 
