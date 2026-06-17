@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Video: slow motion range control
 - Map: show paths
 - Settings: automatic export option
+- Kurdish (Kurmanji) translation (thanks CYAXXX)
 
 ### Changed
 

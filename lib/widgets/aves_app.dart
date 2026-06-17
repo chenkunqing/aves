@@ -75,7 +75,6 @@ class AvesApp extends StatefulWidget {
     'he', // Hebrew
     'hi', // Hindi
     'hr', // Croatian
-    'kmr', // Kurdish (Kurmanji, Northern)
     'ml', // Malayalam
     'my', // Burmese
     'ne', // Nepali
@@ -312,6 +311,7 @@ class _AvesAppState extends State<AvesApp> with WidgetsBindingObserver {
                                 localizationsDelegates: const [
                                   // order matters for resolution of sublocales (e.g. `en_Shaw` before `en`)
                                   ...LocalizationsEnShaw.delegates,
+                                  ...LocalizationsKmr.delegates,
                                   ...LocalizationsNn.delegates,
                                   ...AppLocalizations.localizationsDelegates,
                                 ],
