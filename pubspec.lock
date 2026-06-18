@@ -464,7 +464,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "78f221248e9ccdd82e0a742b3224d437da862fc2"
+      resolved-ref: "4d664e32a579fcd0f834dda836549348328d53b9"
       url: "https://github.com/deckerst/flutter_localizations_plus.git"
     source: git
     version: "0.0.1"
@@ -724,6 +724,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  kurd_localization:
+    dependency: transitive
+    description:
+      name: kurd_localization
+      sha256: ba283a76fc04818ccf9c067bccc05a0350f46aad0a322a3090631adbd3caf183
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   latlong2:
     dependency: "direct main"
     description:
