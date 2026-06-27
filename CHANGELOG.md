@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Collection: copy to clipboard
 - "show" action in hidden filter chip context menu
 
 ## <a id="v1.14.8"></a>[v1.14.8] - 2026-06-25

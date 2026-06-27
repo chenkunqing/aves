@@ -789,6 +789,7 @@ class _CollectionAppBarState extends State<CollectionAppBar> with RouteAware, Si
       case .move:
       case .rename:
       case .convert:
+      case .copyToClipboard:
       case .exportGpx:
       case .toggleFavourite:
       case .rotateCCW:

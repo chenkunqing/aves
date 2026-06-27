@@ -114,6 +114,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .share:
       case .toggleFavourite:
         return isMain && isSelecting && !isTrash;
+      case .copyToClipboard:
+        return isMain && isSelecting && !isTrash && !useTvLayout;
       case .delete:
         return isMain && isSelecting && canWrite;
       case .copy:
@@ -182,6 +184,7 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .move:
       case .rename:
       case .convert:
+      case .copyToClipboard:
       case .exportGpx:
       case .toggleFavourite:
       case .rotateCCW:
@@ -249,6 +252,8 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
         _rename(context);
       case .convert:
         _convert(context);
+      case .copyToClipboard:
+        _copyToClipboard(context);
       case .exportGpx:
         _exportGpx(context);
       case .toggleFavourite:
@@ -431,6 +436,16 @@ class EntrySetActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAware
       case .convertMotionPhotoToStillImage:
         final todoEntries = entries.where((entry) => entry.isMotionPhoto).toSet();
         await _edit(context, todoEntries, (entry) => entry.removeTrailerVideo());
+    }
+  }
+
+  Future<void> _copyToClipboard(BuildContext context) async {
+    final entries = _getTargetItems(context);
+    final success = entries.isNotEmpty && await appService.copyToClipboard(label: entries.first.bestTitle, uris: entries.map((entry) => entry.uri).toList());
+    if (success) {
+      showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
+    } else {
+      showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
     }
   }
 

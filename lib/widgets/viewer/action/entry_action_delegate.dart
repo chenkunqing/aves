@@ -195,13 +195,7 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
       case .addShortcut:
         _addShortcut(context, targetEntry);
       case .copyToClipboard:
-        appService.copyToClipboard(label: targetEntry.bestTitle, uri: targetEntry.uri).then((success) {
-          if (success) {
-            showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
-          } else {
-            showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
-          }
-        });
+        _copyToClipboard(context, targetEntry);
       case .delete:
         _delete(context, targetEntry);
       case .restore:
@@ -471,6 +465,15 @@ class EntryActionDelegate with FeedbackMixin, PermissionAwareMixin, SizeAwareMix
         await doExport(context, {targetEntry}, options);
       case .convertMotionPhotoToStillImage:
         await _metadataActionDelegate.onActionSelected(context, targetEntry, collection, EntryAction.convertMotionPhotoToStillImage);
+    }
+  }
+
+  Future<void> _copyToClipboard(BuildContext context, AvesEntry targetEntry) async {
+    final success = await appService.copyToClipboard(label: targetEntry.bestTitle, uris: [targetEntry.uri]);
+    if (success) {
+      showFeedback(context, FeedbackType.info, context.l10n.genericSuccessFeedback);
+    } else {
+      showFeedback(context, FeedbackType.warn, context.l10n.genericFailureFeedback);
     }
   }
 
