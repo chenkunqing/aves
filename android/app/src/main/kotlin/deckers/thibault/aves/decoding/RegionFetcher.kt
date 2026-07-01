@@ -22,6 +22,8 @@ import deckers.thibault.aves.utils.MathUtils
 import deckers.thibault.aves.utils.MemoryUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.StorageUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.concurrent.locks.ReentrantLock
@@ -39,6 +41,7 @@ class RegionFetcher internal constructor(
         uri: Uri,
         pageId: Int?,
         decoded: Boolean,
+        applyGainmap: Boolean,
         mimeType: String,
         sampleSize: Int,
         regionRect: Rect,
@@ -54,6 +57,7 @@ class RegionFetcher internal constructor(
                 uri = exportUri,
                 pageId = null,
                 decoded = decoded,
+                applyGainmap = applyGainmap,
                 mimeType = EXPORT_MIME_TYPE,
                 sampleSize = sampleSize,
                 regionRect = regionRect,
@@ -121,7 +125,7 @@ class RegionFetcher internal constructor(
                 bitmap = decoder.decodeRegion(effectiveRect, options)
             }
 
-            val bytes = BitmapUtils.getBytes(bitmap, recycle = true, decoded = decoded, mimeType)
+            val bytes = BitmapUtils.getBytes(bitmap, recycle = true, decoded = decoded, applyGainmap = applyGainmap, mimeType = mimeType)
             if (bytes == null) {
                 result.error("fetch-null", "failed to decode region for uri=$uri regionRect=$regionRect", null)
             } else {
@@ -136,6 +140,7 @@ class RegionFetcher internal constructor(
                     uri = exportUri,
                     pageId = null,
                     decoded = decoded,
+                    applyGainmap = applyGainmap,
                     mimeType = EXPORT_MIME_TYPE,
                     sampleSize = sampleSize,
                     regionRect = regionRect,
@@ -161,14 +166,14 @@ class RegionFetcher internal constructor(
             .submit()
 
         try {
-            val bitmap = target.get()
+            val bitmap = withContext(Dispatchers.IO) { target.get() }
             val tempFile = StorageUtils.createTempFile(context).apply {
                 outputStream().use { output ->
                     val encodedExport = bitmap.compress(exportFormat, 100, output)
                     if (!encodedExport) {
                         Log.w(LOG_TAG, "failed export via encoded bytes for uri=$uri mimeType=$mimeType pageId=$pageId exportFormat=$exportFormat, with bitmap=${bitmap.describe()}")
 
-                        val decodedBytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, mimeType)
+                        val decodedBytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, applyGainmap = false, mimeType = mimeType)
                         if (decodedBytes != null) {
                             val exportBitmap = createBitmap(bitmap.width, bitmap.height, PREFERRED_CONFIG)
                             exportBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(decodedBytes))
@@ -207,6 +212,7 @@ class RegionFetcher internal constructor(
                 var decoderRef = decoderPool.firstOrNull { it.requestKey == requestKey }
                 if (decoderRef == null) {
                     val newDecoder = StorageUtils.openInputStream(context, uri)?.use { input ->
+                        Log.d(LOG_TAG, "create region decoder for requestKey=$requestKey")
                         BitmapRegionDecoderCompat.newInstance(input)
                     }
                     if (newDecoder == null) {
@@ -217,10 +223,22 @@ class RegionFetcher internal constructor(
                     decoderPool.remove(decoderRef)
                 }
                 decoderPool.add(0, decoderRef)
-                while (decoderPool.size > DECODER_POOL_SIZE) {
-                    decoderPool.removeAt(decoderPool.size - 1)
-                }
+                trimDecoderPool(DECODER_POOL_SIZE)
                 return decoderRef.decoder
+            }
+        }
+
+        fun clearDecoders() {
+            poolLock.withLock {
+                trimDecoderPool(0)
+            }
+        }
+
+        private fun trimDecoderPool(size: Int) {
+            while (decoderPool.size > size) {
+                val oldDecoderRef = decoderPool.removeAt(decoderPool.size - 1)
+                Log.d(LOG_TAG, "recycle region decoder for requestKey=${oldDecoderRef.requestKey}")
+                oldDecoderRef.decoder.recycle()
             }
         }
     }

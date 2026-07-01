@@ -14,7 +14,6 @@ import deckers.thibault.aves.glide.AvesAppGlideModule
 import deckers.thibault.aves.model.EntryFields
 import deckers.thibault.aves.utils.BitmapUtils
 import deckers.thibault.aves.utils.BitmapUtils.applyExifOrientation
-import deckers.thibault.aves.utils.ContextUtils.devicePixelRatio
 import deckers.thibault.aves.utils.LogUtils
 import deckers.thibault.aves.utils.MimeTypes
 import deckers.thibault.aves.utils.MimeTypes.handleEncodedBytesInFlutter
@@ -27,18 +26,18 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.Date
-import kotlin.math.roundToInt
 
 class ImageByteStreamHandler(private val context: Context, private val arguments: Any?) : BaseStreamHandler(), ByteSink {
     private var op: String? = null
     private var decoded: Boolean = false
+    private var applyGainmap: Boolean = false
     private val regionFetcher = RegionFetcher(context)
-    private val density = context.devicePixelRatio()
 
     init {
         if (arguments is Map<*, *>) {
             op = arguments["op"] as String?
             decoded = arguments["decoded"] as Boolean
+            applyGainmap = arguments["applyGainmap"] as Boolean? ?: false
         }
     }
 
@@ -98,6 +97,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
                 rotationDegrees = rotationDegrees,
                 isFlipped = isFlipped,
                 decoded = decoded,
+                applyGainmap = applyGainmap,
             )
         }
     }
@@ -121,6 +121,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
         rotationDegrees: Int,
         isFlipped: Boolean,
         decoded: Boolean,
+        applyGainmap: Boolean
     ) {
         val target = Glide.with(context)
             .asBitmap()
@@ -134,7 +135,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             }
             if (bitmap != null) {
                 // do not recycle bitmaps fetched from Glide as their lifecycle is unknown
-                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType)
+                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, applyGainmap = applyGainmap, mimeType = mimeType)
                 streamBytes(ByteArrayInputStream(bytes))
             } else {
                 error("streamImage-image-decode-null", "failed to get image for mimeType=$mimeType uri=$uri", null)
@@ -156,7 +157,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             val bitmap = withContext(Dispatchers.IO) { target.get() }
             if (bitmap != null) {
                 // do not recycle bitmaps fetched from Glide as their lifecycle is unknown
-                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, mimeType)
+                val bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = decoded, applyGainmap = false, mimeType = mimeType)
                 streamBytes(ByteArrayInputStream(bytes))
             } else {
                 error("streamImage-video-null", "failed to get image for mimeType=$mimeType uri=$uri", null)
@@ -216,6 +217,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
                 uri = uri,
                 pageId = pageId,
                 decoded = decoded,
+                applyGainmap = applyGainmap,
                 mimeType = mimeType,
                 sampleSize = sampleSize,
                 regionRect = regionRect,
@@ -231,7 +233,7 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             return
         }
 
-        val uri = arguments[EntryFields.URI] as String?
+        val uri = (arguments[EntryFields.URI] as String?)?.toUri()
         val pageId = arguments["pageId"] as Int?
         val mimeType = arguments[EntryFields.MIME_TYPE] as String?
         val dateModifiedMillis = (arguments[EntryFields.DATE_MODIFIED_MILLIS] as Number?)?.toLong()
@@ -239,10 +241,8 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
         val isFlipped = arguments[EntryFields.IS_FLIPPED] as Boolean?
         val widthDip = (arguments["widthDip"] as Number?)?.toDouble()
         val heightDip = (arguments["heightDip"] as Number?)?.toDouble()
-        val defaultSizeDip = (arguments["defaultSizeDip"] as Number?)?.toDouble()
-        val quality = arguments["quality"] as Int?
 
-        if (uri == null || mimeType == null || rotationDegrees == null || isFlipped == null || widthDip == null || heightDip == null || defaultSizeDip == null || quality == null) {
+        if (uri == null || mimeType == null || rotationDegrees == null || isFlipped == null || widthDip == null || heightDip == null) {
             error("getThumbnail-args", "missing arguments", null)
             return
         }
@@ -257,10 +257,8 @@ class ImageByteStreamHandler(private val context: Context, private val arguments
             dateModifiedMillis = dateModifiedMillis ?: (Date().time),
             rotationDegrees = rotationDegrees,
             isFlipped = isFlipped,
-            width = (widthDip * density).roundToInt(),
-            height = (heightDip * density).roundToInt(),
-            defaultSize = (defaultSizeDip * density).roundToInt(),
-            quality = quality,
+            widthDip = widthDip,
+            heightDip = heightDip,
             result = this,
         ).fetch()
     }

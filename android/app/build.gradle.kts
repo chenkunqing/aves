@@ -4,7 +4,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.ksp)
-    id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -39,7 +38,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "deckers.thibault.aves"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -52,7 +51,12 @@ android {
         // Gradle looks up toolchain JDKs (for this app and each of its modules)
         // among locally installed JDKs (including in `~/.gradle/jdks/` and `~/jdks`)
         // and download them from configured repositories if necessary.
-        jvmToolchain(21)
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            vendor.set(JvmVendorSpec.ADOPTIUM) // Temurin
+            // for consistency, refresh `gradle-daemon-jvm.properties` with the following:
+            // ./gradlew updateDaemonJvm --jvm-version=21 --jvm-vendor=ADOPTIUM
+        }
     }
 
     defaultConfig {
@@ -100,6 +104,10 @@ android {
             dimension = "store"
             applicationIdSuffix = ".libre"
         }
+    }
+
+    buildFeatures {
+        resValues = true
     }
 
     buildTypes {
@@ -203,6 +211,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.ktx)
+    implementation(libs.androidx.performance)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.media)
     implementation(libs.androidx.multidex)

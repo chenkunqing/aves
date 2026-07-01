@@ -1,33 +1,34 @@
 [versions]
 androidDesugarJdkLibs = "2.1.5"
 # AGP and tools should be updated together
-androidGradlePlugin = "8.13.2"
+androidGradlePlugin = "9.2.1"
 androidSvg = "c7e58e8e59"
 androidxAnnotation = "1.10.0"
 androidxAppcompat = "1.7.1"
-androidxCoreKtx = "1.18.0"
-androidxLifecycle = "2.10.0"
-androidxMedia = "1.7.1"
+androidxCoreKtx = "1.19.0"
+androidxCorePerformance = "1.0.0"
+androidxLifecycle = "2.11.0"
+androidxMedia = "1.8.0"
 androidxMultidex = "2.0.1"
 androidxSecurity = "1.1.0"
 androidxWork = "2.11.2"
 commonswareCwac = "0.5.0"
 firebase = "3.0.7"
-glide = "5.0.5"
-gms = "4.4.4"
+glide = "5.0.7"
+gms = "4.5.0"
 jspecify = "1.0.0"
-junit = "6.0.3"
-kotlin = "2.3.0"
-kotlinxCoroutines = "1.10.2"
-ksp = "2.3.5"
-material = "1.13.0"
+junit = "6.1.0"
+kotlin = "2.3.21"
+kotlinxCoroutines = "1.11.0"
+ksp = "2.3.8"
+material = "1.14.0"
 metadataExtractor = "2.20.0"
 mlkitFaceDetection = "16.1.7"
 tensorflowLite = "2.16.1"
 tensorflowLiteSupport = "0.4.4"
 mp4parser = "c2898f1832"
 pixymeta = "f4513291b7"
-slf4j = "2.0.17"
+slf4j = "2.0.18"
 tiffBitmapFactory = "424b18a4ae"
 reproducibleBuilds = "1.1"
 
@@ -36,6 +37,7 @@ android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", versio
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppcompat" }
 androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-performance = { group = "androidx.core", name = "core-performance", version.ref = "androidxCorePerformance" }
 androidx-lifecycle = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-media = { module = "androidx.media:media", version.ref = "androidxMedia" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "androidxMultidex" }

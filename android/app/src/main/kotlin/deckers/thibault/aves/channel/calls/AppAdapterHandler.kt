@@ -191,7 +191,7 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
                     }
 
                     // do not recycle bitmaps fetched from `ContentResolver` as their lifecycle is unknown
-                    bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, mimeType = null)
+                    bytes = BitmapUtils.getBytes(bitmap, recycle = false, decoded = true, applyGainmap = false, mimeType = null)
                 } catch (e: Exception) {
                     Log.w(LOG_TAG, "failed to decode app icon for packageName=$packageName", e)
                 }
@@ -211,8 +211,8 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
     private fun copyToClipboard(call: MethodCall, result: MethodChannel.Result) {
         val label = call.argument<String>("label")
         val text = call.argument<String>("text")
-        val uri = call.argument<String>("uri")?.toUri()
-        if (text == null && uri == null) {
+        val uris = call.argument<List<String>>("uris")?.map { it.toUri() }
+        if (text == null && uris.isNullOrEmpty()) {
             result.error("copyToClipboard-args", "missing arguments", null)
             return
         }
@@ -221,21 +221,32 @@ class AppAdapterHandler(private val context: Context) : MethodCallHandler {
         // (e.g. Samsung S7 with Android 8.0 / API 26, but not on Tab A 10.1 with Android 8.1 / API 27)
         Handler(Looper.getMainLooper()).post {
             try {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                if (clipboard != null) {
+                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                if (clipboardManager != null) {
                     val clip: ClipData
-                    if (uri != null) {
-                        clip = ClipData.newUri(context.contentResolver, label, getShareableUri(context, uri))
+                    if (!uris.isNullOrEmpty()) {
+                        val resolver = context.contentResolver
+                        clip = ClipData.newUri(resolver, label, getShareableUri(context, uris.first()))
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            uris.drop(1).forEach {
+                                clip.addItem(resolver, ClipData.Item(getShareableUri(context, it)))
+                            }
+                        }
                     } else {
                         clip = ClipData.newPlainText(label, text)
                     }
-                    clipboard.setPrimaryClip(clip)
+                    Log.d(LOG_TAG, "copy to clipboard clip=${clip}")
+                    clipboardManager.setPrimaryClip(clip)
                     result.success(true)
                 } else {
                     result.success(false)
                 }
             } catch (e: Exception) {
-                result.error("copyToClipboard-exception", "failed to set clip", e.message)
+                if (e.anyCauseIs<TransactionTooLargeException>()) {
+                    result.error("copyToClipboard-large", "transaction too large with text=${text?.length} chars", e)
+                } else {
+                    result.error("copyToClipboard-exception", "failed to set clip", e.message)
+                }
             }
         }
     }
